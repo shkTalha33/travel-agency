@@ -3,7 +3,7 @@ import { AdminAuthProvider } from '@/context/AdminAuthContext';
 import { LanguageProvider } from '@/context/LanguageContext';
 
 export const metadata = {
-  title: 'Viajes Dominicana — Portal Administrativo',
+  title: 'Círculo Wingding — Portal Administrativo',
   description: 'Sistema integral de gestión de ofertas, miembros, comisiones y redenciones.',
 };
 

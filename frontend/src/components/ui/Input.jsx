@@ -35,7 +35,7 @@ export default function Input({
           required={required}
           aria-invalid={!!error}
           aria-describedby={describedBy}
-          className={`w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400 outline-none focus:outline-none focus:ring-0 disabled:bg-slate-100 disabled:text-slate-500 ${icon ? 'pl-10' : ''} ${isPassword ? 'pr-10' : ''} ${error ? 'border-rose-500 focus:border-rose-500' : 'border-slate-300 hover:border-slate-400 focus:border-gold-500'}`}
+          className={`w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400 outline-none focus:outline-none focus:ring-0 disabled:bg-slate-100 disabled:text-slate-500 ${icon ? 'pl-10' : ''} ${isPassword ? 'pr-10' : ''} ${error ? 'border-rose-500 focus:border-rose-500' : 'border-slate-300 hover:border-slate-400 focus:border-ocean-600'}`}
           {...props}
         />
         {isPassword && (

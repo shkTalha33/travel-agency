@@ -32,11 +32,11 @@ export default function Tabs({ tabs = [], activeTab, onChange, className = '', l
             tabIndex={active ? 0 : -1}
             onClick={() => onChange(tab.id)}
             onKeyDown={(e) => onKeyDown(e, i)}
-            className={`flex select-none items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-200 sm:text-sm ${active ? 'bg-white text-navy-900 shadow-sm' : 'text-slate-600 hover:bg-white/50 hover:text-navy-900'}`}
+            className={`flex select-none items-center gap-2 whitespace-nowrap rounded-xl px-4 py-2 text-xs font-semibold transition-all duration-200 sm:text-sm ${active ? 'bg-ocean-600 text-white shadow-sm font-bold' : 'text-slate-600 hover:bg-white/80 hover:text-ocean-600'}`}
           >
             {tab.icon && <span className="shrink-0" aria-hidden="true">{tab.icon}</span>}
             <span>{tab.label}</span>
-            {tab.count !== undefined && <span className={`rounded-full px-1.5 text-[11px] ${active ? 'bg-navy-900 text-white' : 'bg-slate-200 text-slate-700'}`}>{tab.count}</span>}
+            {tab.count !== undefined && <span className={`rounded-full px-1.5 text-[11px] ${active ? 'bg-white/20 text-white font-bold' : 'bg-slate-200 text-slate-700'}`}>{tab.count}</span>}
           </button>
         );
       })}

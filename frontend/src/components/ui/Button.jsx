@@ -18,12 +18,12 @@ export default function Button({
   const baseStyles = 'inline-flex items-center justify-center font-medium transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none whitespace-nowrap';
 
   const variants = {
-    primary: 'bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 text-navy-950 font-bold hover:brightness-105 hover:shadow-md focus:ring-gold-400 border border-gold-400/60 shadow-soft transition-all duration-200',
-    gold: 'bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 text-navy-950 font-bold hover:brightness-105 hover:shadow-md focus:ring-gold-400 border border-gold-400/60 shadow-soft transition-all duration-200',
+    primary: 'bg-ocean-600 text-white font-bold hover:bg-ocean-700 hover:shadow-md focus:ring-ocean-500 border border-ocean-600 shadow-soft transition-all duration-200',
+    gold: 'bg-ocean-600 text-white font-bold hover:bg-ocean-700 hover:shadow-md focus:ring-ocean-500 border border-ocean-600 shadow-soft transition-all duration-200',
     navy: 'bg-navy-900 text-white hover:bg-navy-800 focus:ring-navy-900 shadow-soft',
     ocean: 'bg-ocean-600 text-white hover:bg-ocean-700 focus:ring-ocean-500 shadow-soft',
     secondary: 'bg-white text-navy-900 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 focus:ring-navy-900',
-    outline: 'bg-transparent text-navy-900 border border-gold-500/60 hover:border-gold-500 hover:bg-gold-500/10 focus:ring-gold-400',
+    outline: 'bg-transparent text-ocean-600 border border-ocean-600/60 hover:border-ocean-600 hover:bg-ocean-50 focus:ring-ocean-500',
     ghost: 'bg-transparent text-slate-700 hover:text-navy-900 hover:bg-slate-100/80 focus:ring-slate-300',
     danger: 'bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500 shadow-soft',
   };

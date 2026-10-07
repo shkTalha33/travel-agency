@@ -1,8 +1,37 @@
-
-# Playwright
+# Playwright & Testing
 node_modules/
 /test-results/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+playwright-report/
+test-results/
+
+# Build outputs & caches
+.next/
+out/
+build/
+dist/
+.turbo/
+.cache/
+coverage/
+
+# Secrets & Configs
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.crt
+service_account.json
+service-account.json
+*service_account*.json
+credentials.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*

@@ -32,16 +32,20 @@ export default function DashboardShell({ children }) {
 
   const sidebar = (
     <div className="flex h-full flex-col">
-      <Link href="/" className="flex h-16 items-center gap-2 border-b border-white/10 px-5 font-serif text-lg font-bold text-white">
-        <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gold-500 text-navy-950"><Compass size={18} aria-hidden="true" /></span>
-        {t('brand')}
+      <Link href="/" className="flex h-16 items-center gap-2.5 border-b border-white/10 px-5 font-serif text-lg font-bold text-white">
+        <img
+          src="/logo.jpg"
+          alt="Círculo Wingding Logo"
+          className="h-8 w-8 rounded-lg object-cover shadow-sm border border-white/20"
+        />
+        {t('brand', 'Círculo Wingding')}
       </Link>
       <nav className="flex-1 space-y-1 p-3" aria-label={t('panel.memberNav')}>
         {PANEL_NAV.map(({ key, href, icon }) => {
           const Icon = ICONS[icon];
           const active = pathname === href;
           return (
-            <Link key={href} href={href} aria-current={active ? 'page' : undefined} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors ${active ? 'bg-white/10 text-gold-400' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}>
+            <Link key={href} href={href} aria-current={active ? 'page' : undefined} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors ${active ? 'bg-ocean-600 text-white font-bold shadow-sm' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}>
               <Icon size={18} aria-hidden="true" />{t(`panel.${key}`)}
             </Link>
           );
@@ -51,7 +55,7 @@ export default function DashboardShell({ children }) {
         <p className="mb-2 px-3 text-[11px] uppercase tracking-wider text-slate-400">{t('panel.demo')}</p>
         <div className="mb-3 grid grid-cols-2 gap-1.5">
           {DEMO_IDS.map((k) => (
-            <button key={k} onClick={() => switchDemoAccount(k)} aria-pressed={currentUser.membershipId === k} className={`rounded-lg border px-2 py-1.5 text-[11px] transition-colors ${currentUser.membershipId === k ? 'border-gold-400 text-gold-400' : 'border-white/10 text-slate-300 hover:text-white'}`}>{copy.levels[k].name}</button>
+            <button key={k} onClick={() => switchDemoAccount(k)} aria-pressed={currentUser.membershipId === k} className={`rounded-lg border px-2 py-1.5 text-[11px] transition-colors ${currentUser.membershipId === k ? 'border-ocean-500 bg-ocean-500/20 text-ocean-300 font-bold' : 'border-white/10 text-slate-300 hover:text-white'}`}>{copy.levels[k].name}</button>
           ))}
         </div>
         <button onClick={doLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 hover:bg-white/5">

@@ -82,7 +82,7 @@ export default function NetworkPage() {
             </p>
           </div>
           <div className="flex items-center gap-3">
-            <InviteButton link={currentUser.referralLink} variant="gold" size="md" className="shadow-sm" />
+            <InviteButton link={currentUser.referralLink} variant="primary" size="md" className="shadow-sm" />
           </div>
         </div>
       </CardSpotlight>

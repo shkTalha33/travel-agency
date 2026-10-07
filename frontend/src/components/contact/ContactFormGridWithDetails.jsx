@@ -201,7 +201,7 @@ export default function ContactFormGridWithDetails() {
                   </p>
                   <div className="mt-6 flex justify-center">
                     <Button
-                      variant="gold"
+                      variant="primary"
                       onClick={resetForm}
                       className="rounded-2xl px-6 py-2.5 font-bold shadow-md"
                     >
@@ -313,12 +313,12 @@ export default function ContactFormGridWithDetails() {
                   <div className="pt-2">
                     <Button
                       type="submit"
-                      variant="gold"
+                      variant="primary"
                       size="lg"
                       className="w-full rounded-2xl py-3.5 text-sm font-bold shadow-md transition-all hover:scale-[1.01] active:scale-[0.99]"
                       isLoading={loading}
                     >
-                      <Send size={16} className="text-navy-950" />
+                      <Send size={16} className="text-white" />
                       <span>
                         {loading 
                           ? (isEn ? 'Submitting...' : 'Enviando...') 

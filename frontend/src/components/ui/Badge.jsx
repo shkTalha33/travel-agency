@@ -13,15 +13,15 @@ export default function Badge({
     default: 'bg-slate-100 text-slate-700 border-slate-200',
     primary: 'bg-navy-900 text-white border-navy-900',
     ocean: 'bg-ocean-50 text-ocean-700 border-ocean-200',
-    gold: 'bg-gold-50 text-gold-800 border-gold-300',
+    gold: 'bg-ocean-50 text-ocean-700 border-ocean-200',
     success: 'bg-emerald-50 text-emerald-700 border-emerald-200',
     warning: 'bg-amber-50 text-amber-700 border-amber-200',
     rose: 'bg-rose-50 text-rose-700 border-rose-200',
     // Specific membership level variants
     member: 'bg-slate-100 text-slate-700 border-slate-300 font-medium',
     active_member: 'bg-ocean-100 text-ocean-800 border-ocean-300 font-semibold',
-    ambassador: 'bg-gold-100 text-gold-800 border-gold-300 font-semibold',
-    elite_ambassador: 'bg-navy-900 text-gold-300 border-gold-400/50 font-bold',
+    ambassador: 'bg-ocean-100 text-ocean-800 border-ocean-300 font-semibold',
+    elite_ambassador: 'bg-navy-900 text-ocean-300 border-ocean-500/50 font-bold',
   };
 
   const sizes = {

@@ -164,17 +164,17 @@ export default function OfferDetailPage({ params }) {
               <p className="font-serif text-4xl font-bold text-navy-900 mt-1">${offer.priceUSD.toLocaleString('en-US')}</p>
               <p className="mt-1 text-xs text-slate-500">{(d.perPerson || 'por persona')} · {offer.duration}</p>
 
-              <div className="mt-5 rounded-2xl border border-gold-300/80 bg-gold-50 p-3.5 flex items-center justify-between">
+              <div className="mt-5 rounded-2xl border border-ocean-200 bg-ocean-50 p-3.5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Sparkles size={16} className="text-gold-600" />
-                  <span className="text-xs font-bold text-gold-900">{d.referralReward || 'Recompensa de Referido'}</span>
+                  <Sparkles size={16} className="text-ocean-600" />
+                  <span className="text-xs font-bold text-ocean-900">{d.referralReward || 'Recompensa de Referido'}</span>
                 </div>
-                <Badge variant="gold" size="sm">+{offer.pointsReward} {copy.common.pts}</Badge>
+                <Badge variant="ocean" size="sm">+{offer.pointsReward} {copy.common.pts}</Badge>
               </div>
 
               <Link href="/register" className="mt-6 block">
-                <Button variant="gold" size="lg" className="w-full rounded-2xl py-4 font-bold shadow-md hover:shadow-lg transition-all">
-                  <Sparkles size={16} className="mr-2 text-navy-950 shrink-0" aria-hidden="true" />
+                <Button variant="primary" size="lg" className="w-full rounded-2xl py-4 font-bold shadow-md hover:shadow-lg transition-all">
+                  <Sparkles size={16} className="mr-2 text-white shrink-0" aria-hidden="true" />
                   <span>{d.bookVipBtn || 'Quiero esta oferta VIP'}</span>
                 </Button>
               </Link>

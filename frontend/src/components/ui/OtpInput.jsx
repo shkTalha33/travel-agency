@@ -119,8 +119,8 @@ export default function OtpInput({
               error
                 ? 'border-rose-500 bg-rose-50/40 text-rose-900 focus:border-rose-600'
                 : isFilled
-                ? 'border-gold-500 bg-gold-50/20 text-navy-950'
-                : 'border-slate-300 bg-white text-navy-900 hover:border-slate-400 focus:border-gold-500 shadow-xs'
+                ? 'border-ocean-600 bg-ocean-50/40 text-navy-950'
+                : 'border-slate-300 bg-white text-navy-900 hover:border-slate-400 focus:border-ocean-600 shadow-xs'
             }`}
           />
         );

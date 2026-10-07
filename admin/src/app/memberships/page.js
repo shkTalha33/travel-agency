@@ -1,8 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import AdminShell from '@/components/layout/AdminShell';
 import { useLanguage } from '@/context/LanguageContext';
+import { adminApi } from '@/lib/apiClient';
 import {
   Calculator,
   CheckCircle2,
@@ -13,274 +14,611 @@ import {
   Sparkles,
   Zap,
   ArrowRight,
-  ShieldCheck,
   TrendingUp,
   Coins,
+  Plus,
+  Edit2,
+  Trash2,
+  X,
+  AlertCircle,
+  Loader2,
+  Shield,
+  Star,
+  Check,
+  Info,
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
 
+const ICON_MAP = {
+  Compass: Compass,
+  Waves: Waves,
+  Award: Award,
+  Crown: Crown,
+  Sparkles: Sparkles,
+  Zap: Zap,
+  Shield: Shield,
+  Star: Star,
+};
+
+const CATEGORY_META = {
+  member: {
+    labelEs: 'Miembro',
+    labelEn: 'Member',
+    descEs: 'Nivel base al registrarse (0% N1, 0% N2)',
+    descEn: 'Base rank upon sign up (0% L1, 0% L2)',
+    defaultIcon: 'Compass',
+    defaultColor: '#64748b',
+  },
+  active_member: {
+    labelEs: 'Miembro Activo',
+    labelEn: 'Active Member',
+    descEs: '1ra compra realizada (100% N1, 0% N2)',
+    descEn: '1st purchase completed (100% L1, 0% L2)',
+    defaultIcon: 'Waves',
+    defaultColor: '#059669',
+  },
+  ambassador: {
+    labelEs: 'Embajador',
+    labelEn: 'Ambassador',
+    descEs: 'Líder 2 niveles (100% N1, 50% N2)',
+    descEn: '2-Tier Leader (100% L1, 50% L2)',
+    defaultIcon: 'Award',
+    defaultColor: '#0284c7',
+  },
+  elite_ambassador: {
+    labelEs: 'Embajador Élite',
+    labelEn: 'Elite Ambassador',
+    descEs: 'Rango Máximo VIP (100% N1, 100% N2)',
+    descEn: 'Top VIP Master rank (100% L1, 100% L2)',
+    defaultIcon: 'Crown',
+    defaultColor: '#AA303E',
+  },
+};
+
+const ALL_CATEGORIES = ['member', 'active_member', 'ambassador', 'elite_ambassador'];
+
 export default function AdminMembershipsPage() {
   const { t, isEn } = useLanguage();
+  const [tiers, setTiers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
+  const [alert, setAlert] = useState(null);
+
+  // Modal State
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingTier, setEditingTier] = useState(null);
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null);
+
+  // Form State
+  const [formData, setFormData] = useState({
+    category: '',
+    name: '',
+    nameEn: '',
+    tag: '',
+    tagEn: '',
+    subtitle: '',
+    subtitleEn: '',
+    icon: 'Compass',
+    color: '#AA303E',
+    level1Rate: 100,
+    level2Rate: 0,
+    qualification: '',
+    qualificationEn: '',
+    perks: [''],
+    perksEn: [''],
+  });
+  const [errors, setErrors] = useState({});
+
+  // Simulator State
   const [simulationPoints, setSimulationPoints] = useState(150);
   const [simL1Tier, setSimL1Tier] = useState('active_member');
   const [simL2Tier, setSimL2Tier] = useState('ambassador');
 
-  const TIERS = [
-    {
-      id: 'member',
-      name: isEn ? 'Member' : 'Miembro',
-      tag: isEn ? 'Base Rank' : 'Rango Inicial',
-      subtitle: isEn ? 'Initial level upon registration' : 'Nivel inicial al registrarse',
-      icon: Compass,
-      bgGradient: 'from-white to-slate-50/80',
-      border: 'border-slate-200 hover:border-slate-400',
-      iconBg: 'bg-slate-100 text-slate-700 ring-2 ring-slate-200',
-      badgeStyle: 'bg-slate-100 text-slate-800 border-slate-300',
-      maxReferralLevel: 0,
-      rates: { 1: '0%', 2: '0%' },
-      qualification: isEn ? 'Account registration completed.' : 'Registro de cuenta completado.',
-      perks: isEn
-        ? [
-            'Access to travel offers catalog',
-            'Personal referral code to invite friends',
-            'Accumulates prospect network pending activation',
-          ]
-        : [
-            'Acceso al catálogo de ofertas de viajes',
-            'Código de referido personal para invitar amigos',
-            'Acumula red de prospectos en espera de activación',
-          ],
-    },
-    {
-      id: 'active_member',
-      name: isEn ? 'Active Member' : 'Miembro Activo',
-      tag: isEn ? '1st Purchase' : '1ra Compra',
-      subtitle: isEn ? 'First direct commission tier' : 'Primer nivel de comisión directa',
-      icon: Waves,
-      bgGradient: 'from-white to-emerald-50/50',
-      border: 'border-emerald-200 hover:border-emerald-400',
-      iconBg: 'bg-emerald-100 text-emerald-700 ring-2 ring-emerald-200',
-      badgeStyle: 'bg-emerald-100 text-emerald-800 border-emerald-300',
-      maxReferralLevel: 1,
-      rates: { 1: '100%', 2: '0%' },
-      qualification: isEn ? 'Make at least 1 travel package purchase.' : 'Realizar al menos 1 compra de paquete de viaje.',
-      perks: isEn
-        ? [
-            'Earns 100% of base points on direct referral purchases (L1)',
-            'Real-time visibility and statistics of Level 1 network',
-            'Redemption of points for travel credit or vouchers',
-          ]
-        : [
-            'Gana el 100% de los puntos base en compras de referidos directos (N1)',
-            'Visibilidad y estadísticas en tiempo real de su Nivel 1',
-            'Redención de puntos por crédito de viaje o vouchers',
-          ],
-    },
-    {
-      id: 'ambassador',
-      name: isEn ? 'Ambassador' : 'Embajador',
-      tag: isEn ? '2-Tier Leader' : 'Líder 2 Niveles',
-      subtitle: isEn ? 'Dual-tier compensation level' : 'Doble nivel de compensación',
-      icon: Award,
-      bgGradient: 'from-white to-sky-50/60',
-      border: 'border-sky-200 hover:border-sky-400',
-      iconBg: 'bg-sky-100 text-sky-700 ring-2 ring-sky-200',
-      badgeStyle: 'bg-sky-100 text-sky-800 border-sky-300',
-      maxReferralLevel: 2,
-      rates: { 1: '100%', 2: '50%' },
-      qualification: isEn ? 'Maintain active referrals and continuous travel bookings.' : 'Mantener referidos activos y volumen continuo de viajes.',
-      perks: isEn
-        ? [
-            '100% of points generated by Level 1 (Directs)',
-            '50% of points generated by Level 2 (Indirect referrals)',
-            'Full multi-tier network analytics access',
-            'Priority on redemption requests and VIP deals',
-          ]
-        : [
-            '100% de puntos generados por Nivel 1 (Directos)',
-            '50% de puntos generados por Nivel 2 (Referidos indirectos)',
-            'Acceso al panel analítico de red multinivel completa',
-            'Prioridad en solicitudes de redención y ofertas VIP',
-          ],
-    },
-    {
-      id: 'elite_ambassador',
-      name: isEn ? 'Elite Ambassador' : 'Embajador Élite',
-      tag: isEn ? 'Top VIP Master' : 'Rango VIP Máster',
-      subtitle: isEn ? 'Maximum leadership rank in the Club' : 'Rango máximo de liderazgo en el Club',
-      icon: Crown,
-      isDark: true,
-      bgGradient: 'from-[#1C1009] via-[#150B06] to-[#0A0503] text-white',
-      border: 'border-gold-400/80 hover:border-gold-300 shadow-lg shadow-gold-500/15',
-      iconBg: 'bg-gradient-to-tr from-gold-500 to-amber-300 text-navy-950 ring-2 ring-gold-400/40',
-      badgeStyle: 'bg-gradient-to-r from-gold-400 via-amber-300 to-gold-400 text-navy-950 border-gold-300 font-black',
-      maxReferralLevel: 2,
-      rates: { 1: '100%', 2: '50%' },
-      qualification: isEn ? 'Outstanding network leadership and administrative assignment.' : 'Liderazgo de red destacada y asignación administrativa.',
-      perks: isEn
-        ? [
-            '100% Level 1 + 50% Level 2 commissions',
-            '24/7 dedicated personal travel concierge',
-            'Access to wholesale rates and VIP room upgrades',
-            'Quarterly performance bonuses and incentives',
-          ]
-        : [
-            '100% comisiones Nivel 1 + 50% comisiones Nivel 2',
-            'Atención personalizada de conserjería de viajes 24/7',
-            'Acceso a tarifas mayoristas y upgrades exclusivos',
-            'Recompensas e incentivos por metas trimestrales',
-          ],
-    },
-  ];
+  // Load tiers from backend
+  const loadTiers = async () => {
+    try {
+      setLoading(true);
+      const res = await adminApi.getMembershipTiers();
+      if (res.data) {
+        setTiers(res.data);
+      }
+    } catch (err) {
+      setAlert({
+        type: 'error',
+        text: err.message || (isEn ? 'Error loading membership tiers' : 'Error al cargar niveles de membresía'),
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
-  const getTierRate = (tierId, level) => {
-    if (level === 1) {
-      return tierId === 'member' ? 0 : 1.0;
+  useEffect(() => {
+    loadTiers();
+  }, []);
+
+  // Compute available categories (that haven't been created yet)
+  const existingCategories = useMemo(() => tiers.map((t) => t.category), [tiers]);
+  const availableCategories = useMemo(
+    () => ALL_CATEGORIES.filter((cat) => !existingCategories.includes(cat)),
+    [existingCategories]
+  );
+  const isFull = availableCategories.length === 0;
+
+  // Open Create Modal
+  const handleOpenCreate = () => {
+    if (isFull) {
+      setAlert({
+        type: 'error',
+        text: isEn
+          ? 'All 4 membership categories (Member, Active Member, Ambassador, Elite Ambassador) already exist. You can edit existing tiers.'
+          : 'Ya existen las 4 categorías permitidas (Miembro, Miembro Activo, Embajador, Embajador Élite). Puede editar los niveles existentes.',
+      });
+      return;
     }
-    if (level === 2) {
-      return tierId === 'ambassador' || tierId === 'elite_ambassador' ? 0.5 : 0;
+
+    const defaultCat = availableCategories[0] || 'member';
+    const meta = CATEGORY_META[defaultCat] || {};
+
+    setEditingTier(null);
+    setFormData({
+      category: defaultCat,
+      name: isEn ? meta.labelEn || '' : meta.labelEs || '',
+      nameEn: meta.labelEn || '',
+      tag: isEn ? 'Rank Tier' : 'Rango de Nivel',
+      tagEn: 'Rank Tier',
+      subtitle: isEn ? meta.descEn || '' : meta.descEs || '',
+      subtitleEn: meta.descEn || '',
+      icon: meta.defaultIcon || 'Compass',
+      color: meta.defaultColor || '#AA303E',
+      level1Rate: defaultCat === 'member' ? 0 : 100,
+      level2Rate: defaultCat === 'ambassador' ? 50 : defaultCat === 'elite_ambassador' ? 100 : 0,
+      qualification: '',
+      qualificationEn: '',
+      perks: [''],
+      perksEn: [''],
+    });
+    setErrors({});
+    setIsModalOpen(true);
+  };
+
+  // Open Edit Modal
+  const handleOpenEdit = (tier) => {
+    setEditingTier(tier);
+    setFormData({
+      category: tier.category,
+      name: tier.name || '',
+      nameEn: tier.nameEn || tier.name || '',
+      tag: tier.tag || '',
+      tagEn: tier.tagEn || tier.tag || '',
+      subtitle: tier.subtitle || '',
+      subtitleEn: tier.subtitleEn || tier.subtitle || '',
+      icon: tier.icon || 'Compass',
+      color: tier.color || '#AA303E',
+      level1Rate: tier.level1Rate ?? 0,
+      level2Rate: tier.level2Rate ?? 0,
+      qualification: tier.qualification || '',
+      qualificationEn: tier.qualificationEn || tier.qualification || '',
+      perks: Array.isArray(tier.perks) && tier.perks.length > 0 ? tier.perks : [''],
+      perksEn: Array.isArray(tier.perksEn) && tier.perksEn.length > 0 ? tier.perksEn : [''],
+    });
+    setErrors({});
+    setIsModalOpen(true);
+  };
+
+  // Category select change on Create
+  const handleCategorySelectChange = (cat) => {
+    const meta = CATEGORY_META[cat] || {};
+    setFormData((prev) => ({
+      ...prev,
+      category: cat,
+      name: isEn ? meta.labelEn || prev.name : meta.labelEs || prev.name,
+      nameEn: meta.labelEn || prev.nameEn,
+      subtitle: isEn ? meta.descEn || prev.subtitle : meta.descEs || prev.subtitle,
+      subtitleEn: meta.descEn || prev.subtitleEn,
+      icon: meta.defaultIcon || prev.icon,
+      color: meta.defaultColor || prev.color,
+      level1Rate: cat === 'member' ? 0 : 100,
+      level2Rate: cat === 'ambassador' ? 50 : cat === 'elite_ambassador' ? 100 : 0,
+    }));
+  };
+
+  // Add / Remove perks
+  const handleAddPerk = (lang = 'es') => {
+    if (lang === 'es') {
+      setFormData((prev) => ({ ...prev, perks: [...prev.perks, ''] }));
+    } else {
+      setFormData((prev) => ({ ...prev, perksEn: [...prev.perksEn, ''] }));
     }
+  };
+
+  const handlePerkChange = (index, value, lang = 'es') => {
+    if (lang === 'es') {
+      const updated = [...formData.perks];
+      updated[index] = value;
+      setFormData((prev) => ({ ...prev, perks: updated }));
+    } else {
+      const updated = [...formData.perksEn];
+      updated[index] = value;
+      setFormData((prev) => ({ ...prev, perksEn: updated }));
+    }
+  };
+
+  const handleRemovePerk = (index, lang = 'es') => {
+    if (lang === 'es') {
+      const updated = formData.perks.filter((_, i) => i !== index);
+      setFormData((prev) => ({ ...prev, perks: updated.length > 0 ? updated : [''] }));
+    } else {
+      const updated = formData.perksEn.filter((_, i) => i !== index);
+      setFormData((prev) => ({ ...prev, perksEn: updated.length > 0 ? updated : [''] }));
+    }
+  };
+
+  // Submit Create / Edit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const newErrors = {};
+
+    if (!formData.category) {
+      newErrors.category = isEn ? 'Category is required.' : 'La categoría es obligatoria.';
+    }
+    if (!formData.name.trim()) {
+      newErrors.name = isEn ? 'Tier name is required.' : 'El nombre del nivel es obligatorio.';
+    }
+
+    if (Object.keys(newErrors).length > 0) {
+      setErrors(newErrors);
+      return;
+    }
+
+    setSubmitting(true);
+    setAlert(null);
+
+    const cleanPerks = formData.perks.map((p) => p.trim()).filter(Boolean);
+    const cleanPerksEn = formData.perksEn.map((p) => p.trim()).filter(Boolean);
+
+    const payload = {
+      ...formData,
+      level1Rate: Number(formData.level1Rate),
+      level2Rate: Number(formData.level2Rate),
+      perks: cleanPerks,
+      perksEn: cleanPerksEn.length > 0 ? cleanPerksEn : cleanPerks,
+    };
+
+    try {
+      if (editingTier) {
+        await adminApi.updateMembershipTier(editingTier._id, payload);
+        setAlert({
+          type: 'success',
+          text: isEn ? 'Membership tier updated successfully!' : '¡Nivel de membresía actualizado con éxito!',
+        });
+      } else {
+        await adminApi.createMembershipTier(payload);
+        setAlert({
+          type: 'success',
+          text: isEn ? 'New membership tier created successfully!' : '¡Nivel de membresía creado con éxito!',
+        });
+      }
+      setIsModalOpen(false);
+      loadTiers();
+    } catch (err) {
+      setAlert({
+        type: 'error',
+        text: err.message || (isEn ? 'Error saving tier' : 'Error al guardar el nivel de membresía'),
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Delete Tier
+  const handleDelete = async (id) => {
+    try {
+      setSubmitting(true);
+      await adminApi.deleteMembershipTier(id);
+      setAlert({
+        type: 'success',
+        text: isEn ? 'Membership tier deleted successfully!' : '¡Nivel de membresía eliminado exitosamente!',
+      });
+      setDeleteConfirmId(null);
+      loadTiers();
+    } catch (err) {
+      setAlert({
+        type: 'error',
+        text: err.message || (isEn ? 'Error deleting tier' : 'Error al eliminar nivel de membresía'),
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Dynamic Rate for simulator based on active tiers
+  const getSimRate = (cat, level) => {
+    const tier = tiers.find((t) => t.category === cat);
+    if (!tier) return 0;
+    if (level === 1) return (tier.level1Rate || 0) / 100;
+    if (level === 2) return (tier.level2Rate || 0) / 100;
     return 0;
   };
 
-  const l1Earned = Math.round(simulationPoints * getTierRate(simL1Tier, 1));
-  const l2Earned = Math.round(simulationPoints * getTierRate(simL2Tier, 2));
+  const l1Earned = Math.round(simulationPoints * getSimRate(simL1Tier, 1));
+  const l2Earned = Math.round(simulationPoints * getSimRate(simL2Tier, 2));
 
   return (
     <AdminShell
       title={t('memberships.title', 'Estructura de Membresías & Comisiones')}
       subtitle={t('memberships.subtitle', 'Reglas oficiales del club, niveles de referidos y simulador interactivo de liquidación')}
     >
-      {/* 4 Ultra-Luxury Tiers Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {TIERS.map((tier) => {
-          const Icon = tier.icon;
-          const isDark = tier.isDark;
+      {/* Top Bar with Actions & Category Constraint Info */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-5 rounded-3xl border border-slate-200/90 shadow-xs">
+        <div className="flex items-center gap-3">
+          <div className="w-11 h-11 rounded-2xl bg-[#AA303E]/10 text-[#AA303E] flex items-center justify-center font-black">
+            <Award className="w-5 h-5" />
+          </div>
+          <div>
+            <h2 className="text-sm font-bold text-navy-950">
+              {isEn ? 'Membership Tiers Configuration' : 'Configuración de Niveles de Membresía'}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {isEn
+                ? `Configured: ${tiers.length}/4 Categories (1 per category: Member, Active Member, Ambassador, Elite Ambassador)`
+                : `Configurados: ${tiers.length}/4 Categorías (1 por categoría: Miembro, Miembro Activo, Embajador, Embajador Élite)`}
+            </p>
+          </div>
+        </div>
 
-          return (
-            <div
-              key={tier.id}
-              className={`relative rounded-3xl p-6 border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5 flex flex-col justify-between overflow-hidden group ${
-                isDark
-                  ? 'bg-gradient-to-b from-[#1C1009] via-[#150B06] to-[#0A0503] text-white border-gold-400/80 shadow-[0_8px_30px_-5px_rgba(212,160,23,0.3)]'
-                  : `bg-gradient-to-b ${tier.bgGradient} ${tier.border} shadow-sm`
-              }`}
-            >
-              {/* Background ambient lighting */}
-              {isDark ? (
-                <>
-                  <div className="absolute top-0 right-0 w-36 h-36 bg-gold-400/15 rounded-full blur-2xl pointer-events-none -mr-8 -mt-8 group-hover:scale-150 transition-transform duration-700"></div>
-                  <div className="absolute -right-4 -bottom-4 w-32 h-32 text-gold-400/[0.06] pointer-events-none group-hover:scale-110 transition-transform">
-                    <Crown className="w-full h-full" />
-                  </div>
-                </>
-              ) : (
-                <div className="absolute -right-4 -bottom-4 w-32 h-32 opacity-[0.04] group-hover:opacity-[0.08] group-hover:scale-110 transition-all pointer-events-none">
-                  <Icon className="w-full h-full" />
-                </div>
-              )}
-
-              <div className="relative">
-                {/* Header */}
-                <div className="flex items-center justify-between gap-2 mb-4">
-                  <div className={`w-11 h-11 rounded-2xl flex items-center justify-center shadow-md ${tier.iconBg}`}>
-                    <Icon className="w-5 h-5" />
-                  </div>
-                  <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border shadow-xs ${tier.badgeStyle}`}>
-                    {tier.tag}
-                  </span>
-                </div>
-
-                <h3 className={`text-xl font-serif font-black ${isDark ? 'text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-300 to-amber-100' : 'text-navy-950'}`}>
-                  {tier.name}
-                </h3>
-                <p className={`text-xs font-medium mt-1 mb-4 ${isDark ? 'text-sand-300/80' : 'text-slate-500'}`}>
-                  {tier.subtitle}
-                </p>
-
-                {/* Commission Rates Matrix Box */}
-                <div className={`p-4 rounded-2xl border mb-5 space-y-2 text-xs backdrop-blur-xs ${
-                  isDark
-                    ? 'bg-white/5 border-gold-500/30'
-                    : 'bg-white/80 border-slate-200/80 shadow-xs'
-                }`}>
-                  <div className="flex justify-between items-center">
-                    <span className={isDark ? 'text-sand-300' : 'text-slate-600'}>
-                      {t('memberships.networkLevels', 'Niveles de Red:')}
-                    </span>
-                    <span className={`font-black px-2 py-0.5 rounded-md ${
-                      isDark ? 'bg-gold-500/20 text-gold-300 border border-gold-500/40' : 'bg-slate-100 text-navy-950'
-                    }`}>
-                      {tier.maxReferralLevel} {isEn ? 'Level(s)' : 'Nivel(es)'}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={isDark ? 'text-sand-300' : 'text-slate-600'}>
-                      {t('memberships.commissionN1', 'Comisión N1 (Directo):')}
-                    </span>
-                    <span className={`font-black px-2 py-0.5 rounded-md ${
-                      tier.rates[1] !== '0%'
-                        ? isDark
-                          ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                          : 'bg-emerald-100 text-emerald-800'
-                        : isDark ? 'text-sand-400' : 'text-slate-400'
-                    }`}>
-                      {tier.rates[1]}
-                    </span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className={isDark ? 'text-sand-300' : 'text-slate-600'}>
-                      {t('memberships.commissionN2', 'Comisión N2 (Indirecto):')}
-                    </span>
-                    <span className={`font-black px-2 py-0.5 rounded-md ${
-                      tier.rates[2] !== '0%'
-                        ? isDark
-                          ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40'
-                          : 'bg-sky-100 text-sky-800'
-                        : isDark ? 'text-sand-400' : 'text-slate-400'
-                    }`}>
-                      {tier.rates[2]}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Benefits List */}
-                <div className="space-y-2.5">
-                  <p className={`text-[10px] font-extrabold uppercase tracking-widest ${isDark ? 'text-gold-400' : 'text-slate-400'}`}>
-                    {t('memberships.benefits', 'Beneficios Clave:')}
-                  </p>
-                  <ul className="space-y-2 text-xs">
-                    {tier.perks.map((p, idx) => (
-                      <li key={idx} className="flex items-start gap-2">
-                        <CheckCircle2 className={`w-4 h-4 shrink-0 mt-0.5 ${isDark ? 'text-gold-400' : 'text-emerald-600'}`} />
-                        <span className={isDark ? 'text-sand-200 font-medium' : 'text-slate-700 font-medium'}>{p}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* Qualification footer */}
-              <div className={`relative mt-6 pt-4 border-t text-xs ${
-                isDark ? 'border-gold-500/20 text-sand-300' : 'border-slate-200/80 text-slate-600'
-              }`}>
-                <div className="flex items-start gap-1.5">
-                  <Zap className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${isDark ? 'text-gold-400' : 'text-amber-600'}`} />
-                  <div>
-                    <strong className={isDark ? 'text-gold-300' : 'text-navy-950'}>{t('memberships.qualification', 'Calificación:')} </strong>
-                    <span className="text-[11px] leading-relaxed">{tier.qualification}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          );
-        })}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleOpenCreate}
+            disabled={isFull}
+            className={`px-4 py-2.5 rounded-xl font-bold text-xs inline-flex items-center gap-2 shadow-xs transition-all ${
+              isFull
+                ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                : 'bg-[#AA303E] hover:bg-[#8e2531] text-white cursor-pointer active:scale-95 shadow-md shadow-[#AA303E]/20'
+            }`}
+          >
+            <Plus className="w-4 h-4" />
+            <span>
+              {isFull
+                ? (isEn ? 'All Categories Configured (4/4)' : 'Todas las Categorías Configuradas (4/4)')
+                : (isEn ? 'Create Membership Tier' : 'Crear Nivel de Membresía')}
+            </span>
+          </button>
+        </div>
       </div>
+
+      {/* Alert Notification */}
+      {alert && (
+        <div
+          className={`p-4 rounded-2xl border flex items-center justify-between gap-3 text-xs font-semibold animate-fade-in ${
+            alert.type === 'success'
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+              : 'bg-rose-50 text-rose-800 border-rose-200'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {alert.type === 'success' ? (
+              <Check className="w-4 h-4 text-emerald-600 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
+            )}
+            <span>{alert.text}</span>
+          </div>
+          <button onClick={() => setAlert(null)} className="text-slate-400 hover:text-slate-600 p-1">
+            <X className="w-3.5 h-3.5" />
+          </button>
+        </div>
+      )}
+
+      {/* Loading Spinner */}
+      {loading ? (
+        <div className="py-20 flex flex-col items-center justify-center space-y-3">
+          <Loader2 className="w-8 h-8 animate-spin text-[#AA303E]" />
+          <p className="text-xs font-bold text-slate-500">
+            {isEn ? 'Loading membership tiers...' : 'Cargando niveles de membresía...'}
+          </p>
+        </div>
+      ) : (
+        /* Membership Tiers Grid */
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {tiers.map((tier) => {
+            const IconComponent = ICON_MAP[tier.icon] || Award;
+            const isElite = tier.category === 'elite_ambassador';
+
+            return (
+              <div
+                key={tier._id}
+                className={`relative rounded-3xl p-6 border-2 transition-all duration-300 hover:shadow-xl hover:-translate-y-1 flex flex-col justify-between overflow-hidden group ${
+                  isElite
+                    ? 'bg-gradient-to-b from-[#1C1009] via-[#150B06] to-[#0A0503] text-white border-gold-400/80 shadow-[0_8px_30px_-5px_rgba(212,160,23,0.3)]'
+                    : 'bg-white border-slate-200/90 shadow-xs hover:border-[#AA303E]/40'
+                }`}
+              >
+                {/* Background Ambient Icon */}
+                <div className="absolute -right-4 -bottom-4 w-32 h-32 opacity-[0.04] group-hover:opacity-[0.08] group-hover:scale-110 transition-all pointer-events-none">
+                  <IconComponent className="w-full h-full" />
+                </div>
+
+                <div className="relative">
+                  {/* Card Top: Icon, Tag & Action Buttons */}
+                  <div className="flex items-center justify-between gap-2 mb-4">
+                    <div
+                      className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-md text-white font-bold"
+                      style={{ backgroundColor: tier.color || '#AA303E' }}
+                    >
+                      <IconComponent className="w-5 h-5" />
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      {tier.tag && (
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${
+                            isElite
+                              ? 'bg-gold-500/20 text-gold-300 border-gold-500/40'
+                              : 'bg-slate-100 text-slate-800 border-slate-200'
+                          }`}
+                        >
+                          {isEn ? tier.tagEn || tier.tag : tier.tag}
+                        </span>
+                      )}
+
+                      {/* Action Menu (Edit & Delete) */}
+                      <div className="flex items-center gap-1 pl-1">
+                        <button
+                          onClick={() => handleOpenEdit(tier)}
+                          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                            isElite
+                              ? 'text-gold-300 hover:bg-gold-500/20'
+                              : 'text-slate-600 hover:text-[#AA303E] hover:bg-[#AA303E]/10'
+                          }`}
+                          title={isEn ? 'Edit Tier' : 'Editar Nivel'}
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                        </button>
+                        <button
+                          onClick={() => setDeleteConfirmId(tier._id)}
+                          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                            isElite
+                              ? 'text-rose-400 hover:bg-rose-500/20'
+                              : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
+                          }`}
+                          title={isEn ? 'Delete Tier' : 'Eliminar Nivel'}
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Tier Name & Subtitle */}
+                  <h3
+                    className={`text-xl font-serif font-black ${
+                      isElite
+                        ? 'text-transparent bg-clip-text bg-gradient-to-r from-gold-200 via-gold-300 to-amber-100'
+                        : 'text-navy-950'
+                    }`}
+                  >
+                    {isEn ? tier.nameEn || tier.name : tier.name}
+                  </h3>
+                  <p className={`text-xs font-medium mt-1 mb-4 ${isElite ? 'text-sand-300/80' : 'text-slate-500'}`}>
+                    {isEn ? tier.subtitleEn || tier.subtitle : tier.subtitle}
+                  </p>
+
+                  {/* Commission Rates Matrix Box */}
+                  <div
+                    className={`p-4 rounded-2xl border mb-5 space-y-2 text-xs backdrop-blur-xs ${
+                      isElite
+                        ? 'bg-white/5 border-gold-500/30'
+                        : 'bg-slate-50/80 border-slate-200/80 shadow-xs'
+                    }`}
+                  >
+                    <div className="flex justify-between items-center">
+                      <span className={isElite ? 'text-sand-300' : 'text-slate-600'}>
+                        {t('memberships.networkLevels', 'Niveles de Red:')}
+                      </span>
+                      <span
+                        className={`font-black px-2 py-0.5 rounded-md ${
+                          isElite
+                            ? 'bg-gold-500/20 text-gold-300 border border-gold-500/40'
+                            : 'bg-white border border-slate-200 text-navy-950'
+                        }`}
+                      >
+                        {tier.maxReferralLevel} {isEn ? 'Level(s)' : 'Nivel(es)'}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className={isElite ? 'text-sand-300' : 'text-slate-600'}>
+                        {t('memberships.commissionN1', 'Comisión N1 (Directo):')}
+                      </span>
+                      <span
+                        className={`font-black px-2 py-0.5 rounded-md ${
+                          tier.level1Rate > 0
+                            ? isElite
+                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                              : 'bg-emerald-100 text-emerald-800'
+                            : isElite
+                            ? 'text-sand-400'
+                            : 'text-slate-400'
+                        }`}
+                      >
+                        {tier.level1Rate}%
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <span className={isElite ? 'text-sand-300' : 'text-slate-600'}>
+                        {t('memberships.commissionN2', 'Comisión N2 (Indirecto):')}
+                      </span>
+                      <span
+                        className={`font-black px-2 py-0.5 rounded-md ${
+                          tier.level2Rate > 0
+                            ? isElite
+                              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40'
+                              : 'bg-sky-100 text-sky-800'
+                            : isElite
+                            ? 'text-sand-400'
+                            : 'text-slate-400'
+                        }`}
+                      >
+                        {tier.level2Rate}%
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Benefits List */}
+                  <div className="space-y-2.5">
+                    <p
+                      className={`text-[10px] font-extrabold uppercase tracking-widest ${
+                        isElite ? 'text-gold-400' : 'text-slate-400'
+                      }`}
+                    >
+                      {t('memberships.benefits', 'Beneficios Clave:')}
+                    </p>
+                    <ul className="space-y-2 text-xs">
+                      {(isEn ? (tier.perksEn?.length ? tier.perksEn : tier.perks) : tier.perks || []).map((p, idx) => (
+                        <li key={idx} className="flex items-start gap-2">
+                          <CheckCircle2
+                            className={`w-4 h-4 shrink-0 mt-0.5 ${
+                              isElite ? 'text-gold-400' : 'text-emerald-600'
+                            }`}
+                          />
+                          <span className={isElite ? 'text-sand-200 font-medium' : 'text-slate-700 font-medium'}>
+                            {p}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+
+                {/* Qualification Footer */}
+                <div
+                  className={`relative mt-6 pt-4 border-t text-xs ${
+                    isElite ? 'border-gold-500/20 text-sand-300' : 'border-slate-200/80 text-slate-600'
+                  }`}
+                >
+                  <div className="flex items-start gap-1.5">
+                    <Zap className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${isElite ? 'text-gold-400' : 'text-amber-600'}`} />
+                    <div>
+                      <strong className={isElite ? 'text-gold-300' : 'text-navy-950'}>
+                        {t('memberships.qualification', 'Calificación:')}{' '}
+                      </strong>
+                      <span className="text-[11px] leading-relaxed">
+                        {isEn ? tier.qualificationEn || tier.qualification : tier.qualification}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
 
       {/* Ultra-Modern Interactive Commission Simulator */}
       <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-hidden">
         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-amber-600 via-gold-500 to-amber-300 text-navy-950 flex items-center justify-center shadow-lg shadow-gold-500/25 ring-4 ring-amber-50">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#AA303E] via-rose-500 to-amber-400 text-white flex items-center justify-center shadow-lg shadow-[#AA303E]/20 ring-4 ring-rose-50">
             <Calculator className="w-6 h-6" />
           </div>
           <div>
@@ -306,7 +644,7 @@ export default function AdminMembershipsPage() {
                   min="1"
                   value={simulationPoints}
                   onChange={(e) => setSimulationPoints(Math.max(0, Number(e.target.value)))}
-                  className="w-full px-4 py-2.5 text-base font-black bg-white border border-slate-300 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 text-navy-950 transition-colors"
+                  className="w-full px-4 py-2.5 text-base font-black bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none ring-0 text-navy-950 transition-colors"
                 />
                 <span className="absolute right-3.5 top-2.5 text-xs font-black text-slate-400">
                   PTS
@@ -319,12 +657,10 @@ export default function AdminMembershipsPage() {
                 label={t('memberships.simL1Tier', 'Membresía Patrocinador Directo (N1)')}
                 value={simL1Tier}
                 onChange={(e) => setSimL1Tier(e.target.value)}
-                options={[
-                  { value: 'member', label: isEn ? 'Member (0%)' : 'Miembro (0%)' },
-                  { value: 'active_member', label: isEn ? 'Active Member (100%)' : 'Miembro Activo (100%)' },
-                  { value: 'ambassador', label: isEn ? 'Ambassador (100%)' : 'Embajador (100%)' },
-                  { value: 'elite_ambassador', label: isEn ? 'Elite Ambassador (100%)' : 'Embajador Élite (100%)' },
-                ]}
+                options={tiers.map((t) => ({
+                  value: t.category,
+                  label: `${isEn ? t.nameEn || t.name : t.name} (${t.level1Rate}%)`,
+                }))}
               />
             </div>
 
@@ -333,12 +669,10 @@ export default function AdminMembershipsPage() {
                 label={t('memberships.simL2Tier', 'Membresía Patrocinador Superior (N2)')}
                 value={simL2Tier}
                 onChange={(e) => setSimL2Tier(e.target.value)}
-                options={[
-                  { value: 'member', label: isEn ? 'Member (0%)' : 'Miembro (0%)' },
-                  { value: 'active_member', label: isEn ? 'Active Member (0%)' : 'Miembro Activo (0%)' },
-                  { value: 'ambassador', label: isEn ? 'Ambassador (50%)' : 'Embajador (50%)' },
-                  { value: 'elite_ambassador', label: isEn ? 'Elite Ambassador (50%)' : 'Embajador Élite (50%)' },
-                ]}
+                options={tiers.map((t) => ({
+                  value: t.category,
+                  label: `${isEn ? t.nameEn || t.name : t.name} (${t.level2Rate}%)`,
+                }))}
               />
             </div>
           </div>
@@ -362,16 +696,16 @@ export default function AdminMembershipsPage() {
               </div>
 
               {/* L1 Sponsor */}
-              <div className="p-5 rounded-2xl bg-gradient-to-b from-amber-50/60 to-white border border-amber-200 shadow-xs">
-                <span className="text-[10px] uppercase font-extrabold tracking-wider text-amber-900 block mb-1">
+              <div className="p-5 rounded-2xl bg-gradient-to-b from-rose-50/40 to-white border border-rose-200/80 shadow-xs">
+                <span className="text-[10px] uppercase font-extrabold tracking-wider text-[#AA303E] block mb-1">
                   {t('memberships.simL1Sponsor', 'Patrocinador Directo (N1)')}
                 </span>
                 <p className="text-sm font-black text-navy-950 capitalize">{simL1Tier.replace('_', ' ')}</p>
-                <p className="text-2xl font-serif font-extrabold text-amber-700 mt-2">
-                  +{l1Earned} <span className="text-xs font-sans text-amber-600 font-bold">PTS</span>
+                <p className="text-2xl font-serif font-extrabold text-[#AA303E] mt-2">
+                  +{l1Earned} <span className="text-xs font-sans text-rose-600 font-bold">PTS</span>
                 </p>
                 <p className="text-[11px] text-slate-600 font-medium mt-2">
-                  {t('points.appliedRate', 'Tasa')}: <strong className="text-navy-950">{getTierRate(simL1Tier, 1) * 100}%</strong>
+                  {t('points.appliedRate', 'Tasa')}: <strong className="text-navy-950">{getSimRate(simL1Tier, 1) * 100}%</strong>
                 </p>
               </div>
 
@@ -385,33 +719,390 @@ export default function AdminMembershipsPage() {
                   +{l2Earned} <span className="text-xs font-sans text-sky-600 font-bold">PTS</span>
                 </p>
                 <p className="text-[11px] text-slate-600 font-medium mt-2">
-                  {t('points.appliedRate', 'Tasa')}: <strong className="text-navy-950">{getTierRate(simL2Tier, 2) * 100}%</strong>
+                  {t('points.appliedRate', 'Tasa')}: <strong className="text-navy-950">{getSimRate(simL2Tier, 2) * 100}%</strong>
                 </p>
               </div>
             </div>
 
             {/* Total Issued Banner */}
-            <div className="p-5 rounded-2xl bg-gradient-to-r from-navy-950 via-[#23140C] to-navy-950 text-white flex items-center justify-between border border-gold-500/30 shadow-lg shadow-navy-950/20">
+            <div className="p-5 rounded-2xl bg-gradient-to-r from-navy-950 via-[#1e0d10] to-navy-950 text-white flex items-center justify-between border border-rose-500/20 shadow-lg shadow-navy-950/20">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-gold-500/20 text-gold-400 flex items-center justify-center border border-gold-500/30">
+                <div className="w-10 h-10 rounded-xl bg-[#AA303E]/30 text-rose-300 flex items-center justify-center border border-rose-400/30">
                   <Coins className="w-5 h-5" />
                 </div>
                 <div>
-                  <p className="text-sm font-serif font-bold text-gold-400">
+                  <p className="text-sm font-serif font-bold text-rose-200">
                     {t('memberships.simTotalDistributed', 'Total Puntos de Comisión Emitidos')}
                   </p>
-                  <p className="text-xs text-sand-300/80 font-medium">
+                  <p className="text-xs text-slate-300 font-medium">
                     {t('memberships.simTotalSum', 'Suma distribuida a patrocinadores L1 y L2')}
                   </p>
                 </div>
               </div>
-              <span className="text-3xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-amber-200">
+              <span className="text-3xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-rose-300 via-amber-300 to-amber-100">
                 {l1Earned + l2Earned} PTS
               </span>
             </div>
           </div>
         </div>
       </div>
+
+      {/* CREATE / EDIT MODAL */}
+      {isModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-xs animate-fade-in overflow-y-auto">
+          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-8">
+            {/* Modal Header */}
+            <div className="px-6 py-5 bg-gradient-to-r from-slate-50 to-sand-50 border-b border-slate-200 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-[#AA303E]/10 text-[#AA303E] flex items-center justify-center font-bold">
+                  {editingTier ? <Edit2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
+                </div>
+                <div>
+                  <h3 className="text-base font-serif font-bold text-navy-950">
+                    {editingTier
+                      ? (isEn ? 'Edit Membership Tier' : 'Editar Nivel de Membresía')
+                      : (isEn ? 'Create Membership Tier' : 'Crear Nivel de Membresía')}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {isEn ? 'Configure category, rates, requirements, and benefits' : 'Configura categoría, comisiones, requisitos y beneficios'}
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-200/60 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Form */}
+            <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
+              {/* Category Selector (Strict constraint: Only 1 per category) */}
+              <div>
+                <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1.5">
+                  {isEn ? 'Tier Category' : 'Categoría del Nivel'} <span className="text-[#AA303E]">*</span>
+                </label>
+                {editingTier ? (
+                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-950 flex items-center justify-between">
+                    <span className="capitalize">{editingTier.category.replace('_', ' ')}</span>
+                    <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-600 uppercase font-semibold">
+                      {isEn ? 'Locked' : 'Fijo'}
+                    </span>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-2.5">
+                    {availableCategories.map((cat) => {
+                      const meta = CATEGORY_META[cat];
+                      const isSelected = formData.category === cat;
+                      return (
+                        <button
+                          key={cat}
+                          type="button"
+                          onClick={() => handleCategorySelectChange(cat)}
+                          className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                            isSelected
+                              ? 'border-[#AA303E] bg-[#AA303E]/5 ring-2 ring-[#AA303E]/20 shadow-xs'
+                              : 'border-slate-200 bg-white hover:border-slate-300'
+                          }`}
+                        >
+                          <p className={`text-xs font-bold ${isSelected ? 'text-[#AA303E]' : 'text-navy-950'}`}>
+                            {isEn ? meta.labelEn : meta.labelEs}
+                          </p>
+                          <p className="text-[10px] text-slate-400 mt-0.5">{isEn ? meta.descEn : meta.descEs}</p>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {errors.category && <p className="text-[11px] text-rose-500 font-semibold mt-1">{errors.category}</p>}
+              </div>
+
+              {/* Name & Tag */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
+                    {isEn ? 'Tier Name (ES)' : 'Nombre del Nivel (Español)'} <span className="text-[#AA303E]">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    placeholder="ej. Miembro Activo"
+                    className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                  />
+                  {errors.name && <p className="text-[11px] text-rose-500 font-semibold mt-1">{errors.name}</p>}
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
+                    {isEn ? 'Tier Name (EN)' : 'Nombre del Nivel (Inglés)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.nameEn}
+                    onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
+                    placeholder="e.g. Active Member"
+                    className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                  />
+                </div>
+              </div>
+
+              {/* Tag & Icon */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
+                    {isEn ? 'Rank Badge Tag (ES)' : 'Etiqueta / Badge (ES)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.tag}
+                    onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                    placeholder="ej. 1ra Compra"
+                    className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
+                    {isEn ? 'Rank Badge Tag (EN)' : 'Etiqueta / Badge (EN)'}
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.tagEn}
+                    onChange={(e) => setFormData({ ...formData, tagEn: e.target.value })}
+                    placeholder="e.g. 1st Purchase"
+                    className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
+                    {isEn ? 'Icon' : 'Ícono'}
+                  </label>
+                  <select
+                    value={formData.icon}
+                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                    className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                  >
+                    {Object.keys(ICON_MAP).map((iconKey) => (
+                      <option key={iconKey} value={iconKey}>
+                        {iconKey}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              {/* Commission Rates */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+                <div>
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
+                    {isEn ? 'Direct Commission Rate (Level 1 %)' : 'Comisión Directa (Nivel 1 %)'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={formData.level1Rate}
+                      onChange={(e) => setFormData({ ...formData, level1Rate: Number(e.target.value) })}
+                      className="w-full px-3.5 py-2 text-sm font-bold bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                    />
+                    <span className="absolute right-3.5 top-2 text-xs font-bold text-slate-400">%</span>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
+                    {isEn ? 'Indirect Commission Rate (Level 2 %)' : 'Comisión Indirecta (Nivel 2 %)'}
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min="0"
+                      max="100"
+                      value={formData.level2Rate}
+                      onChange={(e) => setFormData({ ...formData, level2Rate: Number(e.target.value) })}
+                      className="w-full px-3.5 py-2 text-sm font-bold bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                    />
+                    <span className="absolute right-3.5 top-2 text-xs font-bold text-slate-400">%</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Qualification Requirements */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
+                    {isEn ? 'Qualification Requirement (ES)' : 'Requisito de Calificación (ES)'}
+                  </label>
+                  <textarea
+                    rows="2"
+                    value={formData.qualification}
+                    onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
+                    placeholder="ej. Realizar al menos 1 compra de paquete de viaje."
+                    className="w-full px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950 resize-none"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
+                    {isEn ? 'Qualification Requirement (EN)' : 'Requisito de Calificación (EN)'}
+                  </label>
+                  <textarea
+                    rows="2"
+                    value={formData.qualificationEn}
+                    onChange={(e) => setFormData({ ...formData, qualificationEn: e.target.value })}
+                    placeholder="e.g. Make at least 1 travel package purchase."
+                    className="w-full px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950 resize-none"
+                  />
+                </div>
+              </div>
+
+              {/* Key Benefits / Perks (Spanish) */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider">
+                    {isEn ? 'Key Benefits (Spanish)' : 'Beneficios Clave (Español)'}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleAddPerk('es')}
+                    className="text-xs font-bold text-[#AA303E] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>{isEn ? 'Add Benefit' : 'Añadir Beneficio'}</span>
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {formData.perks.map((perk, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={perk}
+                        onChange={(e) => handlePerkChange(idx, e.target.value, 'es')}
+                        placeholder={`Beneficio #${idx + 1}`}
+                        className="flex-1 px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                      />
+                      {formData.perks.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePerk(idx, 'es')}
+                          className="p-2 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Key Benefits / Perks (English) */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider">
+                    {isEn ? 'Key Benefits (English)' : 'Beneficios Clave (Inglés)'}
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => handleAddPerk('en')}
+                    className="text-xs font-bold text-[#AA303E] hover:underline inline-flex items-center gap-1 cursor-pointer"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>{isEn ? 'Add Benefit (EN)' : 'Añadir Beneficio (EN)'}</span>
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {formData.perksEn.map((perk, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        value={perk}
+                        onChange={(e) => handlePerkChange(idx, e.target.value, 'en')}
+                        placeholder={`Benefit #${idx + 1}`}
+                        className="flex-1 px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                      />
+                      {formData.perksEn.length > 1 && (
+                        <button
+                          type="button"
+                          onClick={() => handleRemovePerk(idx, 'en')}
+                          className="p-2 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Actions */}
+              <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold cursor-pointer transition-colors"
+                >
+                  {isEn ? 'Cancel' : 'Cancelar'}
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="px-5 py-2.5 rounded-xl bg-[#AA303E] hover:bg-[#8e2531] text-white text-xs font-bold inline-flex items-center gap-2 shadow-md shadow-[#AA303E]/20 cursor-pointer transition-all active:scale-95"
+                >
+                  {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                  <span>
+                    {editingTier
+                      ? isEn
+                        ? 'Update Tier'
+                        : 'Actualizar Nivel'
+                      : isEn
+                      ? 'Create Tier'
+                      : 'Crear Nivel'}
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* DELETE CONFIRMATION MODAL */}
+      {deleteConfirmId && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-xs animate-fade-in">
+          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200">
+              <Trash2 className="w-6 h-6" />
+            </div>
+            <div>
+              <h3 className="text-base font-serif font-bold text-navy-950">
+                {isEn ? 'Delete Membership Tier?' : '¿Eliminar Nivel de Membresía?'}
+              </h3>
+              <p className="text-xs text-slate-500 mt-1">
+                {isEn
+                  ? 'Are you sure you want to delete this membership tier? This will free up the category slot so a new tier can be configured for it.'
+                  : '¿Estás seguro de que deseas eliminar este nivel de membresía? Esto liberará el espacio de la categoría para que se pueda configurar un nuevo nivel.'}
+              </p>
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setDeleteConfirmId(null)}
+                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+              >
+                {isEn ? 'Cancel' : 'Cancelar'}
+              </button>
+              <button
+                type="button"
+                onClick={() => handleDelete(deleteConfirmId)}
+                disabled={submitting}
+                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-sm"
+              >
+                {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>{isEn ? 'Yes, Delete' : 'Sí, Eliminar'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </AdminShell>
   );
 }

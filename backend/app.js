@@ -10,6 +10,7 @@ const errorMessages = require("./libs/errorMessages");
 const { onError } = require("./libs/responseWrapper");
 const { BadRequestException } = require("./libs/errorExceptionSchema");
 const { apiLimiter } = require("./middlewares/rateLimiter");
+const path = require("path");
 const v1Router = require("./routes/index");
 
 const app = express();
@@ -22,15 +23,26 @@ app.use(
   })
 );
 
+// Static uploads directory serving with permissive CORS for admin/frontend images
+app.use(
+  "/uploads",
+  (req, res, next) => {
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Cross-Origin-Resource-Policy", "cross-origin");
+    next();
+  },
+  express.static(path.join(__dirname, "uploads"))
+);
+
 // Compression for optimized fast responses
 app.use(compression());
 
 // Prevent HTTP Parameter Pollution
 app.use(hpp());
 
-// Body Parsers with safe payload limits
-app.use(express.json({ limit: "256kb" }));
-app.use(express.urlencoded({ extended: true, limit: "256kb" }));
+// Body Parsers with safe payload limits (supports base64 image uploads)
+app.use(express.json({ limit: "10mb" }));
+app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 
 // CORS configuration
 const allowedOrigins = [

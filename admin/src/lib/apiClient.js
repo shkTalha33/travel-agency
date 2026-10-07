@@ -154,4 +154,34 @@ export const adminApi = {
       method: 'PUT',
       body: JSON.stringify(payload),
     }),
+
+  // Upload to Firebase Storage
+  uploadImage: (base64OrData, filename = 'image.jpg', folder = 'offers') =>
+    apiRequest('/upload/image', {
+      method: 'POST',
+      body: JSON.stringify({
+        image: base64OrData,
+        filename,
+        folder,
+      }),
+    }),
+
+  // Membership Tiers Management
+  getMembershipTiers: () => apiRequest('/membership-tiers'),
+  getAvailableTierCategories: () => apiRequest('/membership-tiers/available-categories'),
+  getMembershipTier: (id) => apiRequest(`/membership-tiers/${id}`),
+  createMembershipTier: (payload) =>
+    apiRequest('/membership-tiers', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  updateMembershipTier: (id, payload) =>
+    apiRequest(`/membership-tiers/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(payload),
+    }),
+  deleteMembershipTier: (id) =>
+    apiRequest(`/membership-tiers/${id}`, {
+      method: 'DELETE',
+    }),
 };

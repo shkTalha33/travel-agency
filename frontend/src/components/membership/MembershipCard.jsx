@@ -16,27 +16,27 @@ const ICONS = {
 const SKIN = {
   member: {
     wrap: 'border-slate-200/90 bg-white text-slate-700 shadow-sm hover:shadow-md hover:border-slate-300',
-    iconBg: 'bg-gradient-to-br from-navy-900 to-navy-950 text-gold-300 border border-gold-400/20 shadow-xs',
+    iconBg: 'bg-gradient-to-br from-navy-900 to-navy-950 text-ocean-300 border border-ocean-500/20 shadow-xs',
     rateBg: 'bg-slate-50 border-slate-100',
     spotlight: 'rgba(0, 0, 0, 0.03)',
   },
   active_member: {
     wrap: 'border-slate-200/90 bg-white text-slate-700 shadow-sm hover:shadow-md hover:border-slate-300',
-    iconBg: 'bg-gradient-to-br from-navy-900 to-navy-950 text-gold-300 border border-gold-400/20 shadow-xs',
+    iconBg: 'bg-gradient-to-br from-navy-900 to-navy-950 text-ocean-300 border border-ocean-500/20 shadow-xs',
     rateBg: 'bg-slate-50 border-slate-100',
     spotlight: 'rgba(0, 0, 0, 0.03)',
   },
   ambassador: {
     wrap: 'border-slate-200/90 bg-white text-slate-700 shadow-sm hover:shadow-md hover:border-slate-300',
-    iconBg: 'bg-gradient-to-br from-navy-900 to-navy-950 text-gold-300 border border-gold-400/20 shadow-xs',
+    iconBg: 'bg-gradient-to-br from-navy-900 to-navy-950 text-ocean-300 border border-ocean-500/20 shadow-xs',
     rateBg: 'bg-slate-50 border-slate-100',
     spotlight: 'rgba(0, 0, 0, 0.03)',
   },
   elite_ambassador: {
     wrap: 'border-navy-900 bg-gradient-to-b from-navy-900 via-navy-950 to-navy-900 text-white shadow-md hover:shadow-lg relative overflow-hidden',
-    iconBg: 'bg-gold-500 text-navy-950 border-gold-400 shadow-xs',
+    iconBg: 'bg-ocean-600 text-white border-ocean-500 shadow-xs',
     rateBg: 'bg-navy-800/80 border-white/10 backdrop-blur-sm',
-    spotlight: 'rgba(212, 180, 90, 0.15)',
+    spotlight: 'rgba(170, 48, 62, 0.2)',
   },
 };
 
@@ -93,7 +93,7 @@ export default function MembershipCard({ level, current = false }) {
             <p className={`text-[10px] font-semibold uppercase tracking-wider ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
               {m.colL1}
             </p>
-            <p className={`mt-0.5 font-serif text-2xl font-bold ${dark ? 'text-gold-300' : 'text-navy-900'}`}>
+            <p className={`mt-0.5 font-serif text-2xl font-bold ${dark ? 'text-ocean-300' : 'text-navy-900'}`}>
               {pct(level.level1Rate)}
             </p>
           </div>
@@ -101,7 +101,7 @@ export default function MembershipCard({ level, current = false }) {
             <p className={`text-[10px] font-semibold uppercase tracking-wider ${dark ? 'text-slate-400' : 'text-slate-500'}`}>
               {m.colL2}
             </p>
-            <p className={`mt-0.5 font-serif text-2xl font-bold ${dark ? 'text-gold-300' : 'text-navy-900'}`}>
+            <p className={`mt-0.5 font-serif text-2xl font-bold ${dark ? 'text-ocean-300' : 'text-navy-900'}`}>
               {pct(level.level2Rate)}
             </p>
           </div>
@@ -111,7 +111,7 @@ export default function MembershipCard({ level, current = false }) {
         <ul className="mt-6 flex-1 space-y-3 text-sm">
           {i18n.features.map((f) => (
             <li key={f} className="flex items-start gap-2.5">
-              <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${dark ? 'bg-gold-400/20 text-gold-300' : 'bg-ocean-100 text-ocean-700'}`}>
+              <span className={`mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full ${dark ? 'bg-ocean-500/20 text-ocean-300' : 'bg-ocean-100 text-ocean-700'}`}>
                 <Check size={12} strokeWidth={3} aria-hidden="true" />
               </span>
               <span className={dark ? 'text-slate-200' : 'text-slate-700'}>{f}</span>

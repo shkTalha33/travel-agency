@@ -86,11 +86,13 @@ export default function AuthShell({ title, subtitle, children, footer }) {
           {/* Top Branding */}
           <div className="relative z-10 flex items-center justify-between">
             <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gold-400 text-navy-950 shadow-md group-hover:scale-105 transition-transform">
-                <Compass size={20} aria-hidden="true" />
-              </span>
+              <img
+                src="/logo.jpg"
+                alt="Círculo Wingding Logo"
+                className="h-10 w-10 rounded-xl object-cover shadow-md border border-white/20 group-hover:scale-105 transition-transform"
+              />
               <span className="font-serif text-lg font-bold text-white tracking-wide">
-                Viajes Dominicana
+                Círculo Wingding
               </span>
             </Link>
           </div>

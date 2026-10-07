@@ -3,7 +3,7 @@ import PublicShell from '@/components/layout/PublicShell';
 import OffersContent from '@/components/offers/OffersContent';
 
 export const metadata = {
-  title: 'Ofertas de viaje — Viajes Dominicana',
+  title: 'Ofertas de viaje — Círculo Wingding',
   description: 'Explora todas las ofertas de viaje disponibles.',
 };
 

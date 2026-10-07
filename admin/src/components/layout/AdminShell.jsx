@@ -153,14 +153,16 @@ export default function AdminShell({ children, title, subtitle, actionButton }) 
         {/* Brand Header */}
         <div className="h-20 px-6 flex items-center justify-between border-b border-navy-850/80 bg-navy-900/50">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-gold-600 via-gold-500 to-gold-400 flex items-center justify-center shadow-lg shadow-gold-500/20 text-navy-950">
-              <Compass className="w-6 h-6" />
-            </div>
+            <img
+              src="/logo.jpg"
+              alt="Círculo Wingding Logo"
+              className="w-10 h-10 rounded-xl object-cover shadow-lg border border-ocean-500/30"
+            />
             <div>
-              <span className="text-xs font-bold tracking-[0.2em] text-gold-400 uppercase block">
+              <span className="text-xs font-bold tracking-[0.2em] text-ocean-300 uppercase block">
                 {t('common.masterPortal', 'Portal Máster')}
               </span>
-              <h1 className="text-sm font-serif font-bold text-white tracking-wide">Viajes Dominicana</h1>
+              <h1 className="text-sm font-serif font-bold text-white tracking-wide">Círculo Wingding</h1>
             </div>
           </div>
           <button
@@ -177,16 +179,16 @@ export default function AdminShell({ children, title, subtitle, actionButton }) 
             <img
               src={admin?.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&q=80'}
               alt={admin?.fullname || 'Admin'}
-              className="w-10 h-10 rounded-full object-cover ring-2 ring-gold-500/50"
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-ocean-500/50"
             />
             <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-navy-950"></span>
           </div>
           <div className="overflow-hidden">
             <div className="flex items-center gap-1.5">
               <p className="text-xs font-bold text-white truncate max-w-[130px]">{admin?.fullname || 'Administrador'}</p>
-              <ShieldCheck className="w-3.5 h-3.5 text-gold-400 shrink-0" />
+              <ShieldCheck className="w-3.5 h-3.5 text-ocean-400 shrink-0" />
             </div>
-            <p className="text-[11px] text-gold-400/90 tracking-wider uppercase font-semibold">
+            <p className="text-[11px] text-ocean-300 tracking-wider uppercase font-semibold">
               {t('common.superAdmin', 'Super Admin')}
             </p>
           </div>
@@ -207,19 +209,19 @@ export default function AdminShell({ children, title, subtitle, actionButton }) 
                 onClick={() => setMobileMenuOpen(false)}
                 className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all ${
                   isActive
-                    ? 'bg-gradient-to-r from-gold-500/20 to-gold-500/5 text-gold-400 border border-gold-500/30 shadow-sm'
+                    ? 'bg-gradient-to-r from-ocean-600/30 to-ocean-600/10 text-white font-bold border border-ocean-500/40 shadow-sm'
                     : 'text-sand-300 hover:text-white hover:bg-navy-900/60'
                 }`}
               >
                 <div className="flex items-center gap-3">
                   <Icon
                     className={`w-4 h-4 transition-colors ${
-                      isActive ? 'text-gold-400' : 'text-sand-400 group-hover:text-gold-400'
+                      isActive ? 'text-ocean-300' : 'text-sand-400 group-hover:text-ocean-300'
                     }`}
                   />
                   <span>{item.name}</span>
                 </div>
-                {isActive && <ChevronRight className="w-4 h-4 text-gold-400 animate-pulse" />}
+                {isActive && <ChevronRight className="w-4 h-4 text-ocean-300 animate-pulse" />}
               </Link>
             );
           })}
@@ -264,7 +266,7 @@ export default function AdminShell({ children, title, subtitle, actionButton }) 
                 onClick={() => setLocale('es')}
                 className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
                   !isEn
-                    ? 'bg-navy-950 text-gold-400 shadow-xs'
+                    ? 'bg-ocean-600 text-white font-bold shadow-xs'
                     : 'text-navy-600 hover:text-navy-950'
                 }`}
               >
@@ -275,7 +277,7 @@ export default function AdminShell({ children, title, subtitle, actionButton }) 
                 onClick={() => setLocale('en')}
                 className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
                   isEn
-                    ? 'bg-navy-950 text-gold-400 shadow-xs'
+                    ? 'bg-ocean-600 text-white font-bold shadow-xs'
                     : 'text-navy-600 hover:text-navy-950'
                 }`}
               >

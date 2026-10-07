@@ -10,6 +10,7 @@ import Badge from '@/components/ui/Badge';
 import Avatar from '@/components/ui/Avatar';
 import Checkbox from '@/components/ui/Checkbox';
 import RadioGroup from '@/components/ui/RadioGroup';
+import ImageUpload from '@/components/ui/ImageUpload';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -23,6 +24,7 @@ export default function ProfilePage() {
   const membershipName = copy.levels[m?.id]?.name || m?.name;
 
   const [tab, setTab] = useState('cuenta');
+  const [avatarUrl, setAvatarUrl] = useState(u.avatar || '');
   const [copied, setCopied] = useState(false);
   const [contact, setContact] = useState('whatsapp');
   const [notify, setNotify] = useState(true);
@@ -78,6 +80,15 @@ export default function ProfilePage() {
       {tab === 'cuenta' && (
         <Card>
           <form onSubmit={(e) => { e.preventDefault(); toast(pv.savedToast || 'Cambios guardados.'); }} className="grid gap-4 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <ImageUpload
+                label={pv.avatarLabel || 'Foto de Perfil'}
+                value={avatarUrl}
+                onChange={setAvatarUrl}
+                folder="avatars"
+                helperText={isEn ? 'Upload directly to Firebase Storage or paste a URL' : 'Sube tu foto a Firebase Storage o pega una URL'}
+              />
+            </div>
             <Input id="perfil-nombre" label={pv.fullName || 'Nombre completo'} defaultValue={u.name} />
             <Input id="perfil-correo" label={pv.email || 'Correo electrónico'} type="email" defaultValue={u.email} />
             <Input id="perfil-telefono" label={pv.phone || 'Teléfono'} defaultValue={u.phone} placeholder="+1 (809) 000-0000" />

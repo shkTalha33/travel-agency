@@ -47,8 +47,8 @@ export default function AboutContent() {
 
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link href="/register">
-                  <Button variant="gold" size="lg" className="rounded-2xl px-7 py-3.5 font-bold shadow-soft hover:shadow-elevated transition-all">
-                    <Sparkles size={16} className="mr-1.5 text-navy-950 shrink-0" aria-hidden="true" />
+                  <Button variant="primary" size="lg" className="rounded-2xl px-7 py-3.5 font-bold shadow-soft hover:shadow-elevated transition-all">
+                    <Sparkles size={16} className="mr-1.5 text-white shrink-0" aria-hidden="true" />
                     <span>{t('auth.join')}</span>
                   </Button>
                 </Link>
@@ -255,11 +255,11 @@ export default function AboutContent() {
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                   <Link href="/register">
                     <Button
-                      variant="gold"
+                      variant="primary"
                       size="lg"
                       className="rounded-2xl px-8 py-4 text-base font-bold shadow-xl transition-all hover:scale-105 active:scale-95"
                     >
-                      <Sparkles size={16} className="text-navy-950 shrink-0" aria-hidden="true" />
+                      <Sparkles size={16} className="text-white shrink-0" aria-hidden="true" />
                       <span>{t('auth.join')}</span>
                     </Button>
                   </Link>

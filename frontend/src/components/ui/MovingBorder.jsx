@@ -42,7 +42,7 @@ export function MovingBorderButton({
 
       <div
         className={cn(
-          'relative bg-gradient-to-r from-gold-500 via-gold-400 to-gold-500 text-navy-950 font-bold flex items-center justify-center w-full h-full text-sm backdrop-blur-xl px-6 py-3.5 shadow-sm',
+          'relative bg-ocean-600 text-white font-bold flex items-center justify-center w-full h-full text-sm backdrop-blur-xl px-6 py-3.5 shadow-sm',
           className
         )}
         style={{

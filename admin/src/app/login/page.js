@@ -129,12 +129,14 @@ export default function AdminLoginPage() {
           {/* Top Branding */}
           <div className="relative z-10 flex items-center justify-between">
             <div className="inline-flex items-center gap-2.5">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-tr from-gold-600 to-gold-400 text-navy-950 shadow-md">
-                <Compass size={20} aria-hidden="true" />
-              </span>
+              <img
+                src="/logo.jpg"
+                alt="Círculo Wingding Logo"
+                className="h-10 w-10 rounded-xl object-cover shadow-md border border-gold-500/30"
+              />
               <div>
                 <span className="font-serif text-lg font-bold text-white tracking-wide block leading-tight">
-                  Viajes Dominicana
+                  Círculo Wingding
                 </span>
                 <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-gold-400 block">
                   {t('common.masterPortal', 'Portal Administrativo')}
@@ -201,7 +203,7 @@ export default function AdminLoginPage() {
                 type="button"
                 onClick={() => setLocale('es')}
                 className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                  !isEn ? 'bg-navy-950 text-gold-400 shadow-xs' : 'text-navy-600 hover:text-navy-950'
+                  !isEn ? 'bg-ocean-600 text-white font-bold shadow-xs' : 'text-navy-600 hover:text-navy-950'
                 }`}
               >
                 ES
@@ -210,7 +212,7 @@ export default function AdminLoginPage() {
                 type="button"
                 onClick={() => setLocale('en')}
                 className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer ${
-                  isEn ? 'bg-navy-950 text-gold-400 shadow-xs' : 'text-navy-600 hover:text-navy-950'
+                  isEn ? 'bg-ocean-600 text-white font-bold shadow-xs' : 'text-navy-600 hover:text-navy-950'
                 }`}
               >
                 EN

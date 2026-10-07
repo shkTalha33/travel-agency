@@ -1,26 +1,50 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import MembershipCard from '@/components/membership/MembershipCard';
 import Reveal from '@/components/common/Reveal';
 import Badge from '@/components/ui/Badge';
 import LampContainer from '@/components/ui/LampContainer';
-import { useSelector } from '@/store';
 import { useLanguage } from '@/context/LanguageContext';
 import { Sparkles } from 'lucide-react';
 import { MEMBERSHIP_LEVELS } from '@/data/memberships';
+import { membershipApi } from '@/lib/apiClient';
 
-const pct = (n) => (n ? `${n * 100}%` : '—');
+const pct = (n) => (n !== undefined && n !== null ? `${Math.round(n > 1 ? n : n * 100)}%` : '—');
 
 export default function MembershipContent() {
-  const { copy } = useLanguage();
-  const reduxMemberships = useSelector((state) => state.memberships.items);
+  const { copy, isEn } = useLanguage();
+  const [tiers, setTiers] = useState([]);
   const m = copy.membershipPage || {};
-  const levels = reduxMemberships.map((l) => ({
-    ...l,
-    name: copy.levels[l.id]?.name || l.name,
-    tag: copy.levels[l.id]?.tag || l.id,
-  }));
+
+  useEffect(() => {
+    membershipApi
+      .getAll()
+      .then((res) => {
+        if (res?.data && res.data.length > 0) {
+          setTiers(res.data);
+        }
+      })
+      .catch(() => {
+        // Fallback to local static tiers if network delay
+      });
+  }, []);
+
+  // Use dynamic tiers if loaded, otherwise fallback to static default levels
+  const displayLevels =
+    tiers.length > 0
+      ? tiers.map((t) => ({
+          id: t.category,
+          name: isEn ? t.nameEn || t.name : t.name,
+          tag: isEn ? t.tagEn || t.tag : t.tag,
+          description: isEn ? t.subtitleEn || t.subtitle : t.subtitle,
+          level1Rate: t.level1Rate > 1 ? t.level1Rate / 100 : t.level1Rate,
+          level2Rate: t.level2Rate > 1 ? t.level2Rate / 100 : t.level2Rate,
+          referralLevelsAllowed: t.maxReferralLevel,
+          perks: isEn ? (t.perksEn?.length ? t.perksEn : t.perks) : t.perks,
+          qualification: isEn ? t.qualificationEn || t.qualification : t.qualification,
+        }))
+      : Object.values(MEMBERSHIP_LEVELS);
 
   return (
     <div className="bg-sand-50">
@@ -45,7 +69,7 @@ export default function MembershipContent() {
       <section className="relative overflow-hidden pb-20 lg:pb-28">
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {Object.values(MEMBERSHIP_LEVELS).map((l, i) => (
+            {displayLevels.map((l, i) => (
               <Reveal key={l.id} delay={i * 70}>
                 <MembershipCard level={l} />
               </Reveal>
@@ -80,7 +104,7 @@ export default function MembershipContent() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-sand-100">
-                    {levels.map((lvl) => {
+                    {displayLevels.map((lvl) => {
                       const isElite = lvl.id === 'elite_ambassador';
                       return (
                         <tr key={lvl.id} className={`transition-colors hover:bg-sand-50/60 ${isElite ? 'bg-gold-50/20 font-semibold' : ''}`}>

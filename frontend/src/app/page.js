@@ -3,7 +3,7 @@ import PublicShell from '@/components/layout/PublicShell';
 import HomeContent from '@/components/home/HomeContent';
 
 export const metadata = {
-  title: 'Viajes Dominicana — Viaja. Comparte. Gana.',
+  title: 'Círculo Wingding — Viaja. Comparte. Gana.',
   description: 'Descubre ofertas de viaje, únete a la comunidad y gana puntos con tu red de referidos.',
 };
 

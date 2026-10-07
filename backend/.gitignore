@@ -88,3 +88,6 @@ ENV/
 *.crt
 credentials.json
 service-account.json
+service_account.json
+*service_account*.json
+*.env*

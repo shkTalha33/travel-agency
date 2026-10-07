@@ -36,11 +36,11 @@ export default function Checkbox({
           <div
             className={`flex h-4 w-4 items-center justify-center rounded-md border transition-all duration-200 ${
               checked
-                ? 'border-gold-500 bg-gold-500 text-navy-950 shadow-xs'
-                : 'border-slate-300 bg-white group-hover:border-gold-400'
-            } peer-focus-visible:ring-2 peer-focus-visible:ring-gold-400 peer-focus-visible:ring-offset-2`}
+                ? 'border-ocean-600 bg-ocean-600 text-white shadow-xs'
+                : 'border-slate-300 bg-white group-hover:border-ocean-500'
+            } peer-focus-visible:ring-2 peer-focus-visible:ring-ocean-500 peer-focus-visible:ring-offset-2`}
           >
-            {checked && <Check size={12} strokeWidth={3.5} className="text-navy-950" aria-hidden="true" />}
+            {checked && <Check size={12} strokeWidth={3.5} className="text-white" aria-hidden="true" />}
           </div>
         </div>
         <span className="leading-snug text-slate-700 group-hover:text-navy-900 transition-colors">{label}</span>

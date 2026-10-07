@@ -1,7 +1,7 @@
 export const messages = {
   es: {
     skip: 'Saltar al contenido',
-    brand: 'Viajes Dominicana',
+    brand: 'Círculo Wingding',
     language: { label: 'Idioma', es: 'ES', en: 'EN' },
     nav: {
       main: 'Principal',
@@ -524,7 +524,7 @@ export const messages = {
   },
   en: {
     skip: 'Skip to content',
-    brand: 'Viajes Dominicana',
+    brand: 'Círculo Wingding',
     language: { label: 'Language', es: 'ES', en: 'EN' },
     nav: {
       main: 'Main',

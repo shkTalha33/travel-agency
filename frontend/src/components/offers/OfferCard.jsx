@@ -65,8 +65,8 @@ export default function OfferCard({ offer }) {
           </div>
 
           <div className="flex flex-col items-end gap-1.5">
-            <div className="inline-flex items-center gap-1 rounded-full border border-gold-300/80 bg-gold-50 px-2.5 py-0.5 text-xs font-bold text-gold-800 shadow-xs">
-              <Sparkles size={11} className="text-gold-600" aria-hidden="true" />
+            <div className="inline-flex items-center gap-1 rounded-full border border-ocean-200 bg-ocean-50 px-2.5 py-0.5 text-xs font-bold text-ocean-800 shadow-xs">
+              <Sparkles size={11} className="text-ocean-600" aria-hidden="true" />
               <span>+{o.pointsReward} {t('common.points')}</span>
             </div>
             <span className="flex items-center gap-1 text-xs font-bold text-ocean-700 group-hover:translate-x-0.5 transition-transform">

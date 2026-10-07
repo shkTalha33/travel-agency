@@ -8,41 +8,42 @@ module.exports = {
     extend: {
       colors: {
         navy: {
-          950: '#190F0A', // Deep roasted espresso mocha
-          900: '#28170F', // Rich dark saddle coffee
-          850: '#351E13', // Deep warm chocolate
-          800: '#442618', // Dark chestnut
-          700: '#5A3320', // Warm roasted coffee
-          600: '#703F27', // Rich mahogany
+          950: '#0E1318', // Deep obsidian charcoal
+          900: '#171D25', // Rich dark slate charcoal
+          850: '#202731', // Charcoal steel
+          800: '#2A3340', // Dark slate
+          700: '#3B4656', // Slate charcoal
+          600: '#525F73', // Muted charcoal
+          500: '#6B7A90',
         },
         ocean: {
-          50: '#FDF8F3',
-          100: '#F7EDE1',
-          200: '#EED9C3',
-          300: '#DFBD98',
-          400: '#CD9B6C',
-          500: '#B87B42',
-          600: '#9E602A',
-          700: '#824B1D',
-          800: '#6B3B15',
-          900: '#522B0E',
+          50: '#FCF2F3',
+          100: '#F9E4E6',
+          200: '#F4CDD2',
+          300: '#ECA8B1',
+          400: '#DF7987',
+          500: '#C94D5E',
+          600: '#AA303E', // Primary Brand Color
+          700: '#8E2532',
+          800: '#76212C',
+          900: '#641F27',
         },
         gold: {
-          50: '#FDFBF5',
-          100: '#FAF3D7',
-          200: '#F5E4A8',
-          300: '#EECD6E',
-          400: '#E5B73E',
-          500: '#D4A017', // Radiant Luxury Gold
-          600: '#B8840D',
-          700: '#8F6306',
-          800: '#664402',
+          50: '#FFFDF5',
+          100: '#FEF7DA',
+          200: '#FCEAB2',
+          300: '#F8D879',
+          400: '#F1C244',
+          500: '#D99B16', // Vibrant celebratory gold spark
+          600: '#B87B0B',
+          700: '#8E5806',
+          800: '#673D03',
         },
         sand: {
-          50: '#FAF8F5',
-          100: '#F3EFEA',
-          200: '#E6DFD5',
-          300: '#D2C7B8',
+          50: '#FAFAFB', // Crisp clean luxury pearl
+          100: '#F3F4F6', // Soft slate surface
+          200: '#E5E7EB', // Subtle border
+          300: '#D1D5DB', // Divider
         },
       },
       fontFamily: {

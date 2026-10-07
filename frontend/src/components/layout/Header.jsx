@@ -39,10 +39,12 @@ export default function Header() {
     <header className={`sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-slate-200/80 transition-shadow duration-300 ${scrolled ? 'shadow-soft' : ''}`}>
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="group flex items-center gap-2.5 font-serif text-xl font-bold text-navy-900 tracking-tight">
-          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-navy-900 to-navy-950 text-gold-400 shadow-sm border border-gold-400/30 group-hover:scale-105 group-hover:border-gold-400 transition-all">
-            <Compass size={20} aria-hidden="true" />
-          </span>
-          <span className="group-hover:text-ocean-700 transition-colors">{t('brand')}</span>
+          <img
+            src="/logo.jpg"
+            alt="Círculo Wingding Logo"
+            className="h-9 w-9 rounded-xl object-cover shadow-sm border border-sand-200 group-hover:scale-105 transition-all"
+          />
+          <span className="group-hover:text-ocean-600 transition-colors">{t('brand', 'Círculo Wingding')}</span>
         </Link>
 
         {/* Center Nav Pills */}
@@ -56,8 +58,8 @@ export default function Header() {
                 aria-current={active ? 'page' : undefined}
                 className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all duration-200 ${
                   active
-                    ? 'bg-navy-900 text-gold-300 shadow-sm'
-                    : 'text-slate-600 hover:text-navy-900 hover:bg-white/80'
+                    ? 'bg-ocean-600 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-ocean-600 hover:bg-white/80'
                 }`}
               >
                 {t(`nav.${n.key}`)}
@@ -83,8 +85,8 @@ export default function Header() {
                 </Button>
               </Link>
               <Link href="/register">
-                <Button variant="gold" className="rounded-full px-4 py-2 text-xs font-bold shadow-sm hover:shadow-md transition-all">
-                  <Sparkles size={13} className="shrink-0 text-navy-950" />
+                <Button variant="primary" className="rounded-full px-4 py-2 text-xs font-bold shadow-sm hover:shadow-md transition-all">
+                  <Sparkles size={13} className="shrink-0 text-white" />
                   <span>{t('auth.join')}</span>
                 </Button>
               </Link>

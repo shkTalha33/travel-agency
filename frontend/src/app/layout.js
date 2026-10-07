@@ -6,9 +6,9 @@ import { ToastProvider } from '@/components/ui/Toast';
 import SkipLink from '@/components/layout/SkipLink';
 
 export const metadata = {
-  title: 'Viajes Dominicana — Travel. Share. Earn.',
+  title: 'Círculo Wingding — Travel. Share. Earn.',
   description:
-    'Caribbean luxury travel and referral club. Explore offers, build your network, and earn points based on your membership.',
+    'Luxury travel and referral club. Explore offers, build your network, and earn points based on your membership.',
 };
 
 export default function RootLayout({ children }) {

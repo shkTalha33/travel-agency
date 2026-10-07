@@ -11,8 +11,8 @@
 
 body {
   font-family: var(--font-sans);
-  background-color: #FAF8F5;
-  color: #190F0A;
+  background-color: #FAFAFB;
+  color: #0E1318;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
@@ -23,14 +23,14 @@ body {
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #FAF8F5;
+  background: #FAFAFB;
 }
 ::-webkit-scrollbar-thumb {
-  background: #D2C7B8;
+  background: #D1D5DB;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #CD9B6C;
+  background: #AA303E;
 }
 
 /* Clean 1px focus handling without outlines, rings or heavy shadows */

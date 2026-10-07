@@ -128,8 +128,8 @@ export default function RegisterPage() {
           <div className="rounded-2xl border border-sand-200 bg-sand-50/60 p-4 text-center">
             <p className="text-xs text-slate-500">
               {isEn
-                ? 'Check your inbox (and spam folder) for the 6-digit code sent from Viajes Dominicana.'
-                : 'Revisa tu bandeja de entrada (y spam) para encontrar el código de 6 dígitos enviado por Viajes Dominicana.'}
+                ? 'Check your inbox (and spam folder) for the 6-digit code sent from Círculo Wingding.'
+                : 'Revisa tu bandeja de entrada (y spam) para encontrar el código de 6 dígitos enviado por Círculo Wingding.'}
             </p>
           </div>
 

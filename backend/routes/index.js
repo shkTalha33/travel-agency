@@ -6,6 +6,8 @@ const pointsRoutes = require("./points.route");
 const redemptionRoutes = require("./redemption.route");
 const faqRoutes = require("./faq.route");
 const contactRoutes = require("./contact.route");
+const uploadRoutes = require("./upload.route");
+const membershipTierRoutes = require("./membershipTier.route");
 
 const router = Router();
 
@@ -16,5 +18,7 @@ router.use("/points", pointsRoutes);
 router.use("/redemptions", redemptionRoutes);
 router.use("/faqs", faqRoutes);
 router.use("/contact", contactRoutes);
+router.use("/upload", uploadRoutes);
+router.use("/membership-tiers", membershipTierRoutes);
 
 module.exports = router;

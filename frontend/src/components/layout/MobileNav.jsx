@@ -22,7 +22,7 @@ export default function MobileNav({ open, isAuthenticated, pathname }) {
           ) : (
             <>
               <Link href="/login" tabIndex={open ? 0 : -1}><Button variant="secondary" size="lg" className="w-full">{t('auth.login')}</Button></Link>
-              <Link href="/register" tabIndex={open ? 0 : -1}><Button variant="gold" size="lg" className="w-full">{t('auth.join')}</Button></Link>
+              <Link href="/register" tabIndex={open ? 0 : -1}><Button variant="primary" size="lg" className="w-full">{t('auth.join')}</Button></Link>
             </>
           )}
         </div>

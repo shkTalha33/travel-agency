@@ -110,7 +110,7 @@ export default function RedeemPage() {
             error={error}
             className="sm:flex-1"
           />
-          <Button variant="gold" size="lg" className="sm:mt-[1.4rem]" onClick={open} disabled={available < 50}>
+          <Button variant="primary" size="lg" className="sm:mt-[1.4rem]" onClick={open} disabled={available < 50}>
             {rv.submitBtn || 'Redimir puntos'}
           </Button>
         </div>

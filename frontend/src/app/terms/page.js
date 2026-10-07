@@ -10,7 +10,7 @@ export default function TermsPage() {
   if (locale === 'en') {
     return (
       <LegalPage title="Terms and Conditions">
-        <p>This page serves as official terms and platform guidelines for all members and travelers using Viajes Dominicana.</p>
+        <p>This page serves as official terms and platform guidelines for all members and travelers using Círculo Wingding.</p>
         <h2 className="font-sans text-lg font-semibold text-navy-900">Platform Usage</h2>
         <p>The platform enables users to create accounts, explore Caribbean travel packages, manage multi-tier affiliate referral trees, and request points redemptions.</p>
         <h2 className="font-sans text-lg font-semibold text-navy-900">Bookings & Points</h2>
@@ -21,7 +21,7 @@ export default function TermsPage() {
 
   return (
     <LegalPage title="Términos y condiciones">
-      <p>Esta página establece los términos y directrices oficiales de la plataforma para miembros y viajeros de Viajes Dominicana.</p>
+      <p>Esta página establece los términos y directrices oficiales de la plataforma para miembros y viajeros de Círculo Wingding.</p>
       <h2 className="font-sans text-lg font-semibold text-navy-900">Uso de la plataforma</h2>
       <p>La plataforma permite registrarse, consultar ofertas de viaje, gestionar una red de referidos y solicitar la redención de puntos.</p>
       <h2 className="font-sans text-lg font-semibold text-navy-900">Compras y puntos</h2>

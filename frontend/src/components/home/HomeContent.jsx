@@ -207,8 +207,8 @@ export default function HomeContent() {
                   <p className="text-xs font-bold text-navy-900">{ext.vipRewardsValue || 'Hasta 15% en Puntos'}</p>
                 </div>
                 <Link href="/offers" className="w-full sm:w-auto">
-                  <Button variant="gold" size="md" className="w-full rounded-2xl px-5 py-3 font-bold shadow-soft hover:shadow-elevated transition-all">
-                    <Search size={15} className="shrink-0 text-navy-950" />
+                  <Button variant="primary" size="md" className="w-full rounded-2xl px-5 py-3 font-bold shadow-soft hover:shadow-elevated transition-all">
+                    <Search size={15} className="shrink-0 text-white" />
                     <span>{copy.common.viewOffers}</span>
                   </Button>
                 </Link>
@@ -601,11 +601,11 @@ export default function HomeContent() {
       <section className="relative overflow-hidden bg-sand-50 py-14 lg:py-20">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <Reveal direction="scale" delay={100}>
-            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 via-navy-950 to-navy-900 px-6 py-14 text-center text-white shadow-2xl border border-gold-400/20 sm:px-12 sm:py-18">
+            <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-navy-900 via-navy-950 to-navy-900 px-6 py-14 text-center text-white shadow-2xl border border-ocean-500/20 sm:px-12 sm:py-18">
               <BackgroundBeams />
               <div className="relative z-10 mx-auto max-w-2xl">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-gold-400/15 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-gold-300 border border-gold-400/30">
-                  <Sparkles size={13} className="text-gold-400" />
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-ocean-500/15 px-3.5 py-1 text-xs font-bold uppercase tracking-widest text-ocean-300 border border-ocean-500/30">
+                  <Sparkles size={13} className="text-ocean-400" />
                   {ext.exclusiveMembershipPill || 'Membresía Exclusiva'}
                 </span>
                 <h2 className="mt-4 font-serif text-3xl font-bold sm:text-5xl text-white tracking-tight">{h.ctaTitle}</h2>
@@ -613,11 +613,11 @@ export default function HomeContent() {
                 <div className="mt-8 flex flex-wrap items-center justify-center gap-4">
                   <Link href="/register">
                     <Button
-                      variant="gold"
+                      variant="primary"
                       size="lg"
                       className="rounded-2xl px-8 py-4 text-base font-bold shadow-xl transition-all hover:scale-105 active:scale-95"
                     >
-                      <Sparkles size={16} className="text-navy-950 shrink-0" aria-hidden="true" />
+                      <Sparkles size={16} className="text-white shrink-0" aria-hidden="true" />
                       <span>{copy.auth.join}</span>
                     </Button>
                   </Link>

@@ -18,6 +18,7 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
+import ImageUpload from '@/components/ui/ImageUpload';
 
 const INITIAL_OFFER_FORM = {
   title: '',
@@ -246,13 +247,28 @@ export default function AdminOffersPage() {
                 {/* Image & Badge */}
                 <div className="relative h-48 w-full bg-navy-950 overflow-hidden">
                   <img
-                    src={offer.image || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80'}
+                    src={
+                      offer.image?.startsWith('/uploads')
+                        ? `http://localhost:5000${offer.image}`
+                        : offer.image || 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80'
+                    }
                     alt={offer.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => {
+                      if (offer.image && offer.image.includes('travel_agency/')) {
+                        const pathSuffix = offer.image.substring(offer.image.indexOf('travel_agency/'));
+                        const localFallback = `http://localhost:5000/uploads/${pathSuffix}`;
+                        if (e.currentTarget.src !== localFallback) {
+                          e.currentTarget.src = localFallback;
+                          return;
+                        }
+                      }
+                      e.currentTarget.src = 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=600&q=80';
+                    }}
                   />
                   <div className="absolute top-3 left-3 flex items-center gap-1.5">
                     {offer.badge && (
-                      <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gold-500 text-navy-950 shadow-md">
+                      <span className="px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider bg-ocean-600 text-white shadow-md">
                         {offer.badge}
                       </span>
                     )}
@@ -455,29 +471,18 @@ export default function AdminOffersPage() {
             </div>
           </div>
 
-          <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
-              {t('offers.imageURL', 'URL de Imagen Principal')} <span className="text-rose-500">*</span>
-            </label>
-            <input
-              type="url"
-              value={formData.image}
-              onChange={(e) => {
-                setFormData({ ...formData, image: e.target.value });
-                if (errors.image) setErrors((prev) => ({ ...prev, image: '' }));
-              }}
-              className={`w-full px-3.5 py-2 text-xs bg-sand-50 border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
-                errors.image ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20' : 'border-sand-200 focus:border-gold-500'
-              }`}
-              placeholder="https://images.unsplash.com/..."
-            />
-            {errors.image && (
-              <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
-                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                <span>{errors.image}</span>
-              </p>
-            )}
-          </div>
+          <ImageUpload
+            label={t('offers.imageURL', 'Imagen Principal')}
+            required
+            value={formData.image}
+            onChange={(url) => {
+              setFormData({ ...formData, image: url });
+              if (errors.image) setErrors((prev) => ({ ...prev, image: '' }));
+            }}
+            folder="offers"
+            error={errors.image}
+            helperText={isEn ? 'Upload directly to Firebase Storage or paste an image URL' : 'Sube la imagen directamente a Firebase Storage o pega una URL'}
+          />
 
           <div>
             <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">

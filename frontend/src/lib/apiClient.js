@@ -279,3 +279,19 @@ export const contactApi = {
       body: JSON.stringify(contactData),
     }),
 };
+
+export const uploadApi = {
+  uploadImage: (base64OrData, filename = 'image.jpg', folder = 'general') =>
+    apiClient('/upload/image', {
+      method: 'POST',
+      body: JSON.stringify({
+        image: base64OrData,
+        filename,
+        folder,
+      }),
+    }),
+};
+
+export const membershipApi = {
+  getAll: () => apiClient('/membership-tiers'),
+};

@@ -38,7 +38,7 @@ export default function Select({
           className={`w-full appearance-none rounded-xl border bg-white px-4 py-2.5 pr-10 text-xs font-semibold text-slate-900 transition-colors outline-none ring-0 focus:outline-none focus:ring-0 cursor-pointer ${
             error
               ? 'border-rose-400 focus:border-rose-500'
-              : 'border-slate-200 hover:border-gold-400 focus:border-gold-500'
+              : 'border-slate-200 hover:border-ocean-400 focus:border-ocean-600'
           }`}
           {...props}
         >
