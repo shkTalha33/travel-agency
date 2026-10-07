@@ -13,6 +13,8 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/components/ui/Toast';
 import { authApi } from '@/lib/apiClient';
 
+import OtpInput from '@/components/ui/OtpInput';
+
 export default function RegisterPage() {
   const router = useRouter();
   const { register, verifyOtpAndRegister } = useAuth();
@@ -131,19 +133,26 @@ export default function RegisterPage() {
             </p>
           </div>
 
-          <Input
-            id="otp"
-            label={av.otpLabel || 'Código OTP (6 dígitos)'}
-            placeholder="123456"
-            maxLength={6}
-            value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-            error={errors.otp}
-            icon={<KeyRound size={16} />}
-            className="text-center font-mono text-xl tracking-[0.4em] font-bold"
-            required
-            autoFocus
-          />
+          <div className="space-y-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-navy-900 text-center">
+              {isEn ? 'Verification Code' : 'Código de Verificación'}
+            </label>
+            <OtpInput
+              length={6}
+              value={otp}
+              onChange={(val) => {
+                setOtp(val);
+                if (errors.otp) setErrors({ ...errors, otp: '' });
+              }}
+              error={!!errors.otp}
+              autoFocus
+            />
+            {errors.otp && (
+              <p role="alert" className="text-center text-xs font-semibold text-rose-600 mt-2">
+                {errors.otp}
+              </p>
+            )}
+          </div>
 
           <Button type="submit" size="lg" className="w-full rounded-2xl py-3.5 shadow-md" isLoading={loading}>
             {loading ? (av.verifying || 'Verificando código...') : (av.verifyOtpBtn || 'Verificar código y continuar')}
@@ -205,32 +214,30 @@ export default function RegisterPage() {
           icon={<Mail size={16} />}
           required
         />
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <Input
-            id="password"
-            label={av.passwordLabel || 'Contraseña'}
-            type="password"
-            autoComplete="new-password"
-            placeholder="Min. 8 chars"
-            value={f.password}
-            onChange={set('password')}
-            error={errors.password}
-            icon={<Lock size={16} />}
-            required
-          />
-          <Input
-            id="confirm"
-            label={av.confirmPasswordLabel || 'Confirmar'}
-            type="password"
-            autoComplete="new-password"
-            placeholder="Repeat password"
-            value={f.confirm}
-            onChange={set('confirm')}
-            error={errors.confirm}
-            icon={<Lock size={16} />}
-            required
-          />
-        </div>
+        <Input
+          id="password"
+          label={av.passwordLabel || 'Contraseña'}
+          type="password"
+          autoComplete="new-password"
+          placeholder="Min. 8 chars"
+          value={f.password}
+          onChange={set('password')}
+          error={errors.password}
+          icon={<Lock size={16} />}
+          required
+        />
+        <Input
+          id="confirm"
+          label={av.confirmPasswordLabel || 'Confirmar contraseña'}
+          type="password"
+          autoComplete="new-password"
+          placeholder="Repeat password"
+          value={f.confirm}
+          onChange={set('confirm')}
+          error={errors.confirm}
+          icon={<Lock size={16} />}
+          required
+        />
         <Input
           id="referral"
           label={av.referralCodeLabel || 'Código de patrocinador / referido (opcional)'}

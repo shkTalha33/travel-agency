@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Lock, CheckCircle2, Mail, KeyRound } from 'lucide-react';
+import { Lock, CheckCircle2, Mail } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import OtpInput from '@/components/ui/OtpInput';
 import { useToast } from '@/components/ui/Toast';
 import { useLanguage } from '@/context/LanguageContext';
 import { authApi } from '@/lib/apiClient';
@@ -95,25 +96,35 @@ export default function ResetPasswordPage() {
             type="email"
             placeholder="yourname@example.com"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              if (errors.email) setErrors({ ...errors, email: '' });
+            }}
             error={errors.email}
             icon={<Mail size={16} />}
             required
           />
 
-          <Input
-            id="otp"
-            label={av.otpLabel || 'Código OTP (6 dígitos)'}
-            placeholder="123456"
-            maxLength={6}
-            value={otp}
-            onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-            error={errors.otp}
-            icon={<KeyRound size={16} />}
-            className="text-center font-mono text-xl tracking-[0.4em] font-bold"
-            required
-            autoFocus
-          />
+          <div className="space-y-2">
+            <label className="block text-xs font-bold uppercase tracking-wider text-navy-900 text-center">
+              {isEn ? 'Verification Code' : 'Código de Verificación'}
+            </label>
+            <OtpInput
+              length={6}
+              value={otp}
+              onChange={(val) => {
+                setOtp(val);
+                if (errors.otp) setErrors({ ...errors, otp: '' });
+              }}
+              error={!!errors.otp}
+              autoFocus
+            />
+            {errors.otp && (
+              <p role="alert" className="text-center text-xs font-semibold text-rose-600 mt-2">
+                {errors.otp}
+              </p>
+            )}
+          </div>
 
           <Input
             id="pw"

@@ -3,10 +3,11 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { KeyRound, Mail, RefreshCw, ShieldCheck } from 'lucide-react';
+import { Mail, RefreshCw } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import Input from '@/components/ui/Input';
 import Button from '@/components/ui/Button';
+import OtpInput from '@/components/ui/OtpInput';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { useToast } from '@/components/ui/Toast';
@@ -101,31 +102,42 @@ export default function VerifyEmailPage() {
         </Link>
       }
     >
-      <form onSubmit={submit} className="space-y-4" noValidate>
+      <form onSubmit={submit} className="space-y-5" noValidate>
         <Input
           id="email"
           label={av.emailLabel || 'Correo electrónico'}
           type="email"
           placeholder="yourname@example.com"
           value={email}
-          onChange={(e) => setEmail(e.target.value)}
+          onChange={(e) => {
+            setEmail(e.target.value);
+            if (errors.email) setErrors({ ...errors, email: '' });
+          }}
           error={errors.email}
           icon={<Mail size={16} />}
           required
         />
 
-        <Input
-          id="otp"
-          label={av.otpLabel || 'Código OTP (6 dígitos)'}
-          placeholder="123456"
-          maxLength={6}
-          value={otp}
-          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-          error={errors.otp}
-          icon={<KeyRound size={16} />}
-          className="text-center font-mono text-xl tracking-[0.4em] font-bold"
-          required
-        />
+        <div className="space-y-2">
+          <label className="block text-xs font-bold uppercase tracking-wider text-navy-900 text-center">
+            {isEn ? 'Verification Code' : 'Código de Verificación'}
+          </label>
+          <OtpInput
+            length={6}
+            value={otp}
+            onChange={(val) => {
+              setOtp(val);
+              if (errors.otp) setErrors({ ...errors, otp: '' });
+            }}
+            error={!!errors.otp}
+            autoFocus
+          />
+          {errors.otp && (
+            <p role="alert" className="text-center text-xs font-semibold text-rose-600 mt-2">
+              {errors.otp}
+            </p>
+          )}
+        </div>
 
         <Button type="submit" size="lg" className="w-full rounded-2xl py-3.5 shadow-md" isLoading={loading}>
           {loading ? (av.verifying || 'Verificando código...') : (av.verifyOtpBtn || 'Verificar código y continuar')}

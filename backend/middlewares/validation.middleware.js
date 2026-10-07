@@ -14,7 +14,7 @@ const signupValidations = [
     .withMessage("El correo electrónico es requerido")
     .isEmail()
     .withMessage("El correo electrónico no es válido")
-    .normalizeEmail(),
+    .trim(),
 
   check("password")
     .notEmpty()

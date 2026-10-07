@@ -73,8 +73,8 @@ export default function LoginPage() {
 
   return (
     <AuthShell
-      title={av.loginTitle || 'Iniciar sesión'}
-      subtitle={av.loginSubtitle || 'Accede a tu panel y gestiona tus puntos y referidos.'}
+      title={isEn ? 'Welcome Back' : (av.loginTitle || 'Bienvenido de nuevo')}
+      subtitle={isEn ? 'Enter your email and password to access your account' : (av.loginSubtitle || 'Ingresa tus credenciales para acceder a tu panel.')}
       footer={
         <>
           {(av.noAccount || '¿Aún no tienes cuenta?')}{' '}
