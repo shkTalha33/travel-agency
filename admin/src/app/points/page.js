@@ -267,7 +267,7 @@ export default function AdminPointsPage() {
                     {/* Description */}
                     <td className="px-5 py-4">
                       <p className="font-bold text-navy-950">{tItem.purchaseDescription || 'Transacción'}</p>
-                      <p className="text-[10px] text-navy-400 font-mono">TX: {tItem._id.slice(-8)}</p>
+                      <p className="text-[10px] text-navy-400">TX: {tItem._id.slice(-8)}</p>
                     </td>
 
                     {/* Movement Type */}
@@ -301,7 +301,7 @@ export default function AdminPointsPage() {
                     </td>
 
                     {/* Points */}
-                    <td className="px-5 py-4 font-mono">
+                    <td className="px-5 py-4">
                       <span
                         className={`font-bold text-sm ${
                           tItem.points >= 0 ? 'text-emerald-700' : 'text-rose-700'
@@ -370,7 +370,7 @@ export default function AdminPointsPage() {
                       <span className="font-bold text-navy-950">{isEn ? 'Level' : 'Nivel'} {comm.level}: {comm.name}</span>
                       <span className="text-[10px] text-navy-500 block font-semibold">{t('points.appliedRate', 'Tasa aplicada')}: {(comm.rate * 100)}%</span>
                     </div>
-                    <span className="text-sm font-bold text-gold-700 font-mono">
+                    <span className="text-sm font-bold text-gold-700">
                       +{comm.points} PTS
                     </span>
                   </div>
@@ -475,7 +475,7 @@ export default function AdminPointsPage() {
                   setPurchasePoints(e.target.value);
                   if (errors.points) setErrors((prev) => ({ ...prev, points: '' }));
                 }}
-                className={`w-full px-4 py-2.5 text-sm bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 font-bold text-navy-950 font-mono transition-colors ${
+                className={`w-full px-4 py-2.5 text-sm bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 font-bold text-navy-950 transition-colors ${
                   errors.points
                     ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20'
                     : 'border-sand-300 focus:border-gold-500'

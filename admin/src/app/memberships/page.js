@@ -208,7 +208,7 @@ export default function AdminMembershipsPage() {
                     <span className={isDark ? 'text-sand-300' : 'text-slate-600'}>
                       {t('memberships.networkLevels', 'Niveles de Red:')}
                     </span>
-                    <span className={`font-black font-mono px-2 py-0.5 rounded-md ${
+                    <span className={`font-black px-2 py-0.5 rounded-md ${
                       isDark ? 'bg-gold-500/20 text-gold-300 border border-gold-500/40' : 'bg-slate-100 text-navy-950'
                     }`}>
                       {tier.maxReferralLevel} {isEn ? 'Level(s)' : 'Nivel(es)'}
@@ -218,7 +218,7 @@ export default function AdminMembershipsPage() {
                     <span className={isDark ? 'text-sand-300' : 'text-slate-600'}>
                       {t('memberships.commissionN1', 'Comisión N1 (Directo):')}
                     </span>
-                    <span className={`font-black font-mono px-2 py-0.5 rounded-md ${
+                    <span className={`font-black px-2 py-0.5 rounded-md ${
                       tier.rates[1] !== '0%'
                         ? isDark
                           ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
@@ -232,7 +232,7 @@ export default function AdminMembershipsPage() {
                     <span className={isDark ? 'text-sand-300' : 'text-slate-600'}>
                       {t('memberships.commissionN2', 'Comisión N2 (Indirecto):')}
                     </span>
-                    <span className={`font-black font-mono px-2 py-0.5 rounded-md ${
+                    <span className={`font-black px-2 py-0.5 rounded-md ${
                       tier.rates[2] !== '0%'
                         ? isDark
                           ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40'
@@ -306,9 +306,9 @@ export default function AdminMembershipsPage() {
                   min="1"
                   value={simulationPoints}
                   onChange={(e) => setSimulationPoints(Math.max(0, Number(e.target.value)))}
-                  className="w-full px-4 py-2.5 text-base font-black bg-white border border-slate-300 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 font-mono text-navy-950 transition-colors"
+                  className="w-full px-4 py-2.5 text-base font-black bg-white border border-slate-300 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 text-navy-950 transition-colors"
                 />
-                <span className="absolute right-3.5 top-2.5 text-xs font-black text-slate-400 font-mono">
+                <span className="absolute right-3.5 top-2.5 text-xs font-black text-slate-400">
                   PTS
                 </span>
               </div>
@@ -352,7 +352,7 @@ export default function AdminMembershipsPage() {
                   {t('memberships.simBuyer', 'Comprador')}
                 </span>
                 <p className="text-sm font-black text-navy-950">{isEn ? 'Member' : 'Miembro'}</p>
-                <p className="text-2xl font-serif font-extrabold text-navy-950 mt-2 font-mono">
+                <p className="text-2xl font-serif font-extrabold text-navy-950 mt-2">
                   {simulationPoints} <span className="text-xs font-sans text-slate-400">PTS</span>
                 </p>
                 <p className="text-[11px] text-emerald-700 font-bold mt-2 flex items-center gap-1">
@@ -367,11 +367,11 @@ export default function AdminMembershipsPage() {
                   {t('memberships.simL1Sponsor', 'Patrocinador Directo (N1)')}
                 </span>
                 <p className="text-sm font-black text-navy-950 capitalize">{simL1Tier.replace('_', ' ')}</p>
-                <p className="text-2xl font-serif font-extrabold text-amber-700 mt-2 font-mono">
+                <p className="text-2xl font-serif font-extrabold text-amber-700 mt-2">
                   +{l1Earned} <span className="text-xs font-sans text-amber-600 font-bold">PTS</span>
                 </p>
                 <p className="text-[11px] text-slate-600 font-medium mt-2">
-                  {t('points.appliedRate', 'Tasa')}: <strong className="text-navy-950 font-mono">{getTierRate(simL1Tier, 1) * 100}%</strong>
+                  {t('points.appliedRate', 'Tasa')}: <strong className="text-navy-950">{getTierRate(simL1Tier, 1) * 100}%</strong>
                 </p>
               </div>
 
@@ -381,11 +381,11 @@ export default function AdminMembershipsPage() {
                   {t('memberships.simL2Sponsor', 'Patrocinador Indirecto (N2)')}
                 </span>
                 <p className="text-sm font-black text-navy-950 capitalize">{simL2Tier.replace('_', ' ')}</p>
-                <p className="text-2xl font-serif font-extrabold text-sky-700 mt-2 font-mono">
+                <p className="text-2xl font-serif font-extrabold text-sky-700 mt-2">
                   +{l2Earned} <span className="text-xs font-sans text-sky-600 font-bold">PTS</span>
                 </p>
                 <p className="text-[11px] text-slate-600 font-medium mt-2">
-                  {t('points.appliedRate', 'Tasa')}: <strong className="text-navy-950 font-mono">{getTierRate(simL2Tier, 2) * 100}%</strong>
+                  {t('points.appliedRate', 'Tasa')}: <strong className="text-navy-950">{getTierRate(simL2Tier, 2) * 100}%</strong>
                 </p>
               </div>
             </div>
@@ -405,7 +405,7 @@ export default function AdminMembershipsPage() {
                   </p>
                 </div>
               </div>
-              <span className="text-3xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-amber-200 font-mono">
+              <span className="text-3xl font-serif font-black text-transparent bg-clip-text bg-gradient-to-r from-gold-300 via-gold-400 to-amber-200">
                 {l1Earned + l2Earned} PTS
               </span>
             </div>

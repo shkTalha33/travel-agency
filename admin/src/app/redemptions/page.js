@@ -164,7 +164,7 @@ export default function AdminRedemptionsPage() {
                     <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase border ${badge.color}`}>
                       {badge.label}
                     </span>
-                    <span className="text-[10px] text-navy-400 font-mono">ID: {r._id.slice(-8)}</span>
+                    <span className="text-[10px] text-navy-400">ID: {r._id.slice(-8)}</span>
                     <span className="text-[11px] text-navy-500">• {new Date(r.createdAt).toLocaleString()}</span>
                   </div>
 
@@ -207,7 +207,7 @@ export default function AdminRedemptionsPage() {
                     <span className="text-[10px] uppercase font-bold text-navy-400 block">
                       {t('redemptions.requestedPoints', 'Puntos Solicitados')}
                     </span>
-                    <span className="text-2xl font-serif font-bold text-gold-700 font-mono">
+                    <span className="text-2xl font-serif font-bold text-gold-700">
                       {r.points?.toLocaleString()} PTS
                     </span>
                   </div>
@@ -238,7 +238,7 @@ export default function AdminRedemptionsPage() {
           <form onSubmit={handleUpdateStatus} className="space-y-4">
             <div className="p-3.5 rounded-2xl bg-sand-50 border border-sand-200 text-xs">
               <p className="font-bold text-navy-950">{actionModal.userId?.fullname}</p>
-              <p className="text-gold-700 font-bold font-mono text-sm mt-0.5">{actionModal.points} PTS</p>
+              <p className="text-gold-700 font-bold text-sm mt-0.5">{actionModal.points} PTS</p>
               <p className="text-navy-500 text-[11px] mt-1">{actionModal.paymentDetails}</p>
             </div>
 

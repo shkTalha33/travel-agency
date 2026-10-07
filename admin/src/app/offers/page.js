@@ -295,7 +295,7 @@ export default function AdminOffersPage() {
 
               {/* Action Buttons */}
               <div className="px-5 py-3 bg-sand-50 border-t border-sand-200 flex items-center justify-between">
-                <span className="text-[10px] text-navy-500 font-mono">ID: {offer._id.slice(-6)}</span>
+                <span className="text-[10px] text-navy-500">ID: {offer._id.slice(-6)}</span>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleOpenEdit(offer)}

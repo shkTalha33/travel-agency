@@ -7,8 +7,9 @@ module.exports = {
     extend: {
       colors,
       fontFamily: {
-        sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+        sans: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
         serif: ['Playfair Display', 'Georgia', 'serif'],
+        mono: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
       },
       boxShadow: {
         soft: '0 1px 8px -2px rgba(10, 25, 47, 0.035), 0 1px 2px rgba(10, 25, 47, 0.025)',

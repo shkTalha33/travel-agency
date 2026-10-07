@@ -261,7 +261,7 @@ export default function AdminUsersPage() {
                               )}
                             </p>
                             <p className="text-[11px] text-navy-500">{u.email}</p>
-                            <p className="text-[10px] text-gold-700 font-mono font-semibold">
+                            <p className="text-[10px] text-gold-700 font-semibold">
                               Ref: {u.referralCode || 'N/A'}
                             </p>
                           </div>
@@ -303,7 +303,7 @@ export default function AdminUsersPage() {
 
                       {/* Points Balance */}
                       <td className="px-5 py-4">
-                        <div className="font-mono">
+                        <div>
                           <p className="font-bold text-navy-950 text-sm">
                             {(u.pointsStats?.availablePoints || 0).toLocaleString()} <span className="text-[10px] font-sans text-gold-700 font-bold">PTS</span>
                           </p>
@@ -318,7 +318,7 @@ export default function AdminUsersPage() {
                         {u.referredBy ? (
                           <div>
                             <p className="font-bold text-navy-950">{u.referredBy.fullname}</p>
-                            <p className="text-[10px] text-navy-400 font-mono">
+                            <p className="text-[10px] text-navy-400">
                               {u.referredBy.referralCode || u.referredBy.email}
                             </p>
                           </div>
@@ -458,7 +458,7 @@ export default function AdminUsersPage() {
                 min="0"
                 value={editUserModal.availablePoints}
                 onChange={(e) => setEditUserModal({ ...editUserModal, availablePoints: e.target.value })}
-                className="w-full px-4 py-2.5 text-xs bg-white border border-sand-300 rounded-xl focus:border-gold-500 outline-none font-mono font-bold text-navy-950 shadow-xs"
+                className="w-full px-4 py-2.5 text-xs bg-white border border-sand-300 rounded-xl focus:border-gold-500 outline-none font-bold text-navy-950 shadow-xs"
               />
             </div>
 

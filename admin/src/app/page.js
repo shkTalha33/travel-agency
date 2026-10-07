@@ -205,7 +205,7 @@ export default function AdminDashboardPage() {
             <p className="text-3xl lg:text-4xl font-serif font-extrabold text-navy-950 tracking-tight">
               {loading ? '...' : (stats?.points?.totalDistributed || 0).toLocaleString()}
             </p>
-            <span className="text-xs font-black font-mono text-amber-900 bg-gradient-to-r from-amber-100 to-gold-100 px-3 py-1 rounded-full border border-gold-300 shadow-xs">
+            <span className="text-xs font-black text-amber-900 bg-gradient-to-r from-amber-100 to-gold-100 px-3 py-1 rounded-full border border-gold-300 shadow-xs">
               PTS
             </span>
           </div>
@@ -396,7 +396,7 @@ export default function AdminDashboardPage() {
                           {t('dashboard.qualifiedMembers', 'Miembros Calificados')}
                         </p>
                       </div>
-                      <span className="text-sm font-black font-mono text-gold-300 bg-white/10 px-2.5 py-1 rounded-xl border border-white/10">
+                      <span className="text-sm font-black text-gold-300 bg-white/10 px-2.5 py-1 rounded-xl border border-white/10">
                         {percentage}%
                       </span>
                     </div>
@@ -446,7 +446,7 @@ export default function AdminDashboardPage() {
                         {t('dashboard.qualifiedMembers', 'Miembros Calificados')}
                       </p>
                     </div>
-                    <span className="text-sm font-bold font-mono text-slate-700 bg-white/80 px-2.5 py-1 rounded-xl border border-slate-200 shadow-xs">
+                    <span className="text-sm font-bold text-slate-700 bg-white/80 px-2.5 py-1 rounded-xl border border-slate-200 shadow-xs">
                       {percentage}%
                     </span>
                   </div>
@@ -546,7 +546,7 @@ export default function AdminDashboardPage() {
                       </p>
                     </div>
                     <div className="text-right shrink-0">
-                      <span className={`text-xs font-bold font-mono px-2 py-0.5 rounded-lg ${
+                      <span className={`text-xs font-bold px-2 py-0.5 rounded-lg ${
                         tx.points >= 0
                           ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
                           : 'bg-rose-50 text-rose-800 border border-rose-200'

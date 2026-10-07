@@ -172,7 +172,7 @@ export default function AdminContactsPage() {
                     <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${badge.color}`}>
                       {badge.label}
                     </span>
-                    <span className="text-[11px] text-navy-400 font-mono">
+                    <span className="text-[11px] text-navy-400 font-medium">
                       {new Date(msg.createdAt).toLocaleString()}
                     </span>
                   </div>

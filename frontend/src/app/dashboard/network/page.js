@@ -78,7 +78,7 @@ export default function NetworkPage() {
               {nv.inviteCardPill || 'Tu enlace exclusivo de invitación'}
             </span>
             <p className="mt-2 text-sm text-slate-600">
-              {(nv.inviteCardDesc || 'Comparte tu enlace o tu código')} <strong className="font-bold text-navy-900 font-mono text-base">{currentUser.referralCode}</strong> {(nv.inviteCardDescSuffix || 'para ganar puntos cuando viajen.')}
+              {(nv.inviteCardDesc || 'Comparte tu enlace o tu código')} <strong className="font-bold text-navy-900 text-base">{currentUser.referralCode}</strong> {(nv.inviteCardDescSuffix || 'para ganar puntos cuando viajen.')}
             </p>
           </div>
           <div className="flex items-center gap-3">

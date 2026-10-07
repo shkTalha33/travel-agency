@@ -243,7 +243,7 @@ export default function AdminFaqsPage() {
                   <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-gold-50 text-gold-800 border border-gold-300">
                     {faq.category || 'General'}
                   </span>
-                  <span className="text-[10px] text-navy-400 font-mono">
+                  <span className="text-[10px] text-navy-400 font-medium">
                     {t('faqs.orderLabel', 'Orden')}: #{faq.order || index + 1}
                   </span>
                 </div>
