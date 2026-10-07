@@ -1,0 +1,28 @@
+{
+  "name": "travel-agency",
+  "version": "1.0.0",
+  "description": "Dominican Republic Travel & Referral Platform End-to-End Test Suite",
+  "main": "index.js",
+  "scripts": {
+    "test": "playwright test",
+    "test:ui": "playwright test --ui",
+    "test:debug": "playwright test --debug",
+    "test:report": "playwright show-report",
+    "test:headed": "playwright test --headed"
+  },
+  "keywords": [
+    "playwright",
+    "testing",
+    "e2e",
+    "travel",
+    "referral"
+  ],
+  "author": "UTecho",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "@types/node": "^26.6.4"
+  }
+}
+
