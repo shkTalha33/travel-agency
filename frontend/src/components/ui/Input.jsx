@@ -18,7 +18,7 @@ export default function Input({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label htmlFor={fid} className="mb-1.5 block text-xs font-semibold uppercase tracking-wider text-slate-700">
+        <label htmlFor={fid} className="mb-1.5 block text-sm font-medium capitalize text-slate-700">
           {label}
           {required && <span className="ml-1 text-rose-500" aria-hidden="true">*</span>}
         </label>

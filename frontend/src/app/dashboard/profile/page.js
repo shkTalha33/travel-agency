@@ -91,11 +91,11 @@ export default function ProfilePage() {
       {tab === 'referidos' && (
         <Card className="space-y-4">
           <div>
-            <p className="text-xs uppercase tracking-wide text-slate-500">{pv.referralCode || 'Código de referido'}</p>
+            <p className="text-xs font-medium capitalize tracking-wide text-slate-500">{pv.referralCode || 'Código de referido'}</p>
             <p className="text-xl font-bold text-navy-900">{u.referralCode}</p>
           </div>
           <div>
-            <label htmlFor="enlace" className="mb-1 block text-xs uppercase tracking-wide text-slate-500">{pv.referralLink || 'Enlace de referido'}</label>
+            <label htmlFor="enlace" className="mb-1 block text-xs font-medium capitalize tracking-wide text-slate-500">{pv.referralLink || 'Enlace de referido'}</label>
             <div className="flex gap-2">
               <input id="enlace" readOnly value={u.referralLink} className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm" />
               <Button variant="secondary" onClick={copyRefLink} icon={copied ? <Check size={16} /> : <Copy size={16} />}>

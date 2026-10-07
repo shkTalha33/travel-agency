@@ -4,6 +4,7 @@ export const MAIN_NAV = [
   { key: 'how', href: '/#como-funciona' },
   { key: 'membership', href: '/membership' },
   { key: 'about', href: '/about' },
+  { key: 'contact', href: '/contact' },
   { key: 'faq', href: '/faq' },
 ];
 
@@ -23,6 +24,7 @@ export const FOOTER_COLUMNS = [
       { labelKey: 'nav.offers', href: '/offers' },
       { labelKey: 'nav.membership', href: '/membership' },
       { labelKey: 'nav.about', href: '/about' },
+      { labelKey: 'nav.contact', href: '/contact' },
       { labelKey: 'footer.faq', href: '/faq' },
     ],
   },
@@ -39,7 +41,7 @@ export const FOOTER_COLUMNS = [
     links: [
       { labelKey: 'footer.terms', href: '/terms' },
       { labelKey: 'footer.privacy', href: '/privacy' },
-      { labelKey: 'footer.contact', href: '/about#contacto' },
+      { labelKey: 'footer.contact', href: '/contact' },
     ],
   },
 ];

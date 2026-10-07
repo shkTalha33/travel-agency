@@ -134,7 +134,7 @@ export default function RegisterPage() {
           </div>
 
           <div className="space-y-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-navy-900 text-center">
+            <label className="block text-sm font-semibold text-navy-900 text-center">
               {isEn ? 'Verification Code' : 'Código de Verificación'}
             </label>
             <OtpInput

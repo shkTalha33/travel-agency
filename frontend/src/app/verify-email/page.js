@@ -119,7 +119,7 @@ export default function VerifyEmailPage() {
         />
 
         <div className="space-y-2">
-          <label className="block text-xs font-bold uppercase tracking-wider text-navy-900 text-center">
+          <label className="block text-sm font-semibold capitalize text-navy-900 text-center">
             {isEn ? 'Verification Code' : 'Código de Verificación'}
           </label>
           <OtpInput

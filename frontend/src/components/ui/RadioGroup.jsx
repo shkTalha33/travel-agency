@@ -5,7 +5,7 @@ import React from 'react';
 export default function RadioGroup({ legend, name, options = [], value, onChange, className = '' }) {
   return (
     <fieldset className={className}>
-      {legend && <legend className="text-xs font-semibold text-slate-700 uppercase tracking-wider mb-2">{legend}</legend>}
+      {legend && <legend className="text-sm font-medium text-slate-700 mb-2">{legend}</legend>}
       <div className="space-y-2">
         {options.map((o) => {
           const id = `${name}-${o.value}`;

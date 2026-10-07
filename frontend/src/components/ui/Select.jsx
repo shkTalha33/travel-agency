@@ -10,7 +10,7 @@ export default function Select({ label, id, options = [], value, onChange, error
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label htmlFor={fid} className="block text-xs font-semibold text-slate-700 uppercase tracking-wider mb-1.5">
+        <label htmlFor={fid} className="mb-1.5 block text-sm font-medium capitalize text-slate-700">
           {label}{required && <span className="text-rose-500 ml-1" aria-hidden="true">*</span>}
         </label>
       )}
