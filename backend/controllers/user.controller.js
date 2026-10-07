@@ -281,6 +281,214 @@ const deactivateAccount = aysncHandler(async (req, res) => {
     .json(onSuccess(successMessages.DEACTIVATE_USER, {}));
 });
 
+/**
+ * ==========================================
+ * ADMIN CONTROLLERS FOR USER MANAGEMENT
+ * ==========================================
+ */
+
+/**
+ * Get all users with search, role/tier filtering, and pagination (Admin only)
+ */
+const getAllUsersAdmin = aysncHandler(async (req, res) => {
+  const { search, membershipId, role, status, page = 1, limit = 20, sort = "-createdAt" } = req.query;
+
+  const query = {};
+
+  if (search) {
+    const searchRegex = new RegExp(search.trim(), "i");
+    query.$or = [
+      { fullname: searchRegex },
+      { email: searchRegex },
+      { username: searchRegex },
+      { referralCode: searchRegex },
+      { phone: searchRegex },
+    ];
+  }
+
+  if (membershipId) {
+    query.membershipId = membershipId;
+  }
+
+  if (role) {
+    query.role = role;
+  }
+
+  if (status) {
+    query.status = status;
+  }
+
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+  const skip = (pageNum - 1) * limitNum;
+
+  const [users, total] = await Promise.all([
+    User.find(query)
+      .select("-password -refreshToken -emailVerificationToken -resetPasswordToken")
+      .populate("referredBy", "fullname email username referralCode")
+      .sort(sort)
+      .skip(skip)
+      .limit(limitNum)
+      .lean(),
+    User.countDocuments(query),
+  ]);
+
+  return res.status(200).json(
+    onSuccess("Usuarios obtenidos correctamente", {
+      users,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    })
+  );
+});
+
+/**
+ * Update user status, role, or membership tier (Admin only)
+ */
+const updateUserStatusAdmin = aysncHandler(async (req, res, next) => {
+  const { id } = req.params;
+  const { role, membershipId, status, isEmailVerified, availablePoints } = req.body;
+
+  const user = await User.findById(id);
+  if (!user) {
+    return next(new NotFoundException(errorMessages.USER_NOT_FOUND));
+  }
+
+  const updates = {};
+  if (role !== undefined) updates.role = role;
+  if (membershipId !== undefined) updates.membershipId = membershipId;
+  if (status !== undefined) updates.status = status;
+  if (isEmailVerified !== undefined) updates.isEmailVerified = isEmailVerified;
+  if (availablePoints !== undefined && !isNaN(Number(availablePoints))) {
+    updates["pointsStats.availablePoints"] = Math.max(0, Number(availablePoints));
+  }
+
+  const updatedUser = await User.findByIdAndUpdate(
+    id,
+    { $set: updates },
+    { new: true, runValidators: true }
+  ).select("-password -refreshToken -emailVerificationToken -resetPasswordToken");
+
+  return res.status(200).json(
+    onSuccess("Estado del usuario actualizado exitosamente", updatedUser)
+  );
+});
+
+/**
+ * Delete / deactivate a user permanently (Admin only)
+ */
+const deleteUserAdmin = aysncHandler(async (req, res, next) => {
+  const { id } = req.params;
+
+  const user = await User.findById(id);
+  if (!user) {
+    return next(new NotFoundException(errorMessages.USER_NOT_FOUND));
+  }
+
+  // Prevent self-deletion of currently logged in admin
+  if (user._id.toString() === req.user._id.toString()) {
+    return next(new BadRequestException("No puede eliminar su propia cuenta de administrador"));
+  }
+
+  await User.findByIdAndDelete(id);
+
+  return res.status(200).json(
+    onSuccess("Usuario eliminado permanentemente", {})
+  );
+});
+
+/**
+ * Get comprehensive Admin Dashboard Statistics
+ */
+const getAdminDashboardStats = aysncHandler(async (req, res) => {
+  const Offer = require("../models/offer.model");
+  const Redemption = require("../models/redemption.model");
+  const Contact = require("../models/contact.model");
+
+  const [
+    totalUsers,
+    membersCount,
+    activeMembersCount,
+    ambassadorsCount,
+    eliteAmbassadorsCount,
+    activeOffersCount,
+    pendingRedemptionsCount,
+    newContactsCount,
+    pointsAgg,
+    recentUsers,
+    recentTransactions,
+  ] = await Promise.all([
+    User.countDocuments({ status: "active" }),
+    User.countDocuments({ membershipId: "member", status: "active" }),
+    User.countDocuments({ membershipId: "active_member", status: "active" }),
+    User.countDocuments({ membershipId: "ambassador", status: "active" }),
+    User.countDocuments({ membershipId: "elite_ambassador", status: "active" }),
+    Offer.countDocuments({ isFeatured: true }),
+    Redemption.countDocuments({ status: "pending" }),
+    Contact.countDocuments({ status: "new" }),
+    PointTransaction.aggregate([
+      { $match: { status: "completed" } },
+      {
+        $group: {
+          _id: "$type",
+          total: { $sum: "$points" },
+        },
+      },
+    ]),
+    User.find()
+      .select("fullname email username membershipId role status createdAt")
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .lean(),
+    PointTransaction.find()
+      .populate("userId", "fullname email")
+      .sort({ createdAt: -1 })
+      .limit(6)
+      .lean(),
+  ]);
+
+  let totalDistributed = 0;
+  let totalRedeemed = 0;
+
+  pointsAgg.forEach((item) => {
+    if (item._id === "redemption") {
+      totalRedeemed += Math.abs(item.total);
+    } else {
+      totalDistributed += item.total;
+    }
+  });
+
+  const stats = {
+    users: {
+      total: totalUsers,
+      member: membersCount,
+      active_member: activeMembersCount,
+      ambassador: ambassadorsCount,
+      elite_ambassador: eliteAmbassadorsCount,
+    },
+    points: {
+      totalDistributed,
+      totalRedeemed,
+      currentActiveLiability: Math.max(0, totalDistributed - totalRedeemed),
+    },
+    counts: {
+      offers: activeOffersCount,
+      pendingRedemptions: pendingRedemptionsCount,
+      newContacts: newContactsCount,
+    },
+    recentUsers,
+    recentTransactions,
+  };
+
+  return res.status(200).json(
+    onSuccess("Estadísticas del panel administrativo", stats)
+  );
+});
+
 module.exports = {
   getProfile,
   updateProfile,
@@ -290,4 +498,8 @@ module.exports = {
   changeUsername,
   getMyNetwork,
   deactivateAccount,
+  getAllUsersAdmin,
+  updateUserStatusAdmin,
+  deleteUserAdmin,
+  getAdminDashboardStats,
 };

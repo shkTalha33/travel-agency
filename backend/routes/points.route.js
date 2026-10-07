@@ -3,6 +3,7 @@ const {
   getMyPointsSummary,
   getMyTransactions,
   adminAssignPurchasePoints,
+  getAllTransactionsAdmin,
 } = require("../controllers/points.controller");
 const { assignPointsValidation } = require("../middlewares/validation.middleware");
 const { verifyJwt } = require("../middlewares/verifyJwt");
@@ -22,6 +23,12 @@ router.route("/admin/assign-purchase-points").post(
   requireRole(USER_ROLES.ADMIN),
   assignPointsValidation,
   adminAssignPurchasePoints
+);
+
+// Admin all transactions history
+router.route("/admin/transactions").get(
+  requireRole(USER_ROLES.ADMIN),
+  getAllTransactionsAdmin
 );
 
 module.exports = router;

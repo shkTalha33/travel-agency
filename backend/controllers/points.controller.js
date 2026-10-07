@@ -267,8 +267,46 @@ const adminAssignPurchasePoints = aysncHandler(async (req, res, next) => {
   );
 });
 
+/**
+ * Get all transactions across system (Admin only)
+ */
+const getAllTransactionsAdmin = aysncHandler(async (req, res) => {
+  const { type, search, page = 1, limit = 20 } = req.query;
+
+  const filter = {};
+  if (type) filter.type = type;
+
+  const pageNum = Math.max(1, parseInt(page, 10) || 1);
+  const limitNum = Math.min(100, Math.max(1, parseInt(limit, 10) || 20));
+  const skip = (pageNum - 1) * limitNum;
+
+  const [transactions, total] = await Promise.all([
+    PointTransaction.find(filter)
+      .populate("userId", "fullname email username")
+      .populate("sourceUserId", "fullname email username")
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limitNum)
+      .lean(),
+    PointTransaction.countDocuments(filter),
+  ]);
+
+  return res.status(200).json(
+    onSuccess("Transacciones obtenidas correctamente", {
+      transactions,
+      pagination: {
+        total,
+        page: pageNum,
+        limit: limitNum,
+        totalPages: Math.ceil(total / limitNum),
+      },
+    })
+  );
+});
+
 module.exports = {
   getMyPointsSummary,
   getMyTransactions,
   adminAssignPurchasePoints,
+  getAllTransactionsAdmin,
 };

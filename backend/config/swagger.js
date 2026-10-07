@@ -661,6 +661,293 @@ const swaggerDefinition = {
         },
       },
     },
+    "/users/admin/dashboard-stats": {
+      get: {
+        tags: ["Admin - Dashboard & Users"],
+        summary: "Estadísticas globales del panel administrativo",
+        security: [{ BearerAuth: [] }],
+        responses: {
+          200: { description: "Resumen de métricas de usuarios, puntos, ofertas y solicitudes", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/users/admin/all": {
+      get: {
+        tags: ["Admin - Dashboard & Users"],
+        summary: "Listar todos los usuarios con filtros y búsqueda",
+        security: [{ BearerAuth: [] }],
+        parameters: [
+          { name: "search", in: "query", schema: { type: "string" } },
+          { name: "membershipId", in: "query", schema: { type: "string" } },
+          { name: "role", in: "query", schema: { type: "string" } },
+          { name: "status", in: "query", schema: { type: "string" } },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
+        responses: {
+          200: { description: "Lista de usuarios y paginación", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/users/admin/{id}/status": {
+      put: {
+        tags: ["Admin - Dashboard & Users"],
+        summary: "Actualizar nivel de membresía, rol o estado del usuario",
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  role: { type: "string", enum: ["user", "admin"] },
+                  membershipId: { type: "string", enum: ["member", "active_member", "ambassador", "elite_ambassador"] },
+                  status: { type: "string", enum: ["active", "deactivate", "deleted"] },
+                  isEmailVerified: { type: "boolean" },
+                  availablePoints: { type: "number" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Usuario actualizado", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/users/admin/{id}": {
+      delete: {
+        tags: ["Admin - Dashboard & Users"],
+        summary: "Eliminar permanentemente un usuario",
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          200: { description: "Usuario eliminado", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/offers": {
+      get: {
+        tags: ["Travel Offers"],
+        summary: "Listar catálogo de ofertas de viaje",
+        responses: {
+          200: { description: "Listado de ofertas", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+      post: {
+        tags: ["Admin - Travel Offers"],
+        summary: "Crear una nueva oferta de viaje",
+        security: [{ BearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/TravelOffer" },
+            },
+          },
+        },
+        responses: {
+          201: { description: "Oferta creada exitosamente", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/offers/{id}": {
+      put: {
+        tags: ["Admin - Travel Offers"],
+        summary: "Actualizar una oferta de viaje",
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: { $ref: "#/components/schemas/TravelOffer" },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Oferta actualizada exitosamente", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+      delete: {
+        tags: ["Admin - Travel Offers"],
+        summary: "Eliminar una oferta de viaje",
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          200: { description: "Oferta eliminada exitosamente", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/faqs": {
+      get: {
+        tags: ["FAQs"],
+        summary: "Obtener preguntas frecuentes",
+        responses: {
+          200: { description: "Lista de preguntas frecuentes", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+      post: {
+        tags: ["Admin - FAQs"],
+        summary: "Crear una nueva pregunta frecuente",
+        security: [{ BearerAuth: [] }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["question", "answer"],
+                properties: {
+                  question: { type: "string" },
+                  answer: { type: "string" },
+                  category: { type: "string", default: "general" },
+                  order: { type: "number", default: 0 },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          201: { description: "FAQ creada", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/faqs/{id}": {
+      put: {
+        tags: ["Admin - FAQs"],
+        summary: "Actualizar una pregunta frecuente",
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                properties: {
+                  question: { type: "string" },
+                  answer: { type: "string" },
+                  category: { type: "string" },
+                  order: { type: "number" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "FAQ actualizada", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+      delete: {
+        tags: ["Admin - FAQs"],
+        summary: "Eliminar una pregunta frecuente",
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        responses: {
+          200: { description: "FAQ eliminada", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/redemptions/admin/all": {
+      get: {
+        tags: ["Admin - Redemptions"],
+        summary: "Listar todas las solicitudes de redención de puntos",
+        security: [{ BearerAuth: [] }],
+        parameters: [
+          { name: "status", in: "query", schema: { type: "string", enum: ["pending", "approved", "rejected", "completed"] } },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
+        responses: {
+          200: { description: "Listado de redenciones administrativas", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/redemptions/admin/{id}/status": {
+      put: {
+        tags: ["Admin - Redemptions"],
+        summary: "Aprobar, rechazar o completar una solicitud de redención",
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["status"],
+                properties: {
+                  status: { type: "string", enum: ["approved", "rejected", "completed"] },
+                  adminNotes: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Estado de redención actualizado", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/points/admin/transactions": {
+      get: {
+        tags: ["Admin - Points Management"],
+        summary: "Listar todas las transacciones de puntos del sistema",
+        security: [{ BearerAuth: [] }],
+        parameters: [
+          { name: "type", in: "query", schema: { type: "string" } },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
+        responses: {
+          200: { description: "Historial completo de transacciones", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/contact/admin/all": {
+      get: {
+        tags: ["Admin - Contact Inquiries"],
+        summary: "Listar mensajes y consultas de contacto",
+        security: [{ BearerAuth: [] }],
+        parameters: [
+          { name: "status", in: "query", schema: { type: "string", enum: ["new", "read", "replied", "archived"] } },
+          { name: "page", in: "query", schema: { type: "integer", default: 1 } },
+          { name: "limit", in: "query", schema: { type: "integer", default: 20 } },
+        ],
+        responses: {
+          200: { description: "Lista de mensajes de contacto", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
+    "/contact/admin/{id}/status": {
+      put: {
+        tags: ["Admin - Contact Inquiries"],
+        summary: "Actualizar estado de mensaje de contacto (marcar leído, respondido)",
+        security: [{ BearerAuth: [] }],
+        parameters: [{ name: "id", in: "path", required: true, schema: { type: "string" } }],
+        requestBody: {
+          required: true,
+          content: {
+            "application/json": {
+              schema: {
+                type: "object",
+                required: ["status"],
+                properties: {
+                  status: { type: "string", enum: ["new", "read", "replied", "archived"] },
+                  adminNotes: { type: "string" },
+                },
+              },
+            },
+          },
+        },
+        responses: {
+          200: { description: "Estado actualizado", content: { "application/json": { schema: { $ref: "#/components/schemas/ApiResponseSuccess" } } } },
+        },
+      },
+    },
   },
 };
 
