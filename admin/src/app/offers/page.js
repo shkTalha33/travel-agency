@@ -18,6 +18,10 @@ import {
   AlertCircle,
 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
+import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
+import Input from '@/components/ui/Input';
+import EmptyState from '@/components/ui/EmptyState';
 import ImageUpload from '@/components/ui/ImageUpload';
 import Checkbox from '@/components/ui/Checkbox';
 import CountrySelect from '@/components/ui/CountrySelect';
@@ -27,20 +31,31 @@ import { getCountryByName, getCountryFlag } from '@/data/countries';
 
 const INITIAL_OFFER_FORM = {
   title: '',
+  titleEn: '',
   slug: '',
   destination: '',
+  destinationEn: '',
   country: 'República Dominicana',
+  countryEn: 'Dominican Republic',
   priceUSD: '',
   pointsReward: '',
   duration: '',
+  durationEn: '',
   hotelCategory: '',
+  hotelCategoryEn: '',
   badge: '',
+  badgeEn: '',
   image: '',
   summary: '',
+  summaryEn: '',
   description: '',
+  descriptionEn: '',
   highlights: [],
+  highlightsEn: [],
   included: [],
+  includedEn: [],
   notIncluded: [],
+  notIncludedEn: [],
   isFeatured: false,
 };
 
@@ -90,26 +105,43 @@ export default function AdminOffersPage() {
     setErrors({});
     setFormData({
       title: offer.title || '',
+      titleEn: offer.titleEn || offer.en?.title || '',
       slug: offer.slug || '',
       destination: offer.destination || '',
+      destinationEn: offer.destinationEn || offer.en?.destination || '',
       country: offer.country || 'República Dominicana',
+      countryEn: offer.countryEn || offer.en?.country || 'Dominican Republic',
       priceUSD: offer.priceUSD || 0,
       pointsReward: offer.pointsReward || 0,
       duration: offer.duration || '',
+      durationEn: offer.durationEn || offer.en?.duration || '',
       hotelCategory: offer.hotelCategory || '',
+      hotelCategoryEn: offer.hotelCategoryEn || offer.en?.hotelCategory || '',
       badge: offer.badge || '',
+      badgeEn: offer.badgeEn || offer.en?.badge || '',
       image: offer.image || '',
       summary: offer.summary || '',
+      summaryEn: offer.summaryEn || offer.en?.summary || '',
       description: offer.description || '',
+      descriptionEn: offer.descriptionEn || offer.en?.description || '',
       highlights: Array.isArray(offer.highlights)
         ? offer.highlights
         : (typeof offer.highlights === 'string' ? offer.highlights.split(',').map((s) => s.trim()).filter(Boolean) : []),
+      highlightsEn: Array.isArray(offer.highlightsEn || offer.en?.highlights)
+        ? (offer.highlightsEn || offer.en?.highlights)
+        : [],
       included: Array.isArray(offer.included)
         ? offer.included
         : (typeof offer.included === 'string' ? offer.included.split(',').map((s) => s.trim()).filter(Boolean) : []),
+      includedEn: Array.isArray(offer.includedEn || offer.en?.included)
+        ? (offer.includedEn || offer.en?.included)
+        : [],
       notIncluded: Array.isArray(offer.notIncluded)
         ? offer.notIncluded
         : (typeof offer.notIncluded === 'string' ? offer.notIncluded.split(',').map((s) => s.trim()).filter(Boolean) : []),
+      notIncludedEn: Array.isArray(offer.notIncludedEn || offer.en?.notIncluded)
+        ? (offer.notIncludedEn || offer.en?.notIncluded)
+        : [],
       isFeatured: !!offer.isFeatured,
     });
     setModalOpen(true);
@@ -156,34 +188,76 @@ export default function AdminOffersPage() {
 
     const highlightsArr = Array.isArray(formData.highlights)
       ? formData.highlights.filter(Boolean)
-      : (typeof formData.highlights === 'string' ? formData.highlights.split(',').map((s) => s.trim()).filter(Boolean) : []);
+      : typeof formData.highlights === 'string'
+      ? formData.highlights.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+    const highlightsEnArr = Array.isArray(formData.highlightsEn)
+      ? formData.highlightsEn.filter(Boolean)
+      : typeof formData.highlightsEn === 'string'
+      ? formData.highlightsEn.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+
     const includedArr = Array.isArray(formData.included)
       ? formData.included.filter(Boolean)
-      : (typeof formData.included === 'string' ? formData.included.split(',').map((s) => s.trim()).filter(Boolean) : []);
+      : typeof formData.included === 'string'
+      ? formData.included.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+    const includedEnArr = Array.isArray(formData.includedEn)
+      ? formData.includedEn.filter(Boolean)
+      : typeof formData.includedEn === 'string'
+      ? formData.includedEn.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+
     const notIncludedArr = Array.isArray(formData.notIncluded)
       ? formData.notIncluded.filter(Boolean)
-      : (typeof formData.notIncluded === 'string' ? formData.notIncluded.split(',').map((s) => s.trim()).filter(Boolean) : []);
+      : typeof formData.notIncluded === 'string'
+      ? formData.notIncluded.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
+    const notIncludedEnArr = Array.isArray(formData.notIncludedEn)
+      ? formData.notIncludedEn.filter(Boolean)
+      : typeof formData.notIncludedEn === 'string'
+      ? formData.notIncludedEn.split(',').map((s) => s.trim()).filter(Boolean)
+      : [];
 
     const payload = {
       ...formData,
+      title: formData.title.trim(),
+      titleEn: formData.titleEn?.trim() || formData.title.trim(),
+      destination: formData.destination.trim(),
+      destinationEn: formData.destinationEn?.trim() || formData.destination.trim(),
       country: countryName,
+      countryEn: countryNameEn,
       countryCode: countryCode,
       priceUSD: Number(formData.priceUSD),
       pointsReward: Number(formData.pointsReward),
+      duration: formData.duration.trim(),
+      durationEn: formData.durationEn?.trim() || formData.duration.trim(),
       summary: formData.summary.trim(),
+      summaryEn: formData.summaryEn?.trim() || formData.summary.trim(),
       description: (formData.description || formData.summary).trim(),
+      descriptionEn: (formData.descriptionEn || formData.summaryEn || formData.description || formData.summary).trim(),
       hotelCategory: formData.hotelCategory || 'Resort 4 estrellas',
+      hotelCategoryEn: formData.hotelCategoryEn || '4-Star Resort',
+      badge: formData.badge?.trim() || '',
+      badgeEn: formData.badgeEn?.trim() || formData.badge?.trim() || '',
       highlights: highlightsArr,
+      highlightsEn: highlightsEnArr.length > 0 ? highlightsEnArr : highlightsArr,
       included: includedArr,
+      includedEn: includedEnArr.length > 0 ? includedEnArr : includedArr,
       notIncluded: notIncludedArr,
+      notIncludedEn: notIncludedEnArr.length > 0 ? notIncludedEnArr : notIncludedArr,
       en: {
-        title: formData.title,
+        title: formData.titleEn?.trim() || formData.title.trim(),
+        destination: formData.destinationEn?.trim() || formData.destination.trim(),
         country: countryNameEn,
-        duration: formData.duration,
-        hotelCategory: formData.hotelCategory || '4-star resort',
-        badge: formData.badge,
-        summary: formData.summary,
-        description: formData.description || formData.summary,
+        duration: formData.durationEn?.trim() || formData.duration.trim(),
+        hotelCategory: formData.hotelCategoryEn || formData.hotelCategory || '4-star resort',
+        badge: formData.badgeEn?.trim() || formData.badge || '',
+        summary: formData.summaryEn?.trim() || formData.summary.trim(),
+        description: (formData.descriptionEn || formData.description || formData.summary).trim(),
+        highlights: highlightsEnArr.length > 0 ? highlightsEnArr : highlightsArr,
+        included: includedEnArr.length > 0 ? includedEnArr : includedArr,
+        notIncluded: notIncludedEnArr.length > 0 ? notIncludedEnArr : notIncludedArr,
       },
     };
 
@@ -234,26 +308,24 @@ export default function AdminOffersPage() {
       title={t('offers.title', 'Gestión de Ofertas de Viaje')}
       subtitle={t('offers.subtitle', 'Creación, edición y publicación de paquetes turísticos y asignación de recompensas en puntos')}
       actionButton={
-        <button
+        <Button
+          variant="gold"
+          size="sm"
+          icon={<Plus className="w-4 h-4" />}
           onClick={handleOpenCreate}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm transition-all cursor-pointer"
         >
-          <Plus className="w-4 h-4" />
-          <span>{t('offers.newOffer', 'Nueva Oferta')}</span>
-        </button>
+          {t('offers.newOffer', 'Nueva Oferta')}
+        </Button>
       }
     >
-
       {/* Filter / Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-navy-400" />
-          <input
-            type="text"
+        <div className="w-full sm:w-80">
+          <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('offers.searchPlaceholder', 'Buscar por destino o título...')}
-            className="w-full pl-10 pr-4 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+            icon={<Search className="w-4 h-4" />}
           />
         </div>
         <p className="text-xs text-navy-500 font-medium">
@@ -268,10 +340,15 @@ export default function AdminOffersPage() {
             {t('offers.loadingOffers', 'Cargando catálogo de ofertas...')}
           </div>
         ) : filteredOffers.length === 0 ? (
-          <div className="col-span-full py-12 text-center bg-white rounded-2xl border border-sand-200">
-            <Palmtree className="w-10 h-10 text-sand-400 mx-auto mb-2" />
-            <p className="text-xs font-bold text-navy-800">{t('offers.noOffersFound', 'No se encontraron ofertas')}</p>
-            <p className="text-[11px] text-navy-500 mt-1">{t('offers.clickNewOffer', "Haga clic en 'Nueva Oferta' para crear el primer paquete.")}</p>
+          <div className="col-span-full">
+            <EmptyState
+              icon={<Palmtree className="w-8 h-8 text-sand-400" />}
+              title={t('offers.noOffersFound', 'No se encontraron ofertas')}
+              description={t('offers.clickNewOffer', "Haga clic en 'Nueva Oferta' para crear el primer paquete.")}
+              actionText={t('offers.newOffer', 'Nueva Oferta')}
+              actionIcon={<Plus className="w-4 h-4" />}
+              onAction={handleOpenCreate}
+            />
           </div>
         ) : (
           filteredOffers.map((offer) => (
@@ -309,9 +386,9 @@ export default function AdminOffersPage() {
                       </span>
                     )}
                     {offer.isFeatured && (
-                      <span className="px-2 py-0.5 rounded-md text-[10px] font-bold uppercase bg-navy-950/80 text-white backdrop-blur-sm">
+                      <Badge variant="primary" size="xs">
                         {t('offers.featured', 'Destacada')}
-                      </span>
+                      </Badge>
                     )}
                   </div>
                   <div className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg bg-navy-950/90 text-gold-400 font-bold text-xs backdrop-blur-md border border-gold-500/30">
@@ -351,21 +428,23 @@ export default function AdminOffersPage() {
               {/* Action Buttons */}
               <div className="px-5 py-3 bg-sand-50 border-t border-sand-200 flex items-center justify-between">
                 <span className="text-[10px] text-navy-500">ID: {offer._id.slice(-6)}</span>
-                <div className="flex items-center gap-2">
-                  <button
+                <div className="flex items-center gap-1">
+                  <Button
+                    variant="ghost"
+                    size="xs"
                     onClick={() => handleOpenEdit(offer)}
-                    className="p-1.5 text-navy-700 hover:text-gold-700 hover:bg-gold-50 rounded-lg transition-colors cursor-pointer"
                     title={t('common.edit', 'Editar')}
                   >
-                    <Edit2 className="w-4 h-4" />
-                  </button>
-                  <button
+                    <Edit2 className="w-4 h-4 text-navy-700 hover:text-gold-700" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="xs"
                     onClick={() => setDeleteConfirmId(offer._id)}
-                    className="p-1.5 text-rose-600 hover:text-rose-800 hover:bg-rose-50 rounded-lg transition-colors cursor-pointer"
                     title={t('common.delete', 'Eliminar')}
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                    <Trash2 className="w-4 h-4 text-rose-600 hover:text-rose-800" />
+                  </Button>
                 </div>
               </div>
             </div>
@@ -386,23 +465,23 @@ export default function AdminOffersPage() {
         maxWidth="max-w-3xl"
         footer={
           <>
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => setModalOpen(false)}
-              className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl transition-colors cursor-pointer"
             >
               {t('common.cancel', 'Cancelar')}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="gold"
+              size="sm"
               type="submit"
               form="offer-form"
               disabled={submitting}
-              className="px-6 py-2.5 text-xs font-bold bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer"
+              isLoading={submitting}
             >
-              {submitting
-                ? isEditing ? t('offers.updating', 'Actualizando...') : t('offers.publishing', 'Publicando...')
-                : isEditing ? t('offers.updateOffer', 'Actualizar Oferta') : t('offers.publishOffer', 'Publicar Oferta')}
-            </button>
+              {isEditing ? t('offers.updateOffer', 'Actualizar Oferta') : t('offers.publishOffer', 'Publicar Oferta')}
+            </Button>
           </>
         }
       >
@@ -423,7 +502,7 @@ export default function AdminOffersPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-xs font-bold text-navy-800 mb-1">
-                {t('offers.offerTitle', 'Título de la Oferta')} <span className="text-rose-500">*</span>
+                {isEn ? 'Offer Title (Spanish)' : 'Título de la Oferta (Español)'} <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
@@ -435,7 +514,7 @@ export default function AdminOffersPage() {
                 className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
                   errors.title ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
                 }`}
-                placeholder={isEn ? 'Punta Cana All Inclusive 5-Star Resort' : 'Punta Cana Todo Incluido Resort 5*'}
+                placeholder="Punta Cana Todo Incluido Resort 5*"
               />
               {errors.title && (
                 <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
@@ -443,6 +522,19 @@ export default function AdminOffersPage() {
                   <span>{errors.title}</span>
                 </p>
               )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {isEn ? 'Offer Title (English)' : 'Título de la Oferta (Inglés)'}
+              </label>
+              <input
+                type="text"
+                value={formData.titleEn}
+                onChange={(e) => setFormData({ ...formData, titleEn: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 focus:border-gold-500 rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+                placeholder="Punta Cana All Inclusive 5-Star Resort"
+              />
             </div>
 
             <div>
@@ -460,7 +552,7 @@ export default function AdminOffersPage() {
 
             <div>
               <label className="block text-xs font-bold text-navy-800 mb-1">
-                {t('offers.destination', 'Destino / Ciudad')} <span className="text-rose-500">*</span>
+                {isEn ? 'Destination / City (Spanish)' : 'Destino / Ciudad (Español)'} <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
@@ -472,7 +564,7 @@ export default function AdminOffersPage() {
                 className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
                   errors.destination ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
                 }`}
-                placeholder={isEn ? 'Punta Cana / Fairy Meadows / Cancun' : 'Punta Cana / Fairy Meadows / Cancún'}
+                placeholder="Punta Cana / Cancún"
               />
               {errors.destination && (
                 <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
@@ -480,6 +572,19 @@ export default function AdminOffersPage() {
                   <span>{errors.destination}</span>
                 </p>
               )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {isEn ? 'Destination / City (English)' : 'Destino / Ciudad (Inglés)'}
+              </label>
+              <input
+                type="text"
+                value={formData.destinationEn}
+                onChange={(e) => setFormData({ ...formData, destinationEn: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 focus:border-gold-500 rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+                placeholder="Punta Cana / Cancun"
+              />
             </div>
 
             <div>
@@ -532,7 +637,7 @@ export default function AdminOffersPage() {
 
             <div>
               <label className="block text-xs font-bold text-navy-800 mb-1">
-                {t('offers.duration', 'Duración')} <span className="text-rose-500">*</span>
+                {isEn ? 'Duration (Spanish)' : 'Duración (Español)'} <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
@@ -544,7 +649,7 @@ export default function AdminOffersPage() {
                 className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
                   errors.duration ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
                 }`}
-                placeholder={isEn ? '5 days / 4 nights' : '5 días / 4 noches'}
+                placeholder="5 días / 4 noches"
               />
               {errors.duration && (
                 <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
@@ -556,27 +661,66 @@ export default function AdminOffersPage() {
 
             <div>
               <label className="block text-xs font-bold text-navy-800 mb-1">
-                {t('offers.hotelCategory', 'Categoría de Hotel')}
+                {isEn ? 'Duration (English)' : 'Duración (Inglés)'}
+              </label>
+              <input
+                type="text"
+                value={formData.durationEn}
+                onChange={(e) => setFormData({ ...formData, durationEn: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 focus:border-gold-500 rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+                placeholder="5 days / 4 nights"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {isEn ? 'Hotel Category (Spanish)' : 'Categoría de Hotel (Español)'}
               </label>
               <input
                 type="text"
                 value={formData.hotelCategory}
                 onChange={(e) => setFormData({ ...formData, hotelCategory: e.target.value })}
                 className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0"
-                placeholder={isEn ? '5-star Resort / 4* Boutique Hotel' : 'Resort 5 estrellas / Hotel Boutique 4*'}
+                placeholder="Resort 5 estrellas / Hotel Boutique 4*"
               />
             </div>
 
             <div>
               <label className="block text-xs font-bold text-navy-800 mb-1">
-                {t('offers.badge', 'Distintivo / Badge')}
+                {isEn ? 'Hotel Category (English)' : 'Categoría de Hotel (Inglés)'}
+              </label>
+              <input
+                type="text"
+                value={formData.hotelCategoryEn}
+                onChange={(e) => setFormData({ ...formData, hotelCategoryEn: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0"
+                placeholder="5-Star Resort / 4-Star Boutique Hotel"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {isEn ? 'Badge / Tag (Spanish)' : 'Distintivo / Badge (Español)'}
               </label>
               <input
                 type="text"
                 value={formData.badge}
                 onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
                 className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0"
-                placeholder={isEn ? 'Most Requested / Exclusive' : 'Más Solicitado / Exclusivo'}
+                placeholder="Más Solicitado / Exclusivo"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {isEn ? 'Badge / Tag (English)' : 'Distintivo / Badge (Inglés)'}
+              </label>
+              <input
+                type="text"
+                value={formData.badgeEn}
+                onChange={(e) => setFormData({ ...formData, badgeEn: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0"
+                placeholder="Most Requested / Exclusive"
               />
             </div>
           </div>
@@ -593,9 +737,10 @@ export default function AdminOffersPage() {
             error={errors.image}
           />
 
+          {/* Summaries */}
           <div>
             <label className="block text-xs font-bold text-navy-800 mb-1">
-              {t('offers.shortSummary', 'Resumen Corto')} <span className="text-rose-500">*</span>
+              {isEn ? 'Short Summary (Spanish)' : 'Resumen Corto (Español)'} <span className="text-rose-500">*</span>
             </label>
             <textarea
               rows="2"
@@ -607,7 +752,7 @@ export default function AdminOffersPage() {
               className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
                 errors.summary ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
               }`}
-              placeholder={isEn ? 'Beachfront all-inclusive resort with white-sand beaches, private transfers...' : 'Resort frente al mar con todo incluido, playas de arena blanca y traslados privados...'}
+              placeholder="Resort frente al mar con todo incluido, playas de arena blanca y traslados privados..."
             />
             {errors.summary && (
               <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
@@ -619,48 +764,108 @@ export default function AdminOffersPage() {
 
           <div>
             <label className="block text-xs font-bold text-navy-800 mb-1">
-              {t('offers.description', 'Descripción Detallada')}
+              {isEn ? 'Short Summary (English)' : 'Resumen Corto (Inglés)'}
+            </label>
+            <textarea
+              rows="2"
+              value={formData.summaryEn}
+              onChange={(e) => setFormData({ ...formData, summaryEn: e.target.value })}
+              className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 focus:border-gold-500 rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+              placeholder="Beachfront all-inclusive resort with white-sand beaches, private transfers..."
+            />
+          </div>
+
+          {/* Descriptions */}
+          <div>
+            <label className="block text-xs font-bold text-navy-800 mb-1">
+              {isEn ? 'Detailed Description (Spanish)' : 'Descripción Detallada (Español)'}
             </label>
             <textarea
               rows="3"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
-              placeholder={isEn ? 'Full detailed itinerary, services, views and resort amenities...' : 'Descripción completa de la estancia, servicios, vistas y amenidades...'}
+              placeholder="Descripción completa de la estancia, servicios, vistas y amenidades..."
             />
           </div>
 
-          {/* Highlights — Full Width Interactive Tag Input */}
+          <div>
+            <label className="block text-xs font-bold text-navy-800 mb-1">
+              {isEn ? 'Detailed Description (English)' : 'Descripción Detallada (Inglés)'}
+            </label>
+            <textarea
+              rows="3"
+              value={formData.descriptionEn}
+              onChange={(e) => setFormData({ ...formData, descriptionEn: e.target.value })}
+              className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+              placeholder="Full detailed itinerary, services, views and resort amenities..."
+            />
+          </div>
+
+          {/* Highlights Spanish & English */}
           <div className="pt-1">
             <TagInput
-              label={t('offers.highlights', 'Lo Más Destacado (Highlights)')}
+              label={isEn ? 'Highlights (Spanish)' : 'Lo Más Destacado (Español)'}
               value={formData.highlights}
               onChange={(tags) => setFormData({ ...formData, highlights: tags })}
-              placeholder={t('offers.tagPlaceholderHighlights', 'Escriba un destacado y presione Enter o +...')}
+              placeholder="Escriba un destacado en español y presione Enter o +..."
               variant="ocean"
               addButtonLabel={t('offers.addTag', 'Agregar')}
             />
           </div>
 
-          {/* What is Included — Full Width Interactive Tag Input */}
           <div className="pt-1">
             <TagInput
-              label={t('offers.included', 'Qué Incluye')}
+              label={isEn ? 'Highlights (English)' : 'Lo Más Destacado (Inglés)'}
+              value={formData.highlightsEn}
+              onChange={(tags) => setFormData({ ...formData, highlightsEn: tags })}
+              placeholder="Type a highlight in English and press Enter or +..."
+              variant="ocean"
+              addButtonLabel={t('offers.addTag', 'Agregar')}
+            />
+          </div>
+
+          {/* Included Spanish & English */}
+          <div className="pt-1">
+            <TagInput
+              label={isEn ? 'What is Included (Spanish)' : 'Qué Incluye (Español)'}
               value={formData.included}
               onChange={(tags) => setFormData({ ...formData, included: tags })}
-              placeholder={t('offers.tagPlaceholderIncluded', 'Escriba qué incluye y presione Enter o +...')}
+              placeholder="Escriba qué incluye en español y presione Enter..."
               variant="emerald"
               addButtonLabel={t('offers.addTag', 'Agregar')}
             />
           </div>
 
-          {/* What is NOT Included — Full Width Interactive Tag Input */}
           <div className="pt-1">
             <TagInput
-              label={t('offers.notIncluded', 'Qué NO Incluye')}
+              label={isEn ? 'What is Included (English)' : 'Qué Incluye (Inglés)'}
+              value={formData.includedEn}
+              onChange={(tags) => setFormData({ ...formData, includedEn: tags })}
+              placeholder="Type what is included in English and press Enter..."
+              variant="emerald"
+              addButtonLabel={t('offers.addTag', 'Agregar')}
+            />
+          </div>
+
+          {/* Not Included Spanish & English */}
+          <div className="pt-1">
+            <TagInput
+              label={isEn ? 'What is NOT Included (Spanish)' : 'Qué NO Incluye (Español)'}
               value={formData.notIncluded}
               onChange={(tags) => setFormData({ ...formData, notIncluded: tags })}
-              placeholder={t('offers.tagPlaceholderNotIncluded', 'Escriba qué NO incluye y presione Enter o +...')}
+              placeholder="Escriba qué NO incluye en español y presione Enter..."
+              variant="rose"
+              addButtonLabel={t('offers.addTag', 'Agregar')}
+            />
+          </div>
+
+          <div className="pt-1">
+            <TagInput
+              label={isEn ? 'What is NOT Included (English)' : 'Qué NO Incluye (Inglés)'}
+              value={formData.notIncludedEn}
+              onChange={(tags) => setFormData({ ...formData, notIncludedEn: tags })}
+              placeholder="Type what is NOT included in English and press Enter..."
               variant="rose"
               addButtonLabel={t('offers.addTag', 'Agregar')}
             />
@@ -686,20 +891,20 @@ export default function AdminOffersPage() {
         maxWidth="max-w-sm"
         footer={
           <>
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => setDeleteConfirmId(null)}
-              className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer"
             >
               {t('common.cancel', 'Cancelar')}
-            </button>
-            <button
-              type="button"
+            </Button>
+            <Button
+              variant="danger"
+              size="sm"
               onClick={() => handleDelete(deleteConfirmId)}
-              className="px-5 py-2 text-xs font-bold text-white bg-rose-600 hover:bg-rose-700 rounded-xl shadow-sm cursor-pointer"
             >
               {t('offers.yesDelete', 'Sí, Eliminar')}
-            </button>
+            </Button>
           </>
         }
       >

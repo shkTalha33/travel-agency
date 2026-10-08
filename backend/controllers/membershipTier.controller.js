@@ -128,18 +128,13 @@ const DEFAULT_TIERS = [
 ];
 
 /**
- * List all membership tiers (auto-seed initial 4 if empty)
+ * List all membership tiers
  */
 const getAllTiers = aysncHandler(async (req, res) => {
-  let tiers = await MembershipTier.find({}).sort({ order: 1, createdAt: 1 }).lean();
-
-  if (!tiers || tiers.length === 0) {
-    await MembershipTier.insertMany(DEFAULT_TIERS);
-    tiers = await MembershipTier.find({}).sort({ order: 1, createdAt: 1 }).lean();
-  }
+  const tiers = await MembershipTier.find({}).sort({ order: 1, createdAt: 1 }).lean();
 
   return res.status(200).json(
-    onSuccess("Niveles de membresía obtenidos exitosamente", tiers)
+    onSuccess("Niveles de membresía obtenidos exitosamente", tiers || [])
   );
 });
 

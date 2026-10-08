@@ -71,8 +71,6 @@ export default function Modal({
       <div
         role="dialog"
         aria-modal="true"
-        onMouseDown={(e) => e.stopPropagation()}
-        onClick={(e) => e.stopPropagation()}
         className={`relative z-10 w-full ${maxWidth} m-auto overflow-hidden rounded-3xl border border-sand-200 bg-white shadow-2xl animate-scale-in flex flex-col max-h-[90vh]`}
       >
         {/* Modal Header (Fixed at top) */}

@@ -15,6 +15,11 @@ import {
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
 import Modal from '@/components/ui/Modal';
+import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
+import Input from '@/components/ui/Input';
+import Tabs from '@/components/ui/Tabs';
+import Pagination from '@/components/ui/Pagination';
 import { useToast } from '@/components/ui/Toast';
 
 export default function AdminPointsPage() {
@@ -150,17 +155,18 @@ export default function AdminPointsPage() {
       title={t('points.title', 'Libro Mayor de Puntos & Asignación de Comisiones')}
       subtitle={t('points.subtitle', 'Registro de compras offline, activación de miembros y liquidación de comisiones multinivel (L1 / L2)')}
       actionButton={
-        <button
+        <Button
+          variant="gold"
+          size="sm"
+          icon={<PlusCircle className="w-4 h-4" />}
           onClick={() => {
             setResultData(null);
             setErrors({});
             setAssignModalOpen(true);
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer"
         >
-          <PlusCircle className="w-4 h-4" />
-          <span>{t('points.assignBtn', 'Asignar Puntos de Venta')}</span>
-        </button>
+          {t('points.assignBtn', 'Asignar Puntos de Venta')}
+        </Button>
       }
     >
       {/* Rules Banner */}
@@ -178,42 +184,32 @@ export default function AdminPointsPage() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <span className="px-3 py-1 rounded-lg bg-gold-500/20 border border-gold-500/30 text-gold-400 font-bold text-xs">
+            <Badge variant="gold" size="xs">
               N1: 100%
-            </span>
-            <span className="px-3 py-1 rounded-lg bg-ocean-500/20 border border-ocean-500/30 text-ocean-300 font-bold text-xs">
+            </Badge>
+            <Badge variant="ocean" size="xs">
               N2: 50%
-            </span>
+            </Badge>
           </div>
         </div>
       </div>
 
       {/* Filter and Status tabs */}
       <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-          {[
+        <Tabs
+          activeTab={typeFilter}
+          onChange={(val) => {
+            setTypeFilter(val);
+            setPagination({ ...pagination, page: 1 });
+          }}
+          tabs={[
             { id: '', label: t('points.allTransactions', 'Todas las Transacciones') },
             { id: 'referral_l1', label: t('points.l1Commissions', 'Comisión Nivel 1 (100%)') },
             { id: 'referral_l2', label: t('points.l2Commissions', 'Comisión Nivel 2 (50%)') },
             { id: 'purchase_points', label: t('points.purchases', 'Compras de Paquetes') },
             { id: 'redemption', label: t('points.redemptions', 'Redenciones') },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => {
-                setTypeFilter(tab.id);
-                setPagination({ ...pagination, page: 1 });
-              }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                typeFilter === tab.id
-                  ? 'bg-navy-950 text-gold-400 shadow-sm'
-                  : 'bg-sand-50 text-navy-600 hover:bg-sand-100'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+          ]}
+        />
 
         <span className="text-xs text-navy-500 shrink-0">
           {t('common.total', 'Total')}: <span className="font-bold text-navy-950">{pagination.total}</span> {t('points.ledgerRecords', 'registros en ledger')}
@@ -249,72 +245,88 @@ export default function AdminPointsPage() {
                   </td>
                 </tr>
               ) : (
-                transactions.map((tItem) => (
-                  <tr key={tItem._id} className="hover:bg-sand-50/80 transition-colors">
-                    {/* Description */}
-                    <td className="px-5 py-4">
-                      <p className="font-bold text-navy-950">{tItem.purchaseDescription || 'Transacción'}</p>
-                      <p className="text-[10px] text-navy-400">TX: {tItem._id.slice(-8)}</p>
-                    </td>
+                transactions.map((tItem) => {
+                  const typeVariant =
+                    tItem.type === 'referral_l1'
+                      ? 'gold'
+                      : tItem.type === 'referral_l2'
+                      ? 'ocean'
+                      : tItem.type === 'purchase_points'
+                      ? 'success'
+                      : tItem.type === 'redemption'
+                      ? 'danger'
+                      : 'default';
 
-                    {/* Movement Type */}
-                    <td className="px-5 py-4">
-                      <span
-                        className={`inline-block px-2.5 py-1 rounded-md text-[10px] font-bold uppercase tracking-wider ${
-                          tItem.type === 'referral_l1'
-                            ? 'bg-gold-50 text-gold-900 border border-gold-300'
-                            : tItem.type === 'referral_l2'
-                            ? 'bg-ocean-50 text-ocean-900 border border-ocean-300'
-                            : tItem.type === 'purchase_points'
-                            ? 'bg-emerald-50 text-emerald-900 border border-emerald-300'
-                            : tItem.type === 'redemption'
-                            ? 'bg-rose-50 text-rose-900 border border-rose-300'
-                            : 'bg-sand-100 text-navy-800'
-                        }`}
-                      >
-                        {tItem.type?.replace('_', ' ')}
-                      </span>
-                    </td>
+                  return (
+                    <tr key={tItem._id} className="hover:bg-sand-50/80 transition-colors">
+                      {/* Description */}
+                      <td className="px-5 py-4">
+                        <p className="font-bold text-navy-950">{tItem.purchaseDescription || 'Transacción'}</p>
+                        <p className="text-[10px] text-navy-400">TX: {tItem._id.slice(-8)}</p>
+                      </td>
 
-                    {/* Beneficiary */}
-                    <td className="px-5 py-4">
-                      <p className="font-bold text-navy-950">{tItem.userId?.fullname || 'Usuario'}</p>
-                      <p className="text-[11px] text-navy-500">{tItem.userId?.email}</p>
-                    </td>
+                      {/* Movement Type */}
+                      <td className="px-5 py-4">
+                        <Badge variant={typeVariant} size="xs">
+                          {tItem.type?.replace('_', ' ')}
+                        </Badge>
+                      </td>
 
-                    {/* Source Person */}
-                    <td className="px-5 py-4 text-[11px] text-navy-600">
-                      {tItem.sourceUserId?.fullname || tItem.sourcePersonName || 'Sistema'}
-                    </td>
+                      {/* Beneficiary */}
+                      <td className="px-5 py-4">
+                        <p className="font-bold text-navy-950">{tItem.userId?.fullname || 'Usuario'}</p>
+                        <p className="text-[11px] text-navy-500">{tItem.userId?.email}</p>
+                      </td>
 
-                    {/* Points */}
-                    <td className="px-5 py-4">
-                      <span
-                        className={`font-bold text-sm ${
-                          tItem.points >= 0 ? 'text-emerald-700' : 'text-rose-700'
-                        }`}
-                      >
-                        {tItem.points >= 0 ? `+${tItem.points}` : tItem.points} PTS
-                      </span>
-                    </td>
+                      {/* Source Person */}
+                      <td className="px-5 py-4 text-[11px] text-navy-600">
+                        {tItem.sourceUserId?.fullname || tItem.sourcePersonName || 'Sistema'}
+                      </td>
 
-                    {/* Date */}
-                    <td className="px-5 py-4 text-[11px] text-navy-500">
-                      {new Date(tItem.createdAt).toLocaleString()}
-                    </td>
+                      {/* Points */}
+                      <td className="px-5 py-4">
+                        <span
+                          className={`font-bold text-sm ${
+                            tItem.points >= 0 ? 'text-emerald-700' : 'text-rose-700'
+                          }`}
+                        >
+                          {tItem.points >= 0 ? `+${tItem.points}` : tItem.points} PTS
+                        </span>
+                      </td>
 
-                    {/* Status */}
-                    <td className="px-5 py-4">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-emerald-100 text-emerald-800">
-                        {tItem.status || 'Completado'}
-                      </span>
-                    </td>
-                  </tr>
-                ))
+                      {/* Date */}
+                      <td className="px-5 py-4 text-[11px] text-navy-500">
+                        {new Date(tItem.createdAt).toLocaleString()}
+                      </td>
+
+                      {/* Status */}
+                      <td className="px-5 py-4">
+                        <Badge variant="success" size="xs">
+                          {tItem.status || 'Completado'}
+                        </Badge>
+                      </td>
+                    </tr>
+                  );
+                })
               )}
             </tbody>
           </table>
         </div>
+
+        {/* Pagination Bar */}
+        {pagination.totalPages > 1 && (
+          <div className="px-5 py-3.5 bg-sand-50 border-t border-sand-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-navy-600">
+            <span>
+              {t('common.page', 'Página')} <span className="font-bold text-navy-950">{pagination.page}</span> {t('common.of', 'de')}{' '}
+              <span className="font-bold text-navy-950">{pagination.totalPages}</span>
+            </span>
+            <Pagination
+              page={pagination.page}
+              totalPages={pagination.totalPages}
+              onChange={(newPage) => setPagination((p) => ({ ...p, page: newPage }))}
+            />
+          </div>
+        )}
       </div>
 
       {/* Assign Offline Purchase Modal using Portal Modal Component */}
@@ -331,33 +343,35 @@ export default function AdminPointsPage() {
         maxWidth="max-w-xl"
         footer={
           resultData ? (
-            <button
-              type="button"
+            <Button
+              variant="navy"
+              size="sm"
               onClick={() => {
                 setResultData(null);
                 setAssignModalOpen(false);
               }}
-              className="px-6 py-2.5 bg-navy-950 text-gold-400 rounded-xl text-xs font-bold cursor-pointer shadow-md hover:bg-navy-900 transition-colors"
             >
               {t('common.close', 'Cerrar')}
-            </button>
+            </Button>
           ) : (
             <>
-              <button
-                type="button"
+              <Button
+                variant="secondary"
+                size="sm"
                 onClick={() => setAssignModalOpen(false)}
-                className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer transition-colors"
               >
                 {t('common.cancel', 'Cancelar')}
-              </button>
-              <button
+              </Button>
+              <Button
+                variant="gold"
+                size="sm"
                 type="submit"
                 form="assign-points-form"
                 disabled={submitting}
-                className="px-6 py-2.5 text-xs font-bold bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md disabled:opacity-50 cursor-pointer transition-all"
+                isLoading={submitting}
               >
-                {submitting ? t('points.calculating', 'Calculando y Asignando...') : t('points.confirmAndAssign', 'Confirmar y Asignar Puntos')}
-              </button>
+                {t('points.confirmAndAssign', 'Confirmar y Asignar Puntos')}
+              </Button>
             </>
           )
         }
@@ -447,35 +461,23 @@ export default function AdminPointsPage() {
               />
 
               <div className="mt-2.5">
-                <input
-                  type="text"
+                <Input
                   value={offerTitle}
                   onChange={(e) => {
                     setOfferTitle(e.target.value);
                     if (errors.title) setErrors((prev) => ({ ...prev, title: '' }));
                   }}
                   placeholder={isEn ? 'Purchased package description...' : 'Descripción del paquete comprado...'}
-                  className={`w-full px-4 py-2.5 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 text-navy-900 font-medium transition-colors ${
-                    errors.title
-                      ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20'
-                      : 'border-sand-300 focus:border-gold-500'
-                  }`}
+                  error={errors.title}
                 />
-                {errors.title && (
-                  <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
-                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                    <span>{errors.title}</span>
-                  </p>
-                )}
               </div>
             </div>
 
             {/* Purchase Points Input with Field-Level Error */}
             <div>
-              <label className="block text-xs font-bold text-navy-800 mb-1">
-                {t('points.purchasePoints', 'Puntos Base de la Compra (PTS)')} <span className="text-rose-500">*</span>
-              </label>
-              <input
+              <Input
+                label={t('points.purchasePoints', 'Puntos Base de la Compra (PTS)')}
+                required
                 type="number"
                 min="1"
                 value={purchasePoints}
@@ -483,18 +485,8 @@ export default function AdminPointsPage() {
                   setPurchasePoints(e.target.value);
                   if (errors.points) setErrors((prev) => ({ ...prev, points: '' }));
                 }}
-                className={`w-full px-4 py-2.5 text-sm bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 font-bold text-navy-950 transition-colors ${
-                  errors.points
-                    ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20'
-                    : 'border-sand-300 focus:border-gold-500'
-                }`}
+                error={errors.points}
               />
-              {errors.points && (
-                <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
-                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                  <span>{errors.points}</span>
-                </p>
-              )}
             </div>
 
             {/* Commission Calculation Preview */}

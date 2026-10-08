@@ -9,7 +9,7 @@ import { fetchFaqs } from '@/store/slices/faqsSlice';
 import { FAQ_DATA } from '@/data/faqs';
 
 export default function FaqContent() {
-  const { copy, faqs: i18nFaqs } = useLanguage();
+  const { copy, faqs: i18nFaqs, isEn } = useLanguage();
   const dispatch = useDispatch();
   const reduxFaqs = useSelector((state) => state.faqs?.items);
 
@@ -21,10 +21,17 @@ export default function FaqContent() {
 
   const items = sourceFaqs.map((item) => {
     const translation = i18nFaqs?.[item.id] || {};
+    const question = isEn
+      ? item.questionEn || item.en?.question || translation.question || item.question
+      : item.question || translation.question;
+    const answer = isEn
+      ? item.answerEn || item.en?.answer || translation.answer || item.answer
+      : item.answer || translation.answer;
+
     return {
       id: item.id || item._id,
-      question: translation.question || item.question,
-      answer: translation.answer || item.answer,
+      question,
+      answer,
     };
   });
 

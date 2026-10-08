@@ -7,10 +7,20 @@ const FaqSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    questionEn: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     answer: {
       type: String,
       required: true,
       trim: true,
+    },
+    answerEn: {
+      type: String,
+      trim: true,
+      default: "",
     },
     category: {
       type: String,

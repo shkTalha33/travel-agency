@@ -15,6 +15,7 @@ export default function CountrySelect({
   className = '',
   disabled = false,
   id,
+  placement = 'auto',
 }) {
   const { isEn } = useLanguage();
   const autoId = useId();
@@ -22,9 +23,47 @@ export default function CountrySelect({
   const containerRef = useRef(null);
   const searchInputRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const [query, setQuery] = useState('');
 
   const defaultPlaceholder = placeholder || (isEn ? '-- Select Country --' : '-- Seleccionar País --');
+
+  // Auto-detect upward vs downward placement when opening
+  useEffect(() => {
+    if (!isOpen || !containerRef.current) return;
+    if (placement === 'top') {
+      setOpenUpward(true);
+      return;
+    }
+    if (placement === 'bottom') {
+      setOpenUpward(false);
+      return;
+    }
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    let spaceBelow = viewportHeight - rect.bottom;
+    let spaceAbove = rect.top;
+
+    let parent = containerRef.current.parentElement;
+    while (parent && parent !== document.body) {
+      const style = window.getComputedStyle(parent);
+      if (
+        style.overflowY === 'auto' ||
+        style.overflowY === 'scroll' ||
+        style.overflow === 'auto' ||
+        style.overflow === 'scroll'
+      ) {
+        const parentRect = parent.getBoundingClientRect();
+        spaceBelow = Math.min(spaceBelow, parentRect.bottom - rect.bottom);
+        spaceAbove = Math.min(spaceAbove, rect.top - parentRect.top);
+        break;
+      }
+      parent = parent.parentElement;
+    }
+
+    setOpenUpward(spaceBelow < 260 && spaceAbove > 140);
+  }, [isOpen, placement]);
 
   // Match current value against country by name or code
   const selectedCountry = useMemo(() => {
@@ -32,16 +71,21 @@ export default function CountrySelect({
     return getCountryByName(value) || getCountryByCode(value) || null;
   }, [value]);
 
-  // Close on outside click
+  // Close on outside click (using capture phase so it works anywhere, including inside modals)
   useEffect(() => {
+    if (!isOpen) return;
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setIsOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside, true);
+    document.addEventListener('touchstart', handleClickOutside, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside, true);
+      document.removeEventListener('touchstart', handleClickOutside, true);
+    };
+  }, [isOpen]);
 
   // Auto-focus search input when opened
   useEffect(() => {
@@ -155,7 +199,13 @@ export default function CountrySelect({
 
         {/* Dropdown Menu */}
         {isOpen && (
-          <div className="absolute z-50 left-0 right-0 mt-1.5 bg-white border border-sand-200 rounded-2xl shadow-xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150">
+          <div
+            className={`absolute z-50 left-0 right-0 bg-white border border-sand-200 rounded-2xl overflow-hidden animate-in fade-in-0 zoom-in-95 duration-150 ${
+              openUpward
+                ? 'bottom-full mb-1.5 shadow-[0_-12px_30px_-5px_rgba(0,0,0,0.18)]'
+                : 'top-full mt-1.5 shadow-xl'
+            }`}
+          >
             {/* Search Box */}
             <div className="p-2 border-b border-sand-100 bg-white">
               <div className="relative flex items-center">

@@ -295,6 +295,11 @@ const getAllUsersAdmin = aysncHandler(async (req, res) => {
 
   const query = {};
 
+  // Exclude current logged in admin from the user table
+  if (req.user?._id) {
+    query._id = { $ne: req.user._id };
+  }
+
   if (search) {
     const searchRegex = new RegExp(search.trim(), "i");
     query.$or = [
@@ -359,8 +364,18 @@ const updateUserStatusAdmin = aysncHandler(async (req, res, next) => {
   }
 
   const updates = {};
-  if (role !== undefined) updates.role = role;
-  if (membershipId !== undefined) updates.membershipId = membershipId;
+  if (role !== undefined) {
+    updates.role = role;
+    if (role === "admin") {
+      updates.membershipId = null;
+    }
+  }
+
+  if (membershipId !== undefined) {
+    const finalRole = role !== undefined ? role : user.role;
+    updates.membershipId = finalRole === "admin" ? null : membershipId;
+  }
+
   if (status !== undefined) updates.status = status;
   if (isEmailVerified !== undefined) updates.isEmailVerified = isEmailVerified;
   if (availablePoints !== undefined && !isNaN(Number(availablePoints))) {

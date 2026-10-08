@@ -12,6 +12,10 @@ import {
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
 import Modal from '@/components/ui/Modal';
+import Tabs from '@/components/ui/Tabs';
+import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
+import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 
 export default function AdminRedemptionsPage() {
@@ -100,27 +104,17 @@ export default function AdminRedemptionsPage() {
 
       {/* Filter Tabs */}
       <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-          {[
+        <Tabs
+          activeTab={statusFilter}
+          onChange={setStatusFilter}
+          tabs={[
             { id: 'pending', label: t('redemptions.pendingTab', 'Pendientes por Aprobar') },
             { id: 'approved', label: t('redemptions.approvedTab', 'Aprobadas') },
             { id: 'completed', label: t('redemptions.completedTab', 'Completadas / Pagadas') },
             { id: 'rejected', label: t('redemptions.rejectedTab', 'Rechazadas') },
             { id: 'all', label: t('redemptions.allTab', 'Todas las Solicitudes') },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setStatusFilter(tab.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                statusFilter === tab.id
-                  ? 'bg-navy-950 text-gold-400 shadow-sm'
-                  : 'bg-sand-50 text-navy-600 hover:bg-sand-100'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+          ]}
+        />
 
         <span className="text-xs text-navy-500 shrink-0">
           {t('common.total', 'Total')}: <span className="font-bold text-navy-950">{redemptions.length}</span> {t('redemptions.totalRequests', 'solicitudes')}
@@ -132,13 +126,14 @@ export default function AdminRedemptionsPage() {
         {loading ? (
           <div className="py-12 text-center text-xs text-navy-500">{t('redemptions.loadingRedemptions', 'Cargando solicitudes de redención...')}</div>
         ) : redemptions.length === 0 ? (
-          <div className="py-12 text-center bg-white rounded-2xl border border-sand-200">
-            <Gift className="w-10 h-10 text-sand-400 mx-auto mb-2" />
-            <p className="text-xs font-bold text-navy-800">{t('redemptions.noRedemptions', 'No hay solicitudes en este estado')}</p>
-          </div>
+          <EmptyState
+            icon={<Gift className="w-8 h-8 text-sand-400" />}
+            title={t('redemptions.noRedemptions', 'No hay solicitudes en este estado')}
+            description={isEn ? 'No point redemption requests currently found matching this filter.' : 'No se encontraron solicitudes de redención para este filtro.'}
+          />
         ) : (
           redemptions.map((r) => {
-            const badge = STATUS_BADGES[r.status] || STATUS_BADGES.pending;
+            const badgeVariant = r.status === 'completed' ? 'success' : r.status === 'approved' ? 'ocean' : r.status === 'rejected' ? 'danger' : 'warning';
             return (
               <div
                 key={r._id}
@@ -146,9 +141,9 @@ export default function AdminRedemptionsPage() {
               >
                 <div className="space-y-3 flex-1">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className={`px-2.5 py-0.5 rounded-md text-[10px] font-bold uppercase border ${badge.color}`}>
-                      {badge.label}
-                    </span>
+                    <Badge variant={badgeVariant} size="xs">
+                      {STATUS_BADGES[r.status]?.label || r.status}
+                    </Badge>
                     <span className="text-[10px] text-navy-400">ID: {r._id.slice(-8)}</span>
                     <span className="text-[11px] text-navy-500">• {new Date(r.createdAt).toLocaleString()}</span>
                   </div>
@@ -197,12 +192,13 @@ export default function AdminRedemptionsPage() {
                     </span>
                   </div>
 
-                  <button
+                  <Button
+                    variant="navy"
+                    size="sm"
                     onClick={() => handleOpenAction(r)}
-                    className="px-4 py-2 bg-navy-900 hover:bg-navy-800 text-white rounded-xl text-xs font-bold uppercase tracking-wider transition-all cursor-pointer"
                   >
                     {t('redemptions.manageStatus', 'Gestionar Estado')}
-                  </button>
+                  </Button>
                 </div>
               </div>
             );
@@ -220,21 +216,23 @@ export default function AdminRedemptionsPage() {
         maxWidth="max-w-md"
         footer={
           <>
-            <button
-              type="button"
+            <Button
+              variant="secondary"
+              size="sm"
               onClick={() => setActionModal(null)}
-              className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer"
             >
               {t('common.cancel', 'Cancelar')}
-            </button>
-            <button
+            </Button>
+            <Button
+              variant="gold"
+              size="sm"
               type="submit"
               form="redemption-form"
               disabled={submitting}
-              className="px-6 py-2 text-xs font-bold bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md disabled:opacity-50 cursor-pointer transition-all"
+              isLoading={submitting}
             >
-              {submitting ? t('redemptions.updating', 'Actualizando...') : t('redemptions.confirmStatus', 'Confirmar Estado')}
-            </button>
+              {t('redemptions.confirmStatus', 'Confirmar Estado')}
+            </Button>
           </>
         }
       >

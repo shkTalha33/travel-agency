@@ -40,10 +40,15 @@ export function LanguageProvider({ children }) {
     return value;
   }, [locale]);
 
+  const isEn = locale === 'en';
+  const isEs = locale === 'es';
+
   const value = useMemo(() => ({
     locale,
     setLocale,
     t,
+    isEn: locale === 'en',
+    isEs: locale === 'es',
     copy: messages[locale] || messages.en,
     faqs: FAQ_I18N[locale] || FAQ_I18N.en,
   }), [locale, setLocale, t]);

@@ -13,6 +13,10 @@ import {
   Reply,
 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
+import Tabs from '@/components/ui/Tabs';
+import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
+import EmptyState from '@/components/ui/EmptyState';
 import { useToast } from '@/components/ui/Toast';
 
 export default function AdminContactsPage() {
@@ -26,10 +30,10 @@ export default function AdminContactsPage() {
   const [submitting, setSubmitting] = useState(false);
 
   const STATUS_CONFIG = {
-    new: { label: isEn ? 'New' : 'Nuevo', color: 'bg-rose-50 text-rose-800 border-rose-300' },
-    read: { label: isEn ? 'Read' : 'Leído', color: 'bg-ocean-50 text-ocean-800 border-ocean-300' },
-    replied: { label: isEn ? 'Replied' : 'Respondido', color: 'bg-emerald-50 text-emerald-800 border-emerald-300' },
-    archived: { label: isEn ? 'Archived' : 'Archivado', color: 'bg-slate-100 text-slate-700 border-slate-300' },
+    new: { label: isEn ? 'New' : 'Nuevo', variant: 'danger' },
+    read: { label: isEn ? 'Read' : 'Leído', variant: 'ocean' },
+    replied: { label: isEn ? 'Replied' : 'Respondido', variant: 'success' },
+    archived: { label: isEn ? 'Archived' : 'Archivado', variant: 'default' },
   };
 
   useEffect(() => {
@@ -101,30 +105,19 @@ export default function AdminContactsPage() {
       title={t('contacts.title', 'Bandeja de Mensajes de Contacto')}
       subtitle={t('contacts.subtitle', 'Atención de consultas, solicitudes de membresía y soporte de viajeros')}
     >
-
       {/* Filter Tabs */}
       <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-          {[
+        <Tabs
+          activeTab={statusFilter}
+          onChange={setStatusFilter}
+          tabs={[
             { id: '', label: t('contacts.allMessages', 'Todos los Mensajes') },
             { id: 'new', label: t('contacts.newMessages', 'Nuevos / Sin Leer') },
             { id: 'read', label: t('contacts.readMessages', 'Leídos') },
             { id: 'replied', label: t('contacts.repliedMessages', 'Respondidos') },
             { id: 'archived', label: t('contacts.archivedMessages', 'Archivados') },
-          ].map((tab) => (
-            <button
-              key={tab.id}
-              onClick={() => setStatusFilter(tab.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
-                statusFilter === tab.id
-                  ? 'bg-navy-950 text-gold-400 shadow-sm'
-                  : 'bg-sand-50 text-navy-600 hover:bg-sand-100'
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+          ]}
+        />
 
         <span className="text-xs text-navy-500 shrink-0">
           {t('common.total', 'Total')}: <span className="font-bold text-navy-950">{contacts.length}</span> {t('contacts.totalMessages', 'mensajes')}
@@ -136,10 +129,11 @@ export default function AdminContactsPage() {
         {loading ? (
           <div className="py-12 text-center text-xs text-navy-500">{t('contacts.loadingInbox', 'Cargando bandeja de entrada...')}</div>
         ) : contacts.length === 0 ? (
-          <div className="py-12 text-center bg-white rounded-2xl border border-sand-200">
-            <Mail className="w-10 h-10 text-sand-400 mx-auto mb-2" />
-            <p className="text-xs font-bold text-navy-800">{t('contacts.noMessages', 'No hay mensajes en esta bandeja.')}</p>
-          </div>
+          <EmptyState
+            icon={<Mail className="w-8 h-8 text-sand-400" />}
+            title={t('contacts.noMessages', 'No hay mensajes en esta bandeja.')}
+            description={isEn ? 'No contact messages found for this filter.' : 'No se encontraron mensajes de contacto con este filtro.'}
+          />
         ) : (
           contacts.map((msg) => {
             const badge = STATUS_CONFIG[msg.status] || STATUS_CONFIG.new;
@@ -155,9 +149,9 @@ export default function AdminContactsPage() {
               >
                 <div className="space-y-1.5 flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <span className={`px-2 py-0.5 rounded-md text-[10px] font-bold uppercase border ${badge.color}`}>
+                    <Badge variant={badge.variant} size="xs" dot={msg.status === 'new'}>
                       {badge.label}
-                    </span>
+                    </Badge>
                     <span className="text-[11px] text-navy-400 font-medium">
                       {new Date(msg.createdAt).toLocaleString()}
                     </span>
@@ -200,20 +194,23 @@ export default function AdminContactsPage() {
               </a>
 
               <div className="flex items-center gap-2">
-                <button
+                <Button
+                  variant="primary"
+                  size="sm"
                   disabled={submitting}
                   onClick={() => handleUpdateStatus(selectedMessage._id, 'replied')}
-                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs cursor-pointer transition-colors"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white"
                 >
                   {t('contacts.markReplied', 'Marcar Respondido')}
-                </button>
-                <button
+                </Button>
+                <Button
+                  variant="secondary"
+                  size="sm"
                   disabled={submitting}
                   onClick={() => handleUpdateStatus(selectedMessage._id, 'archived')}
-                  className="px-3.5 py-2 bg-sand-200 hover:bg-sand-300 text-navy-800 rounded-xl font-bold text-xs cursor-pointer transition-colors"
                 >
                   {t('contacts.archive', 'Archivar')}
-                </button>
+                </Button>
               </div>
             </div>
           ) : null

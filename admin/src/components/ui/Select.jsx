@@ -2,6 +2,7 @@
 
 import React, { useState, useRef, useEffect, useId } from 'react';
 import { ChevronDown, Check, Search, X, AlertCircle } from 'lucide-react';
+import { useLanguage } from '@/context/LanguageContext';
 
 export default function CustomSelect({
   label,
@@ -9,30 +10,86 @@ export default function CustomSelect({
   options = [],
   value,
   onChange,
-  placeholder = '-- Seleccionar --',
+  placeholder,
   error = '',
   required = false,
   className = '',
   searchable = true,
   disabled = false,
   name,
+  placement = 'auto',
 }) {
   const auto = useId();
   const fid = id || auto;
   const containerRef = useRef(null);
   const [isOpen, setIsOpen] = useState(false);
+  const [openUpward, setOpenUpward] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
 
-  // Close on outside click
+  let isEn = false;
+  try {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const langContext = useLanguage();
+    isEn = langContext?.isEn;
+  } catch (_) {
+    isEn = false;
+  }
+
+  const defaultPlaceholder = isEn ? '-- Select --' : '-- Seleccionar --';
+  const effectivePlaceholder = placeholder !== undefined ? placeholder : defaultPlaceholder;
+
+  // Auto-detect upward vs downward placement when opening
   useEffect(() => {
+    if (!isOpen || !containerRef.current) return;
+    if (placement === 'top') {
+      setOpenUpward(true);
+      return;
+    }
+    if (placement === 'bottom') {
+      setOpenUpward(false);
+      return;
+    }
+
+    const rect = containerRef.current.getBoundingClientRect();
+    const viewportHeight = window.innerHeight;
+    let spaceBelow = viewportHeight - rect.bottom;
+    let spaceAbove = rect.top;
+
+    let parent = containerRef.current.parentElement;
+    while (parent && parent !== document.body) {
+      const style = window.getComputedStyle(parent);
+      if (
+        style.overflowY === 'auto' ||
+        style.overflowY === 'scroll' ||
+        style.overflow === 'auto' ||
+        style.overflow === 'scroll'
+      ) {
+        const parentRect = parent.getBoundingClientRect();
+        spaceBelow = Math.min(spaceBelow, parentRect.bottom - rect.bottom);
+        spaceAbove = Math.min(spaceAbove, rect.top - parentRect.top);
+        break;
+      }
+      parent = parent.parentElement;
+    }
+
+    setOpenUpward(spaceBelow < 260 && spaceAbove > 140);
+  }, [isOpen, placement]);
+
+  // Close on outside click (using capture phase so it works anywhere, including inside modals)
+  useEffect(() => {
+    if (!isOpen) return;
     function handleClickOutside(e) {
       if (containerRef.current && !containerRef.current.contains(e.target)) {
         setIsOpen(false);
       }
     }
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    document.addEventListener('mousedown', handleClickOutside, true);
+    document.addEventListener('touchstart', handleClickOutside, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside, true);
+      document.removeEventListener('touchstart', handleClickOutside, true);
+    };
+  }, [isOpen]);
 
   // Find selected option
   const selectedOption = options.find((o) => String(o.value) === String(value));
@@ -53,7 +110,7 @@ export default function CustomSelect({
   };
 
   return (
-    <div className={`w-full ${className}`} ref={containerRef}>
+    <div className={`w-full ${isOpen ? 'relative z-50' : 'relative z-10'} ${className}`} ref={containerRef}>
       {label && (
         <label htmlFor={fid} className="block text-xs font-bold text-navy-800 mb-1.5">
           {label}
@@ -90,7 +147,7 @@ export default function CustomSelect({
                 )}
               </div>
             ) : (
-              <span className="text-slate-400 font-normal">{placeholder}</span>
+              <span className="text-slate-400 font-normal">{effectivePlaceholder}</span>
             )}
           </div>
 
@@ -116,7 +173,13 @@ export default function CustomSelect({
 
         {/* Custom Luxury Dropdown Popover */}
         {isOpen && (
-          <div className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-2xl border border-sand-300 shadow-xl z-[150] overflow-hidden animate-scale-in max-h-72 flex flex-col">
+          <div
+            className={`absolute left-0 right-0 bg-white rounded-2xl border border-sand-300 z-[150] overflow-hidden animate-scale-in max-h-72 flex flex-col ${
+              openUpward
+                ? 'bottom-full mb-1.5 shadow-[0_-12px_30px_-5px_rgba(0,0,0,0.18)]'
+                : 'top-full mt-1.5 shadow-xl'
+            }`}
+          >
             {/* Optional search input */}
             {(searchable || options.length > 5) && (
               <div className="p-2 border-b border-sand-200 bg-white shrink-0">
@@ -127,7 +190,7 @@ export default function CustomSelect({
                     autoFocus
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Buscar opción..."
+                    placeholder={isEn ? 'Search option...' : 'Buscar opción...'}
                     className="w-full pl-8 pr-3 py-1.5 text-xs bg-white border border-sand-300 rounded-lg outline-none focus:outline-none ring-0 focus:ring-0 focus:border-gold-500 font-medium text-navy-900 transition-colors"
                   />
                   {searchQuery && (
@@ -147,7 +210,7 @@ export default function CustomSelect({
             <div className="overflow-y-auto p-1.5 space-y-0.5 max-h-56 divide-y divide-sand-100/60">
               {filteredOptions.length === 0 ? (
                 <div className="p-4 text-center text-xs text-slate-400">
-                  No se encontraron opciones
+                  {isEn ? 'No options found' : 'No se encontraron opciones'}
                 </div>
               ) : (
                 filteredOptions.map((opt) => {

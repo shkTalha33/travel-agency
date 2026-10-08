@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
 import Modal from '@/components/ui/Modal';
+import TagInput from '@/components/ui/TagInput';
 import { useToast } from '@/components/ui/Toast';
 
 const ICON_MAP = {
@@ -161,24 +162,25 @@ export default function AdminMembershipsPage() {
 
     const defaultCat = availableCategories[0] || 'member';
     const meta = CATEGORY_META[defaultCat] || {};
+    const defaultName = meta.labelEn || meta.labelEs || 'Member';
 
     setEditingTier(null);
     setFormData({
       category: defaultCat,
-      name: isEn ? meta.labelEn || '' : meta.labelEs || '',
-      nameEn: meta.labelEn || '',
-      tag: isEn ? 'Rank Tier' : 'Rango de Nivel',
+      name: defaultName,
+      nameEn: defaultName,
+      tag: 'Rank Tier',
       tagEn: 'Rank Tier',
-      subtitle: isEn ? meta.descEn || '' : meta.descEs || '',
-      subtitleEn: meta.descEn || '',
+      subtitle: meta.descEn || meta.descEs || '',
+      subtitleEn: meta.descEn || meta.descEs || '',
       icon: meta.defaultIcon || 'Compass',
       color: meta.defaultColor || '#AA303E',
       level1Rate: defaultCat === 'member' ? 0 : 100,
       level2Rate: defaultCat === 'ambassador' ? 50 : defaultCat === 'elite_ambassador' ? 100 : 0,
       qualification: '',
       qualificationEn: '',
-      perks: [''],
-      perksEn: [''],
+      perks: [],
+      perksEn: [],
     });
     setErrors({});
     setIsModalOpen(true);
@@ -187,22 +189,30 @@ export default function AdminMembershipsPage() {
   // Open Edit Modal
   const handleOpenEdit = (tier) => {
     setEditingTier(tier);
+    const chosenName = tier.nameEn || tier.name || '';
+    const chosenTag = tier.tagEn || tier.tag || '';
+    const chosenSubtitle = tier.subtitleEn || tier.subtitle || '';
+    const chosenQual = tier.qualificationEn || tier.qualification || '';
+    const chosenPerks = Array.isArray(tier.perksEn) && tier.perksEn.length > 0
+      ? tier.perksEn
+      : (Array.isArray(tier.perks) ? tier.perks : []);
+
     setFormData({
       category: tier.category,
-      name: tier.name || '',
-      nameEn: tier.nameEn || tier.name || '',
-      tag: tier.tag || '',
-      tagEn: tier.tagEn || tier.tag || '',
-      subtitle: tier.subtitle || '',
-      subtitleEn: tier.subtitleEn || tier.subtitle || '',
+      name: chosenName,
+      nameEn: chosenName,
+      tag: chosenTag,
+      tagEn: chosenTag,
+      subtitle: chosenSubtitle,
+      subtitleEn: chosenSubtitle,
       icon: tier.icon || 'Compass',
       color: tier.color || '#AA303E',
       level1Rate: tier.level1Rate ?? 0,
       level2Rate: tier.level2Rate ?? 0,
-      qualification: tier.qualification || '',
-      qualificationEn: tier.qualificationEn || tier.qualification || '',
-      perks: Array.isArray(tier.perks) && tier.perks.length > 0 ? tier.perks : [''],
-      perksEn: Array.isArray(tier.perksEn) && tier.perksEn.length > 0 ? tier.perksEn : [''],
+      qualification: chosenQual,
+      qualificationEn: chosenQual,
+      perks: chosenPerks,
+      perksEn: chosenPerks,
     });
     setErrors({});
     setIsModalOpen(true);
@@ -211,48 +221,22 @@ export default function AdminMembershipsPage() {
   // Category select change on Create
   const handleCategorySelectChange = (cat) => {
     const meta = CATEGORY_META[cat] || {};
+    const defaultName = meta.labelEn || meta.labelEs || '';
+    const defaultSubtitle = meta.descEn || meta.descEs || '';
     setFormData((prev) => ({
       ...prev,
       category: cat,
-      name: isEn ? meta.labelEn || prev.name : meta.labelEs || prev.name,
-      nameEn: meta.labelEn || prev.nameEn,
-      subtitle: isEn ? meta.descEn || prev.subtitle : meta.descEs || prev.subtitle,
-      subtitleEn: meta.descEn || prev.subtitleEn,
+      name: defaultName,
+      nameEn: defaultName,
+      subtitle: defaultSubtitle,
+      subtitleEn: defaultSubtitle,
       icon: meta.defaultIcon || prev.icon,
       color: meta.defaultColor || prev.color,
       level1Rate: cat === 'member' ? 0 : 100,
       level2Rate: cat === 'ambassador' ? 50 : cat === 'elite_ambassador' ? 100 : 0,
     }));
-  };
-
-  // Add / Remove perks
-  const handleAddPerk = (lang = 'es') => {
-    if (lang === 'es') {
-      setFormData((prev) => ({ ...prev, perks: [...prev.perks, ''] }));
-    } else {
-      setFormData((prev) => ({ ...prev, perksEn: [...prev.perksEn, ''] }));
-    }
-  };
-
-  const handlePerkChange = (index, value, lang = 'es') => {
-    if (lang === 'es') {
-      const updated = [...formData.perks];
-      updated[index] = value;
-      setFormData((prev) => ({ ...prev, perks: updated }));
-    } else {
-      const updated = [...formData.perksEn];
-      updated[index] = value;
-      setFormData((prev) => ({ ...prev, perksEn: updated }));
-    }
-  };
-
-  const handleRemovePerk = (index, lang = 'es') => {
-    if (lang === 'es') {
-      const updated = formData.perks.filter((_, i) => i !== index);
-      setFormData((prev) => ({ ...prev, perks: updated.length > 0 ? updated : [''] }));
-    } else {
-      const updated = formData.perksEn.filter((_, i) => i !== index);
-      setFormData((prev) => ({ ...prev, perksEn: updated.length > 0 ? updated : [''] }));
+    if (errors.category) {
+      setErrors((prev) => ({ ...prev, category: '' }));
     }
   };
 
@@ -275,15 +259,26 @@ export default function AdminMembershipsPage() {
 
     setSubmitting(true);
 
-    const cleanPerks = formData.perks.map((p) => p.trim()).filter(Boolean);
-    const cleanPerksEn = formData.perksEn.map((p) => p.trim()).filter(Boolean);
+    const cleanPerks = Array.isArray(formData.perks)
+      ? formData.perks.map((p) => String(p).trim()).filter(Boolean)
+      : [];
 
     const payload = {
       ...formData,
+      name: formData.name.trim(),
+      nameEn: formData.nameEn?.trim() || formData.name.trim(),
+      tag: formData.tag?.trim() || '',
+      tagEn: formData.tagEn?.trim() || formData.tag?.trim() || '',
+      subtitle: formData.subtitle || '',
+      subtitleEn: formData.subtitleEn || formData.subtitle || '',
+      icon: formData.icon || CATEGORY_META[formData.category]?.defaultIcon || 'Award',
+      color: formData.color || CATEGORY_META[formData.category]?.defaultColor || '#AA303E',
+      qualification: formData.qualification || '',
+      qualificationEn: formData.qualificationEn || formData.qualification || '',
       level1Rate: Number(formData.level1Rate),
       level2Rate: Number(formData.level2Rate),
       perks: cleanPerks,
-      perksEn: cleanPerksEn.length > 0 ? cleanPerksEn : cleanPerks,
+      perksEn: cleanPerks,
     };
 
     try {
@@ -396,9 +391,21 @@ export default function AdminMembershipsPage() {
             {isEn ? 'Loading membership tiers...' : 'Cargando niveles de membresía...'}
           </p>
         </div>
+      ) : tiers.length === 0 ? (
+        <div className="py-16 text-center bg-white rounded-3xl border border-sand-200 shadow-sm">
+          <Award className="w-12 h-12 text-sand-400 mx-auto mb-3" />
+          <p className="text-sm font-bold text-navy-900">
+            {isEn ? 'No membership tiers found' : 'No se encontraron niveles de membresía'}
+          </p>
+          <p className="text-xs text-navy-500 mt-1 max-w-md mx-auto">
+            {isEn
+              ? "Click 'Create Membership Tier' above to configure your club tiers."
+              : "Haga clic en 'Crear Nivel de Membresía' arriba para configurar los niveles del club."}
+          </p>
+        </div>
       ) : (
         /* Membership Tiers Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
           {tiers.map((tier) => {
             const IconComponent = ICON_MAP[tier.icon] || Award;
             const isElite = tier.category === 'elite_ambassador';
@@ -421,19 +428,19 @@ export default function AdminMembershipsPage() {
                   {/* Card Top: Icon, Tag & Action Buttons */}
                   <div className="flex items-center justify-between gap-2 mb-4">
                     <div
-                      className="w-11 h-11 rounded-2xl flex items-center justify-center shadow-md text-white font-bold"
+                      className="w-10 h-10 rounded-2xl flex items-center justify-center shadow-sm text-white font-bold shrink-0"
                       style={{ backgroundColor: tier.color || '#AA303E' }}
                     >
                       <IconComponent className="w-5 h-5" />
                     </div>
 
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1.5 min-w-0">
                       {tier.tag && (
                         <span
-                          className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider border ${
+                          className={`px-3 py-1 rounded-full text-xs font-semibold capitalize border whitespace-nowrap shrink-0 leading-none ${
                             isElite
                               ? 'bg-gold-500/20 text-gold-300 border-gold-500/40'
-                              : 'bg-slate-100 text-slate-800 border-slate-200'
+                              : 'bg-slate-100 text-slate-800 border-slate-200/80'
                           }`}
                         >
                           {isEn ? tier.tagEn || tier.tag : tier.tag}
@@ -441,13 +448,13 @@ export default function AdminMembershipsPage() {
                       )}
 
                       {/* Action Menu (Edit & Delete) */}
-                      <div className="flex items-center gap-1 pl-1">
+                      <div className="flex items-center gap-1 pl-1 shrink-0">
                         <button
                           onClick={() => handleOpenEdit(tier)}
-                          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                          className={`p-1.5 rounded-xl transition-all cursor-pointer ${
                             isElite
-                              ? 'text-gold-300 hover:bg-gold-500/20'
-                              : 'text-slate-600 hover:text-[#AA303E] hover:bg-[#AA303E]/10'
+                              ? 'bg-gold-500/20 text-gold-300 hover:bg-gold-500 hover:text-navy-950 shadow-xs'
+                              : 'bg-[#AA303E]/10 text-[#AA303E] hover:bg-[#AA303E] hover:text-white shadow-xs'
                           }`}
                           title={isEn ? 'Edit Tier' : 'Editar Nivel'}
                         >
@@ -455,7 +462,7 @@ export default function AdminMembershipsPage() {
                         </button>
                         <button
                           onClick={() => setDeleteConfirmId(tier._id)}
-                          className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
+                          className={`p-1.5 rounded-xl transition-all cursor-pointer ${
                             isElite
                               ? 'text-rose-400 hover:bg-rose-500/20'
                               : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
@@ -482,73 +489,41 @@ export default function AdminMembershipsPage() {
                     {isEn ? tier.subtitleEn || tier.subtitle : tier.subtitle}
                   </p>
 
-                  {/* Commission Rates Matrix Box */}
-                  <div
-                    className={`p-4 rounded-2xl border mb-5 space-y-2 text-xs backdrop-blur-xs ${
-                      isElite
-                        ? 'bg-white/5 border-gold-500/30'
-                        : 'bg-slate-50/80 border-slate-200/80 shadow-xs'
-                    }`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <span className={isElite ? 'text-sand-300' : 'text-slate-600'}>
+                  {/* Commission Rates Breakdown (2-Color Balanced Layout) */}
+                  <div className="mb-5 space-y-1.5 text-xs">
+                    <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-white/5">
+                      <span className={`capitalize ${isElite ? 'text-sand-300' : 'text-slate-600'}`}>
                         {t('memberships.networkLevels', 'Niveles de Red:')}
                       </span>
-                      <span
-                        className={`font-black px-2 py-0.5 rounded-md ${
-                          isElite
-                            ? 'bg-gold-500/20 text-gold-300 border border-gold-500/40'
-                            : 'bg-white border border-slate-200 text-navy-950'
-                        }`}
-                      >
+                      <span className={`font-bold capitalize ${isElite ? 'text-gold-300' : 'text-navy-950'}`}>
                         {tier.maxReferralLevel} {isEn ? 'Level(s)' : 'Nivel(es)'}
                       </span>
                     </div>
 
-                    <div className="flex justify-between items-center">
-                      <span className={isElite ? 'text-sand-300' : 'text-slate-600'}>
+                    <div className="flex justify-between items-center py-1 border-b border-slate-100 dark:border-white/5">
+                      <span className={`capitalize ${isElite ? 'text-sand-300' : 'text-slate-600'}`}>
                         {t('memberships.commissionN1', 'Comisión N1 (Directo):')}
                       </span>
-                      <span
-                        className={`font-black px-2 py-0.5 rounded-md ${
-                          tier.level1Rate > 0
-                            ? isElite
-                              ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
-                              : 'bg-emerald-100 text-emerald-800'
-                            : isElite
-                            ? 'text-sand-400'
-                            : 'text-slate-400'
-                        }`}
-                      >
+                      <span className={`font-bold ${isElite ? 'text-gold-300' : 'text-navy-950'}`}>
                         {tier.level1Rate}%
                       </span>
                     </div>
 
-                    <div className="flex justify-between items-center">
-                      <span className={isElite ? 'text-sand-300' : 'text-slate-600'}>
+                    <div className="flex justify-between items-center py-1">
+                      <span className={`capitalize ${isElite ? 'text-sand-300' : 'text-slate-600'}`}>
                         {t('memberships.commissionN2', 'Comisión N2 (Indirecto):')}
                       </span>
-                      <span
-                        className={`font-black px-2 py-0.5 rounded-md ${
-                          tier.level2Rate > 0
-                            ? isElite
-                              ? 'bg-sky-500/20 text-sky-300 border border-sky-500/40'
-                              : 'bg-sky-100 text-sky-800'
-                            : isElite
-                            ? 'text-sand-400'
-                            : 'text-slate-400'
-                        }`}
-                      >
+                      <span className={`font-bold ${isElite ? 'text-gold-300' : 'text-navy-950'}`}>
                         {tier.level2Rate}%
                       </span>
                     </div>
                   </div>
 
                   {/* Benefits List */}
-                  <div className="space-y-2.5">
+                  <div className="space-y-2">
                     <p
-                      className={`text-[10px] font-extrabold uppercase tracking-widest ${
-                        isElite ? 'text-gold-400' : 'text-slate-400'
+                      className={`text-xs font-bold capitalize ${
+                        isElite ? 'text-gold-300' : 'text-navy-950'
                       }`}
                     >
                       {t('memberships.benefits', 'Beneficios Clave:')}
@@ -557,11 +532,11 @@ export default function AdminMembershipsPage() {
                       {(isEn ? (tier.perksEn?.length ? tier.perksEn : tier.perks) : tier.perks || []).map((p, idx) => (
                         <li key={idx} className="flex items-start gap-2">
                           <CheckCircle2
-                            className={`w-4 h-4 shrink-0 mt-0.5 ${
-                              isElite ? 'text-gold-400' : 'text-emerald-600'
+                            className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
+                              isElite ? 'text-gold-400' : 'text-[#AA303E]'
                             }`}
                           />
-                          <span className={isElite ? 'text-sand-200 font-medium' : 'text-slate-700 font-medium'}>
+                          <span className={isElite ? 'text-sand-200' : 'text-slate-700'}>
                             {p}
                           </span>
                         </li>
@@ -577,9 +552,9 @@ export default function AdminMembershipsPage() {
                   }`}
                 >
                   <div className="flex items-start gap-1.5">
-                    <Zap className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${isElite ? 'text-gold-400' : 'text-amber-600'}`} />
+                    <Zap className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${isElite ? 'text-gold-400' : 'text-[#AA303E]'}`} />
                     <div>
-                      <strong className={isElite ? 'text-gold-300' : 'text-navy-950'}>
+                      <strong className={`capitalize ${isElite ? 'text-gold-300' : 'text-navy-950'}`}>
                         {t('memberships.qualification', 'Calificación:')}{' '}
                       </strong>
                       <span className="text-[11px] leading-relaxed">
@@ -595,7 +570,7 @@ export default function AdminMembershipsPage() {
       )}
 
       {/* Ultra-Modern Interactive Commission Simulator */}
-      <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-hidden">
+      <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-visible">
         <div className="flex items-center gap-3 mb-6 pb-4 border-b border-slate-100">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#AA303E] via-rose-500 to-amber-400 text-white flex items-center justify-center shadow-lg shadow-[#AA303E]/20 ring-4 ring-rose-50">
             <Calculator className="w-6 h-6" />
@@ -612,7 +587,7 @@ export default function AdminMembershipsPage() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Controls */}
-          <div className="space-y-4 bg-gradient-to-b from-slate-50 to-sand-50/60 p-6 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="space-y-4 bg-gradient-to-b from-slate-50 to-sand-50/60 p-6 rounded-2xl border border-slate-200 shadow-xs relative z-20">
             <div>
               <label className="block text-[11px] font-extrabold uppercase tracking-wider text-navy-900 mb-1.5">
                 {t('memberships.simPackagePoints', 'Puntos del Paquete Comprado (PTS)')}
@@ -636,6 +611,7 @@ export default function AdminMembershipsPage() {
                 label={t('memberships.simL1Tier', 'Membresía Patrocinador Directo (N1)')}
                 value={simL1Tier}
                 onChange={(e) => setSimL1Tier(e.target.value)}
+                placeholder={isEn ? '-- Select --' : '-- Seleccionar --'}
                 options={tiers.map((t) => ({
                   value: t.category,
                   label: `${isEn ? t.nameEn || t.name : t.name} (${t.level1Rate}%)`,
@@ -648,6 +624,7 @@ export default function AdminMembershipsPage() {
                 label={t('memberships.simL2Tier', 'Membresía Patrocinador Superior (N2)')}
                 value={simL2Tier}
                 onChange={(e) => setSimL2Tier(e.target.value)}
+                placeholder={isEn ? '-- Select --' : '-- Seleccionar --'}
                 options={tiers.map((t) => ({
                   value: t.category,
                   label: `${isEn ? t.nameEn || t.name : t.name} (${t.level2Rate}%)`,
@@ -729,25 +706,28 @@ export default function AdminMembershipsPage() {
       {/* CREATE / EDIT MODAL */}
       <Modal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setErrors({});
+        }}
         title={
           editingTier
-            ? (isEn ? 'Edit Membership Tier' : 'Editar Nivel de Membresía')
-            : (isEn ? 'Create Membership Tier' : 'Crear Nivel de Membresía')
+            ? isEn ? 'Edit Membership Tier' : 'Editar Nivel de Membresía'
+            : isEn ? 'New Membership Tier' : 'Nuevo Nivel de Membresía'
         }
         subtitle={
           isEn
-            ? 'Configure category, rates, requirements, and benefits'
-            : 'Configura categoría, comisiones, requisitos y beneficios'
+            ? 'Configure category, commission rates, and key benefits'
+            : 'Configura categoría, tasas de comisión y beneficios clave'
         }
-        icon={editingTier ? Edit2 : Plus}
+        icon={Award}
         maxWidth="max-w-2xl"
         footer={
           <>
             <button
               type="button"
               onClick={() => setIsModalOpen(false)}
-              className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold cursor-pointer transition-colors"
+              className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer transition-colors"
             >
               {isEn ? 'Cancel' : 'Cancelar'}
             </button>
@@ -755,276 +735,139 @@ export default function AdminMembershipsPage() {
               type="submit"
               form="membership-tier-form"
               disabled={submitting}
-              className="px-5 py-2.5 rounded-xl bg-[#AA303E] hover:bg-[#8e2531] text-white text-xs font-bold inline-flex items-center gap-2 shadow-md shadow-[#AA303E]/20 cursor-pointer transition-all active:scale-95"
+              className="px-6 py-2.5 text-xs font-bold bg-[#AA303E] hover:bg-[#8e2531] text-white rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer shadow-[#AA303E]/20"
             >
-              {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-              <span>
-                {editingTier
-                  ? isEn
-                    ? 'Update Tier'
-                    : 'Actualizar Nivel'
-                  : isEn
-                  ? 'Create Tier'
-                  : 'Crear Nivel'}
-              </span>
+              {submitting
+                ? isEn ? 'Saving...' : 'Guardando...'
+                : editingTier
+                ? isEn ? 'Update Tier' : 'Actualizar Nivel'
+                : isEn ? 'Create Tier' : 'Crear Nivel'}
             </button>
           </>
         }
       >
-        <form id="membership-tier-form" onSubmit={handleSubmit} className="space-y-5">
-          {/* Category Selector (Strict constraint: Only 1 per category) */}
+        <form id="membership-tier-form" onSubmit={handleSubmit} className="space-y-4" noValidate>
+          {/* Tier Category Selector */}
           <div>
-            <label className="block text-xs font-bold text-navy-950 mb-1.5">
-              {isEn ? 'Tier Category' : 'Categoría del Nivel'} <span className="text-[#AA303E]">*</span>
-            </label>
-            {editingTier ? (
-              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-950 flex items-center justify-between">
-                <span className="capitalize">{editingTier.category.replace('_', ' ')}</span>
-                <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-600 uppercase font-semibold">
-                  {isEn ? 'Locked' : 'Fijo'}
-                </span>
-              </div>
-            ) : (
-              <div className="grid grid-cols-2 gap-2.5">
-                {availableCategories.map((cat) => {
-                  const meta = CATEGORY_META[cat];
-                  const isSelected = formData.category === cat;
-                  return (
-                    <button
-                      key={cat}
-                      type="button"
-                      onClick={() => handleCategorySelectChange(cat)}
-                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                        isSelected
-                          ? 'border-[#AA303E] bg-[#AA303E]/5 ring-2 ring-[#AA303E]/20 shadow-xs'
-                          : 'border-slate-200 bg-white hover:border-slate-300'
-                      }`}
-                    >
-                      <p className={`text-xs font-bold ${isSelected ? 'text-[#AA303E]' : 'text-navy-950'}`}>
-                        {isEn ? meta.labelEn : meta.labelEs}
-                      </p>
-                      <p className="text-[10px] text-slate-400 mt-0.5">{isEn ? meta.descEn : meta.descEs}</p>
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-            {errors.category && <p className="text-[11px] text-rose-500 font-semibold mt-1">{errors.category}</p>}
+            <CustomSelect
+              label={isEn ? 'Tier Category' : 'Categoría del Nivel'}
+              required
+              value={formData.category}
+              disabled={!!editingTier}
+              onChange={(e) => handleCategorySelectChange(e.target.value)}
+              placeholder={isEn ? '-- Select Tier Category --' : '-- Seleccionar Categoría --'}
+              options={
+                editingTier
+                  ? [
+                      {
+                        value: editingTier.category,
+                        label: isEn
+                          ? CATEGORY_META[editingTier.category]?.labelEn || editingTier.category.replace('_', ' ')
+                          : CATEGORY_META[editingTier.category]?.labelEs || editingTier.category.replace('_', ' '),
+                        sublabel: isEn
+                          ? CATEGORY_META[editingTier.category]?.descEn
+                          : CATEGORY_META[editingTier.category]?.descEs,
+                      },
+                    ]
+                  : availableCategories.map((cat) => {
+                      const meta = CATEGORY_META[cat] || {};
+                      return {
+                        value: cat,
+                        label: isEn ? meta.labelEn : meta.labelEs,
+                        sublabel: isEn ? meta.descEn : meta.descEs,
+                      };
+                    })
+              }
+              error={errors.category}
+            />
           </div>
 
-          {/* Name & Tag */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Tier Name & Rank Badge / Tag */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-navy-950 mb-1">
-                {isEn ? 'Tier Name (ES)' : 'Nombre del Nivel (Español)'} <span className="text-[#AA303E]">*</span>
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {isEn ? 'Tier Name' : 'Nombre del Nivel'} <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="ej. Miembro Activo"
-                className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                onChange={(e) => {
+                  setFormData({ ...formData, name: e.target.value, nameEn: e.target.value });
+                  if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
+                }}
+                placeholder={isEn ? 'e.g. Active Member' : 'ej. Miembro Activo'}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 text-navy-950 transition-colors"
               />
               {errors.name && <p className="text-[11px] text-rose-500 font-semibold mt-1">{errors.name}</p>}
             </div>
             <div>
-              <label className="block text-xs font-bold text-navy-950 mb-1">
-                {isEn ? 'Tier Name (EN)' : 'Nombre del Nivel (Inglés)'}
-              </label>
-              <input
-                type="text"
-                value={formData.nameEn}
-                onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
-                placeholder="e.g. Active Member"
-                className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-              />
-            </div>
-          </div>
-
-          {/* Tag & Icon */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-navy-950 mb-1">
-                {isEn ? 'Rank Badge Tag (ES)' : 'Etiqueta / Badge (ES)'}
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {isEn ? 'Rank Badge / Tag' : 'Etiqueta / Badge'}
               </label>
               <input
                 type="text"
                 value={formData.tag}
-                onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                placeholder="ej. 1ra Compra"
-                className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                onChange={(e) => setFormData({ ...formData, tag: e.target.value, tagEn: e.target.value })}
+                placeholder={isEn ? 'e.g. 1st Purchase' : 'ej. 1ra Compra'}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 text-navy-950 transition-colors"
               />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-navy-950 mb-1">
-                {isEn ? 'Rank Badge Tag (EN)' : 'Etiqueta / Badge (EN)'}
-              </label>
-              <input
-                type="text"
-                value={formData.tagEn}
-                onChange={(e) => setFormData({ ...formData, tagEn: e.target.value })}
-                placeholder="e.g. 1st Purchase"
-                className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-navy-950 mb-1">
-                {isEn ? 'Icon' : 'Ícono'}
-              </label>
-              <select
-                value={formData.icon}
-                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-              >
-                {Object.keys(ICON_MAP).map((iconKey) => (
-                  <option key={iconKey} value={iconKey}>
-                    {iconKey}
-                  </option>
-                ))}
-              </select>
             </div>
           </div>
 
           {/* Commission Rates */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-bold text-navy-950 mb-1">
-                {isEn ? 'Direct Commission Rate (Level 1 %)' : 'Comisión Directa (Nivel 1 %)'}
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {isEn ? 'Direct Commission Rate (Level 1)' : 'Comisión Directa (Nivel 1)'}
               </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={formData.level1Rate}
-                  onChange={(e) => setFormData({ ...formData, level1Rate: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2 text-sm font-bold bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                />
-                <span className="absolute right-3.5 top-2 text-xs font-bold text-slate-400">%</span>
-              </div>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={formData.level1Rate}
+                onChange={(e) => setFormData({ ...formData, level1Rate: Number(e.target.value) })}
+                className="w-full px-3.5 py-2 text-xs font-bold bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 text-navy-950 transition-colors"
+              />
             </div>
             <div>
-              <label className="block text-xs font-bold text-navy-950 mb-1">
-                {isEn ? 'Indirect Commission Rate (Level 2 %)' : 'Comisión Indirecta (Nivel 2 %)'}
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {isEn ? 'Indirect Commission Rate (Level 2)' : 'Comisión Indirecta (Nivel 2)'}
               </label>
-              <div className="relative">
-                <input
-                  type="number"
-                  min="0"
-                  max="100"
-                  value={formData.level2Rate}
-                  onChange={(e) => setFormData({ ...formData, level2Rate: Number(e.target.value) })}
-                  className="w-full px-3.5 py-2 text-sm font-bold bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                />
-                <span className="absolute right-3.5 top-2 text-xs font-bold text-slate-400">%</span>
-              </div>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={formData.level2Rate}
+                onChange={(e) => setFormData({ ...formData, level2Rate: Number(e.target.value) })}
+                className="w-full px-3.5 py-2 text-xs font-bold bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 text-navy-950 transition-colors"
+              />
             </div>
           </div>
 
           {/* Qualification Requirements */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-bold text-navy-950 mb-1">
-                {isEn ? 'Qualification Requirement (ES)' : 'Requisito de Calificación (ES)'}
-              </label>
-              <textarea
-                rows="2"
-                value={formData.qualification}
-                onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
-                placeholder="ej. Realizar al menos 1 compra de paquete de viaje."
-                className="w-full px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950 resize-none"
-              />
-            </div>
-            <div>
-              <label className="block text-xs font-bold text-navy-950 mb-1">
-                {isEn ? 'Qualification Requirement (EN)' : 'Requisito de Calificación (EN)'}
-              </label>
-              <textarea
-                rows="2"
-                value={formData.qualificationEn}
-                onChange={(e) => setFormData({ ...formData, qualificationEn: e.target.value })}
-                placeholder="e.g. Make at least 1 travel package purchase."
-                className="w-full px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950 resize-none"
-              />
-            </div>
+          <div>
+            <label className="block text-xs font-bold text-navy-800 mb-1">
+              {isEn ? 'Qualification Requirements' : 'Requisitos de Calificación'}
+            </label>
+            <textarea
+              rows="2"
+              value={formData.qualification}
+              onChange={(e) => setFormData({ ...formData, qualification: e.target.value, qualificationEn: e.target.value })}
+              placeholder={isEn ? 'e.g. Make at least 1 travel package purchase.' : 'ej. Realizar al menos 1 compra de paquete de viaje.'}
+              className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 text-navy-950 transition-colors resize-none"
+            />
           </div>
 
-          {/* Key Benefits / Perks (Spanish) */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-bold text-navy-950">
-                {isEn ? 'Key Benefits (Spanish)' : 'Beneficios Clave (Español)'}
-              </label>
-              <button
-                type="button"
-                onClick={() => handleAddPerk('es')}
-                className="text-xs font-bold text-[#AA303E] hover:underline inline-flex items-center gap-1 cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>{isEn ? 'Add Benefit' : 'Añadir Beneficio'}</span>
-              </button>
-            </div>
-            <div className="space-y-2">
-              {formData.perks.map((perk, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={perk}
-                    onChange={(e) => handlePerkChange(idx, e.target.value, 'es')}
-                    placeholder={`Beneficio #${idx + 1}`}
-                    className="flex-1 px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                  />
-                  {formData.perks.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePerk(idx, 'es')}
-                      className="p-2 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Key Benefits / Perks (English) */}
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-xs font-bold text-navy-950">
-                {isEn ? 'Key Benefits (English)' : 'Beneficios Clave (Inglés)'}
-              </label>
-              <button
-                type="button"
-                onClick={() => handleAddPerk('en')}
-                className="text-xs font-bold text-[#AA303E] hover:underline inline-flex items-center gap-1 cursor-pointer"
-              >
-                <Plus className="w-3.5 h-3.5" />
-                <span>{isEn ? 'Add Benefit (EN)' : 'Añadir Beneficio (EN)'}</span>
-              </button>
-            </div>
-            <div className="space-y-2">
-              {formData.perksEn.map((perk, idx) => (
-                <div key={idx} className="flex items-center gap-2">
-                  <input
-                    type="text"
-                    value={perk}
-                    onChange={(e) => handlePerkChange(idx, e.target.value, 'en')}
-                    placeholder={`Benefit #${idx + 1}`}
-                    className="flex-1 px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                  />
-                  {formData.perksEn.length > 1 && (
-                    <button
-                      type="button"
-                      onClick={() => handleRemovePerk(idx, 'en')}
-                      className="p-2 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-              ))}
-            </div>
+          {/* Key Benefits TagInput */}
+          <div className="pt-1">
+            <TagInput
+              label={isEn ? 'Key Benefits & Perks' : 'Beneficios y Ventajas Clave'}
+              value={formData.perks}
+              onChange={(tags) => setFormData({ ...formData, perks: tags, perksEn: tags })}
+              placeholder={isEn ? 'Type a perk and press Enter or +...' : 'Escriba un beneficio y presione Enter o +...'}
+              variant="ocean"
+              addButtonLabel={isEn ? 'Add' : 'Agregar'}
+            />
           </div>
         </form>
       </Modal>

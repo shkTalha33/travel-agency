@@ -63,8 +63,10 @@ const UserSchema = new mongoose.Schema(
     },
     membershipId: {
       type: String,
-      enum: Object.values(MEMBERSHIP_TIERS),
-      default: MEMBERSHIP_TIERS.MEMBER,
+      enum: [...Object.values(MEMBERSHIP_TIERS), "none", null],
+      default: function () {
+        return this.role === "admin" ? null : MEMBERSHIP_TIERS.MEMBER;
+      },
       index: true,
     },
     role: {
@@ -151,8 +153,11 @@ UserSchema.virtual("referralLink").get(function () {
   return `${baseUrl}/register?ref=${this.referralCode}`;
 });
 
-// Hash password before save
+// Hash password and enforce independent admin tier
 UserSchema.pre("save", async function (next) {
+  if (this.role === "admin") {
+    this.membershipId = null;
+  }
   if (!this.isModified("password") || !this.password) return next();
   this.password = await bcrypt.hash(this.password, 10);
   next();

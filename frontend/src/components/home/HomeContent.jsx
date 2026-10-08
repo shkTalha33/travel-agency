@@ -22,6 +22,7 @@ import { FAQ_DATA } from '@/data/faqs';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSelector, useDispatch } from '@/store';
 import { fetchOffers } from '@/store/slices/offersSlice';
+import { membershipApi } from '@/lib/apiClient';
 
 const TRUST_ICONS = [Headphones, Shield, Users];
 
@@ -129,12 +130,21 @@ const TESTIMONIALS = {
 };
 
 export default function HomeContent() {
-  const { copy, faqs, locale } = useLanguage();
+  const { copy, faqs, locale, isEn } = useLanguage();
   const dispatch = useDispatch();
   const dynamicOffers = useSelector((state) => state.offers.items);
+  const [dynamicTiers, setDynamicTiers] = React.useState([]);
 
   React.useEffect(() => {
     dispatch(fetchOffers());
+    membershipApi
+      .getAll()
+      .then((res) => {
+        if (res?.data && res.data.length > 0) {
+          setDynamicTiers(res.data);
+        }
+      })
+      .catch(() => {});
   }, [dispatch]);
 
   const h = copy.home;
@@ -146,6 +156,21 @@ export default function HomeContent() {
     dynamicOffers && dynamicOffers.length > 0
       ? dynamicOffers.slice(0, 3)
       : TRAVEL_OFFERS.slice(0, 3);
+
+  const displayMemberships =
+    dynamicTiers && dynamicTiers.length > 0
+      ? dynamicTiers.map((t) => ({
+          id: t.category,
+          name: isEn ? t.nameEn || t.name : t.name,
+          tag: isEn ? t.tagEn || t.tag : t.tag,
+          description: isEn ? t.subtitleEn || t.subtitle : t.subtitle,
+          level1Rate: t.level1Rate,
+          level2Rate: t.level2Rate,
+          referralLevelsAllowed: t.maxReferralLevel,
+          perks: isEn ? (t.perksEn?.length ? t.perksEn : t.perks) : t.perks,
+          qualification: isEn ? t.qualificationEn || t.qualification : t.qualification,
+        }))
+      : Object.values(MEMBERSHIP_LEVELS);
 
   return (
     <>
@@ -327,7 +352,7 @@ export default function HomeContent() {
       </section>
 
       {/* Memberships */}
-      <section className="bg-white py-14 lg:py-20">
+      <section className="bg-white py-14 lg:py-20 overflow-visible">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <Reveal>
             <div className="text-center">
@@ -335,9 +360,9 @@ export default function HomeContent() {
               <AccentRule className="mx-auto mt-4 mb-10" />
             </div>
           </Reveal>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-            {Object.values(MEMBERSHIP_LEVELS).map((l, i) => (
-              <Reveal key={l.id} delay={i * 80}>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
+            {displayMemberships.map((l, i) => (
+              <Reveal key={l.id} delay={i * 80} className="h-full">
                 <MembershipCard level={l} />
               </Reveal>
             ))}

@@ -10,7 +10,13 @@ import { Sparkles } from 'lucide-react';
 import { MEMBERSHIP_LEVELS } from '@/data/memberships';
 import { membershipApi } from '@/lib/apiClient';
 
-const pct = (n) => (n !== undefined && n !== null ? `${Math.round(n > 1 ? n : n * 100)}%` : '—');
+const pct = (n) => {
+  if (n === undefined || n === null || n === '' || n === 0 || n === '0' || Number(n) === 0) return '—';
+  const num = Number(n);
+  if (isNaN(num)) return '—';
+  if (num >= 1) return `${Math.round(num)}%`;
+  return `${Math.round(num * 100)}%`;
+};
 
 export default function MembershipContent() {
   const { copy, isEn } = useLanguage();
@@ -38,8 +44,8 @@ export default function MembershipContent() {
           name: isEn ? t.nameEn || t.name : t.name,
           tag: isEn ? t.tagEn || t.tag : t.tag,
           description: isEn ? t.subtitleEn || t.subtitle : t.subtitle,
-          level1Rate: t.level1Rate > 1 ? t.level1Rate / 100 : t.level1Rate,
-          level2Rate: t.level2Rate > 1 ? t.level2Rate / 100 : t.level2Rate,
+          level1Rate: t.level1Rate,
+          level2Rate: t.level2Rate,
           referralLevelsAllowed: t.maxReferralLevel,
           perks: isEn ? (t.perksEn?.length ? t.perksEn : t.perks) : t.perks,
           qualification: isEn ? t.qualificationEn || t.qualification : t.qualification,
@@ -66,11 +72,11 @@ export default function MembershipContent() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden pb-20 lg:pb-28">
+      <section className="relative pb-20 lg:pb-28 pt-4 sm:pt-6 overflow-visible">
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
             {displayLevels.map((l, i) => (
-              <Reveal key={l.id} delay={i * 70}>
+              <Reveal key={l.id} delay={i * 70} className="h-full">
                 <MembershipCard level={l} />
               </Reveal>
             ))}
@@ -115,13 +121,15 @@ export default function MembershipContent() {
                               {isElite && <Badge variant="gold" size="sm">{copy.common.topTier || 'Top Tier'}</Badge>}
                             </div>
                           </td>
-                          <td className="py-4 text-center text-slate-700">
-                            {lvl.referralLevelsAllowed} {m.levelsSuffix || 'niveles'}
+                          <td className="py-4 text-center text-slate-700 font-medium">
+                            {lvl.referralLevelsAllowed} {m.levelsSuffix || (isEn ? 'levels' : 'niveles')}
                           </td>
                           <td className="py-4 text-center font-bold text-navy-900">{pct(lvl.level1Rate)}</td>
                           <td className="py-4 text-center font-bold text-navy-900">{pct(lvl.level2Rate)}</td>
                           <td className="py-4 text-center">
-                            <Badge variant={lvl.id} size="sm">{lvl.tag}</Badge>
+                            <span className={`px-2.5 py-1 rounded-full text-xs font-semibold capitalize border whitespace-nowrap ${isElite ? 'bg-gold-500/20 text-gold-900 border-gold-500/40' : 'bg-slate-100 text-slate-800 border-slate-200'}`}>
+                              {lvl.tag}
+                            </span>
                           </td>
                         </tr>
                       );

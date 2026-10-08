@@ -4,7 +4,9 @@ const ItineraryDaySchema = new mongoose.Schema(
   {
     day: { type: Number, required: true },
     title: { type: String, required: true },
+    titleEn: { type: String, default: "" },
     description: { type: String, required: true },
+    descriptionEn: { type: String, default: "" },
   },
   { _id: false }
 );
@@ -25,15 +27,30 @@ const OfferSchema = new mongoose.Schema(
       trim: true,
       index: true,
     },
+    titleEn: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     destination: {
       type: String,
       required: true,
       trim: true,
       index: true,
     },
+    destinationEn: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     country: {
       type: String,
       default: "República Dominicana",
+      trim: true,
+    },
+    countryEn: {
+      type: String,
+      default: "Dominican Republic",
       trim: true,
     },
     countryCode: {
@@ -57,14 +74,30 @@ const OfferSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    durationEn: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     hotelCategory: {
       type: String,
       default: "Resort 4 estrellas",
       trim: true,
     },
+    hotelCategoryEn: {
+      type: String,
+      default: "4-Star Resort",
+      trim: true,
+    },
     badge: {
       type: String,
       trim: true,
+      default: "",
+    },
+    badgeEn: {
+      type: String,
+      trim: true,
+      default: "",
     },
     image: {
       type: String,
@@ -80,12 +113,27 @@ const OfferSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+    summaryEn: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     description: {
       type: String,
       required: true,
       trim: true,
     },
+    descriptionEn: {
+      type: String,
+      trim: true,
+      default: "",
+    },
     highlights: [
+      {
+        type: String,
+      },
+    ],
+    highlightsEn: [
       {
         type: String,
       },
@@ -95,7 +143,17 @@ const OfferSchema = new mongoose.Schema(
         type: String,
       },
     ],
+    includedEn: [
+      {
+        type: String,
+      },
+    ],
     notIncluded: [
+      {
+        type: String,
+      },
+    ],
+    notIncludedEn: [
       {
         type: String,
       },

@@ -299,6 +299,34 @@ export const TRAVEL_OFFERS = [
 
 export function localizeOffer(offer, locale = 'es') {
   if (!offer) return offer;
-  if (locale !== 'en' || !offer.en) return offer;
-  return { ...offer, ...offer.en };
+  if (locale !== 'en') return offer;
+
+  const enObj = offer.en || {};
+  return {
+    ...offer,
+    title: offer.titleEn || enObj.title || offer.title,
+    destination: offer.destinationEn || enObj.destination || offer.destination,
+    country: offer.countryEn || enObj.country || offer.country,
+    duration: offer.durationEn || enObj.duration || offer.duration,
+    hotelCategory: offer.hotelCategoryEn || enObj.hotelCategory || offer.hotelCategory,
+    badge: offer.badgeEn || enObj.badge || offer.badge,
+    summary: offer.summaryEn || enObj.summary || offer.summary,
+    description: offer.descriptionEn || enObj.description || offer.description,
+    highlights:
+      offer.highlightsEn && offer.highlightsEn.length > 0
+        ? offer.highlightsEn
+        : enObj.highlights || offer.highlights,
+    included:
+      offer.includedEn && offer.includedEn.length > 0
+        ? offer.includedEn
+        : enObj.included || offer.included,
+    notIncluded:
+      offer.notIncludedEn && offer.notIncludedEn.length > 0
+        ? offer.notIncludedEn
+        : enObj.notIncluded || offer.notIncluded,
+    itinerary:
+      offer.itineraryEn && offer.itineraryEn.length > 0
+        ? offer.itineraryEn
+        : enObj.itinerary || offer.itinerary,
+  };
 }
