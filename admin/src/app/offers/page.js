@@ -19,28 +19,34 @@ import {
 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
 import ImageUpload from '@/components/ui/ImageUpload';
+import Checkbox from '@/components/ui/Checkbox';
+import CountrySelect from '@/components/ui/CountrySelect';
+import TagInput from '@/components/ui/TagInput';
+import { useToast } from '@/components/ui/Toast';
+import { getCountryByName, getCountryFlag } from '@/data/countries';
 
 const INITIAL_OFFER_FORM = {
   title: '',
   slug: '',
-  destination: 'Punta Cana',
+  destination: '',
   country: 'República Dominicana',
-  priceUSD: 1200,
-  pointsReward: 100,
-  duration: '4 días / 3 noches',
-  hotelCategory: 'Resort 5 Estrellas',
-  badge: 'Popular',
-  image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1000&q=80',
-  summary: 'Experiencia todo incluido con traslados y actividades exclusivas.',
-  description: 'Disfrute de unas vacaciones de ensueño en los mejores resorts del Caribe.',
-  highlights: 'Playa privada, Todo incluido, Excursión en catamarán',
-  included: 'Alojamiento 5 estrellas, Todas las comidas y bebidas, Traslado aeropuerto-hotel',
-  notIncluded: 'Vuelos internacionales, Gastos personales, Propinas opcionales',
-  isFeatured: true,
+  priceUSD: '',
+  pointsReward: '',
+  duration: '',
+  hotelCategory: '',
+  badge: '',
+  image: '',
+  summary: '',
+  description: '',
+  highlights: [],
+  included: [],
+  notIncluded: [],
+  isFeatured: false,
 };
 
 export default function AdminOffersPage() {
   const { t, isEn } = useLanguage();
+  const { toast } = useToast();
   const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -50,7 +56,6 @@ export default function AdminOffersPage() {
   const [formData, setFormData] = useState(INITIAL_OFFER_FORM);
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [alert, setAlert] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   useEffect(() => {
@@ -96,9 +101,15 @@ export default function AdminOffersPage() {
       image: offer.image || '',
       summary: offer.summary || '',
       description: offer.description || '',
-      highlights: Array.isArray(offer.highlights) ? offer.highlights.join(', ') : '',
-      included: Array.isArray(offer.included) ? offer.included.join(', ') : '',
-      notIncluded: Array.isArray(offer.notIncluded) ? offer.notIncluded.join(', ') : '',
+      highlights: Array.isArray(offer.highlights)
+        ? offer.highlights
+        : (typeof offer.highlights === 'string' ? offer.highlights.split(',').map((s) => s.trim()).filter(Boolean) : []),
+      included: Array.isArray(offer.included)
+        ? offer.included
+        : (typeof offer.included === 'string' ? offer.included.split(',').map((s) => s.trim()).filter(Boolean) : []),
+      notIncluded: Array.isArray(offer.notIncluded)
+        ? offer.notIncluded
+        : (typeof offer.notIncluded === 'string' ? offer.notIncluded.split(',').map((s) => s.trim()).filter(Boolean) : []),
       isFeatured: !!offer.isFeatured,
     });
     setModalOpen(true);
@@ -114,14 +125,20 @@ export default function AdminOffersPage() {
     if (!formData.destination || !formData.destination.trim()) {
       newErrors.destination = isEn ? 'Destination is required.' : 'El destino es obligatorio.';
     }
+    if (!formData.country || !formData.country.trim()) {
+      newErrors.country = isEn ? 'Country is required.' : 'El país es obligatorio.';
+    }
     if (formData.priceUSD === '' || Number(formData.priceUSD) <= 0 || isNaN(Number(formData.priceUSD))) {
       newErrors.priceUSD = isEn ? 'Valid price in USD greater than 0 is required.' : 'Ingrese un precio válido en USD mayor a 0.';
     }
-    if (formData.pointsReward === '' || Number(formData.pointsReward) < 0 || isNaN(Number(formData.pointsReward))) {
-      newErrors.pointsReward = isEn ? 'Valid reward points (>= 0) is required.' : 'Ingrese una cantidad válida de puntos (>= 0).';
+    if (!formData.duration || !formData.duration.trim()) {
+      newErrors.duration = isEn ? 'Trip duration is required (e.g. 5 days / 4 nights).' : 'La duración es obligatoria (ej: 5 días / 4 noches).';
     }
     if (!formData.image || !formData.image.trim()) {
       newErrors.image = isEn ? 'Primary image URL is required.' : 'La URL de la imagen principal es requerida.';
+    }
+    if (!formData.summary || !formData.summary.trim()) {
+      newErrors.summary = isEn ? 'Short summary is required.' : 'El resumen corto es obligatorio.';
     }
 
     if (Object.keys(newErrors).length > 0) {
@@ -131,29 +148,66 @@ export default function AdminOffersPage() {
 
     setErrors({});
     setSubmitting(true);
-    setAlert(null);
+
+    const countryObj = getCountryByName(formData.country);
+    const countryName = countryObj ? countryObj.name : formData.country.trim();
+    const countryNameEn = countryObj ? countryObj.nameEn : formData.country.trim();
+    const countryCode = countryObj ? countryObj.code : '';
+
+    const highlightsArr = Array.isArray(formData.highlights)
+      ? formData.highlights.filter(Boolean)
+      : (typeof formData.highlights === 'string' ? formData.highlights.split(',').map((s) => s.trim()).filter(Boolean) : []);
+    const includedArr = Array.isArray(formData.included)
+      ? formData.included.filter(Boolean)
+      : (typeof formData.included === 'string' ? formData.included.split(',').map((s) => s.trim()).filter(Boolean) : []);
+    const notIncludedArr = Array.isArray(formData.notIncluded)
+      ? formData.notIncluded.filter(Boolean)
+      : (typeof formData.notIncluded === 'string' ? formData.notIncluded.split(',').map((s) => s.trim()).filter(Boolean) : []);
 
     const payload = {
       ...formData,
+      country: countryName,
+      countryCode: countryCode,
       priceUSD: Number(formData.priceUSD),
       pointsReward: Number(formData.pointsReward),
-      highlights: formData.highlights.split(',').map((s) => s.trim()).filter(Boolean),
-      included: formData.included.split(',').map((s) => s.trim()).filter(Boolean),
-      notIncluded: formData.notIncluded.split(',').map((s) => s.trim()).filter(Boolean),
+      summary: formData.summary.trim(),
+      description: (formData.description || formData.summary).trim(),
+      hotelCategory: formData.hotelCategory || 'Resort 4 estrellas',
+      highlights: highlightsArr,
+      included: includedArr,
+      notIncluded: notIncludedArr,
+      en: {
+        title: formData.title,
+        country: countryNameEn,
+        duration: formData.duration,
+        hotelCategory: formData.hotelCategory || '4-star resort',
+        badge: formData.badge,
+        summary: formData.summary,
+        description: formData.description || formData.summary,
+      },
     };
 
     try {
       if (isEditing) {
         await adminApi.updateOffer(currentId, payload);
-        setAlert({ type: 'success', text: t('offers.successUpdated', '¡Oferta de viaje actualizada exitosamente!') });
+        toast({
+          type: 'success',
+          message: t('offers.successUpdated', '¡Oferta de viaje actualizada exitosamente!'),
+        });
       } else {
         await adminApi.createOffer(payload);
-        setAlert({ type: 'success', text: t('offers.successCreated', '¡Nueva oferta de viaje creada con éxito!') });
+        toast({
+          type: 'success',
+          message: t('offers.successCreated', '¡Nueva oferta de viaje creada con éxito!'),
+        });
       }
       setModalOpen(false);
       loadOffers();
     } catch (err) {
-      setAlert({ type: 'error', text: err.message || 'Error al guardar la oferta' });
+      toast({
+        type: 'error',
+        message: err.message || 'Error al guardar la oferta',
+      });
     } finally {
       setSubmitting(false);
     }
@@ -163,10 +217,10 @@ export default function AdminOffersPage() {
     try {
       await adminApi.deleteOffer(id);
       setDeleteConfirmId(null);
-      setAlert({ type: 'success', text: t('offers.successDeleted', 'Oferta eliminada permanentemente.') });
+      toast(t('offers.successDeleted', 'Oferta eliminada permanentemente.'), 'success');
       loadOffers();
     } catch (err) {
-      setAlert({ type: 'error', text: err.message || 'Error al eliminar oferta' });
+      toast(err.message || 'Error al eliminar oferta', 'error');
     }
   };
 
@@ -189,24 +243,6 @@ export default function AdminOffersPage() {
         </button>
       }
     >
-      {/* Notification Alert */}
-      {alert && (
-        <div
-          className={`p-4 rounded-xl text-xs flex items-center justify-between shadow-sm animate-fade-in ${
-            alert.type === 'success'
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-              : 'bg-rose-50 border border-rose-200 text-rose-800'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            {alert.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-            <span className="font-semibold">{alert.text}</span>
-          </div>
-          <button onClick={() => setAlert(null)} className="p-1 hover:opacity-75">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
 
       {/* Filter / Search Bar */}
       <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -217,7 +253,7 @@ export default function AdminOffersPage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder={t('offers.searchPlaceholder', 'Buscar por destino o título...')}
-            className="w-full pl-10 pr-4 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+            className="w-full pl-10 pr-4 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
           />
         </div>
         <p className="text-xs text-navy-500 font-medium">
@@ -285,9 +321,12 @@ export default function AdminOffersPage() {
 
                 {/* Content Details */}
                 <div className="p-5">
-                  <div className="flex items-center gap-1.5 text-[11px] font-bold text-ocean-700 uppercase tracking-wider mb-1">
+                  <div className="flex items-center gap-1.5 text-xs font-bold text-ocean-700 mb-1">
+                    <span className="text-sm leading-none" role="img" aria-label={offer.country}>
+                      {getCountryFlag(offer.country)}
+                    </span>
                     <MapPin className="w-3.5 h-3.5" />
-                    <span>{offer.destination}, {offer.country}</span>
+                    <span>{offer.destination ? `${offer.destination}, ` : ''}{offer.country || 'República Dominicana'}</span>
                   </div>
                   <h3 className="text-base font-serif font-bold text-navy-950 line-clamp-1">
                     {offer.title}
@@ -345,11 +384,45 @@ export default function AdminOffersPage() {
         subtitle={isEn ? 'Configure travel details, pricing, and reward points' : 'Configure detalles del viaje, precios y recompensas en puntos'}
         icon={Palmtree}
         maxWidth="max-w-3xl"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl transition-colors cursor-pointer"
+            >
+              {t('common.cancel', 'Cancelar')}
+            </button>
+            <button
+              type="submit"
+              form="offer-form"
+              disabled={submitting}
+              className="px-6 py-2.5 text-xs font-bold bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer"
+            >
+              {submitting
+                ? isEditing ? t('offers.updating', 'Actualizando...') : t('offers.publishing', 'Publicando...')
+                : isEditing ? t('offers.updateOffer', 'Actualizar Oferta') : t('offers.publishOffer', 'Publicar Oferta')}
+            </button>
+          </>
+        }
       >
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <form
+          id="offer-form"
+          onSubmit={handleSubmit}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT' && e.target.type !== 'submit') {
+              // Allow TagInput and textareas to handle Enter, prevent accidental full form submission
+              if (e.target.getAttribute('type') !== 'submit' && !e.target.getAttribute('data-allow-enter')) {
+                // If not in TagInput
+              }
+            }
+          }}
+          className="space-y-4"
+          noValidate
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+              <label className="block text-xs font-bold text-navy-800 mb-1">
                 {t('offers.offerTitle', 'Título de la Oferta')} <span className="text-rose-500">*</span>
               </label>
               <input
@@ -359,10 +432,10 @@ export default function AdminOffersPage() {
                   setFormData({ ...formData, title: e.target.value });
                   if (errors.title) setErrors((prev) => ({ ...prev, title: '' }));
                 }}
-                className={`w-full px-3.5 py-2 text-xs bg-sand-50 border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
-                  errors.title ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20' : 'border-sand-200 focus:border-gold-500'
+                className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
+                  errors.title ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
                 }`}
-                placeholder="Punta Cana Todo Incluido Resort 5*"
+                placeholder={isEn ? 'Punta Cana All Inclusive 5-Star Resort' : 'Punta Cana Todo Incluido Resort 5*'}
               />
               {errors.title && (
                 <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
@@ -373,8 +446,21 @@ export default function AdminOffersPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
-                {t('offers.destination', 'Destino')} <span className="text-rose-500">*</span>
+              <CountrySelect
+                label={t('offers.country', 'País de Destino')}
+                required
+                value={formData.country}
+                error={errors.country}
+                onChange={(e) => {
+                  setFormData({ ...formData, country: e.target.value });
+                  if (errors.country) setErrors((prev) => ({ ...prev, country: '' }));
+                }}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {t('offers.destination', 'Destino / Ciudad')} <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
@@ -383,10 +469,10 @@ export default function AdminOffersPage() {
                   setFormData({ ...formData, destination: e.target.value });
                   if (errors.destination) setErrors((prev) => ({ ...prev, destination: '' }));
                 }}
-                className={`w-full px-3.5 py-2 text-xs bg-sand-50 border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
-                  errors.destination ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20' : 'border-sand-200 focus:border-gold-500'
+                className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
+                  errors.destination ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
                 }`}
-                placeholder="Punta Cana / Samaná"
+                placeholder={isEn ? 'Punta Cana / Fairy Meadows / Cancun' : 'Punta Cana / Fairy Meadows / Cancún'}
               />
               {errors.destination && (
                 <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
@@ -397,7 +483,7 @@ export default function AdminOffersPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+              <label className="block text-xs font-bold text-navy-800 mb-1">
                 {t('offers.priceUSD', 'Precio (USD)')} <span className="text-rose-500">*</span>
               </label>
               <input
@@ -408,8 +494,8 @@ export default function AdminOffersPage() {
                   setFormData({ ...formData, priceUSD: e.target.value });
                   if (errors.priceUSD) setErrors((prev) => ({ ...prev, priceUSD: '' }));
                 }}
-                className={`w-full px-3.5 py-2 text-xs bg-sand-50 border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
-                  errors.priceUSD ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20' : 'border-sand-200 focus:border-gold-500'
+                className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
+                  errors.priceUSD ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
                 }`}
               />
               {errors.priceUSD && (
@@ -421,7 +507,7 @@ export default function AdminOffersPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+              <label className="block text-xs font-bold text-navy-800 mb-1">
                 {t('offers.rewardPoints', 'Recompensa en Puntos (PTS)')} <span className="text-rose-500">*</span>
               </label>
               <input
@@ -432,8 +518,8 @@ export default function AdminOffersPage() {
                   setFormData({ ...formData, pointsReward: e.target.value });
                   if (errors.pointsReward) setErrors((prev) => ({ ...prev, pointsReward: '' }));
                 }}
-                className={`w-full px-3.5 py-2 text-xs bg-sand-50 border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
-                  errors.pointsReward ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20' : 'border-sand-200 focus:border-gold-500'
+                className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
+                  errors.pointsReward ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
                 }`}
               />
               {errors.pointsReward && (
@@ -445,28 +531,52 @@ export default function AdminOffersPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
-                {t('offers.duration', 'Duración')}
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {t('offers.duration', 'Duración')} <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.duration}
-                onChange={(e) => setFormData({ ...formData, duration: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0"
-                placeholder="5 días / 4 noches"
+                onChange={(e) => {
+                  setFormData({ ...formData, duration: e.target.value });
+                  if (errors.duration) setErrors((prev) => ({ ...prev, duration: '' }));
+                }}
+                className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
+                  errors.duration ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
+                }`}
+                placeholder={isEn ? '5 days / 4 nights' : '5 días / 4 noches'}
+              />
+              {errors.duration && (
+                <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
+                  <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                  <span>{errors.duration}</span>
+                </p>
+              )}
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {t('offers.hotelCategory', 'Categoría de Hotel')}
+              </label>
+              <input
+                type="text"
+                value={formData.hotelCategory}
+                onChange={(e) => setFormData({ ...formData, hotelCategory: e.target.value })}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0"
+                placeholder={isEn ? '5-star Resort / 4* Boutique Hotel' : 'Resort 5 estrellas / Hotel Boutique 4*'}
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+              <label className="block text-xs font-bold text-navy-800 mb-1">
                 {t('offers.badge', 'Distintivo / Badge')}
               </label>
               <input
                 type="text"
                 value={formData.badge}
                 onChange={(e) => setFormData({ ...formData, badge: e.target.value })}
-                className="w-full px-3.5 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0"
-                placeholder="Más Solicitado / Exclusivo"
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0"
+                placeholder={isEn ? 'Most Requested / Exclusive' : 'Más Solicitado / Exclusivo'}
               />
             </div>
           </div>
@@ -481,64 +591,88 @@ export default function AdminOffersPage() {
             }}
             folder="offers"
             error={errors.image}
-            helperText={isEn ? 'Upload directly to Firebase Storage or paste an image URL' : 'Sube la imagen directamente a Firebase Storage o pega una URL'}
           />
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
-              {t('offers.shortSummary', 'Resumen Corto')}
+            <label className="block text-xs font-bold text-navy-800 mb-1">
+              {t('offers.shortSummary', 'Resumen Corto')} <span className="text-rose-500">*</span>
             </label>
             <textarea
               rows="2"
               value={formData.summary}
-              onChange={(e) => setFormData({ ...formData, summary: e.target.value })}
-              className="w-full px-3.5 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0"
+              onChange={(e) => {
+                setFormData({ ...formData, summary: e.target.value });
+                if (errors.summary) setErrors((prev) => ({ ...prev, summary: '' }));
+              }}
+              className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
+                errors.summary ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
+              }`}
+              placeholder={isEn ? 'Beachfront all-inclusive resort with white-sand beaches, private transfers...' : 'Resort frente al mar con todo incluido, playas de arena blanca y traslados privados...'}
             />
+            {errors.summary && (
+              <p role="alert" className="mt-1 text-xs font-semibold text-rose-600 flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                <span>{errors.summary}</span>
+              </p>
+            )}
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
-              {t('offers.included', 'Incluye (Separado por comas)')}
+            <label className="block text-xs font-bold text-navy-800 mb-1">
+              {t('offers.description', 'Descripción Detallada')}
             </label>
-            <input
-              type="text"
-              value={formData.included}
-              onChange={(e) => setFormData({ ...formData, included: e.target.value })}
-              className="w-full px-3.5 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0"
-              placeholder="Alojamiento 5 estrellas, Todas las comidas, Traslados"
+            <textarea
+              rows="3"
+              value={formData.description}
+              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+              placeholder={isEn ? 'Full detailed itinerary, services, views and resort amenities...' : 'Descripción completa de la estancia, servicios, vistas y amenidades...'}
             />
           </div>
 
-          <div className="flex items-center gap-2 pt-2">
-            <input
-              type="checkbox"
+          {/* Highlights — Full Width Interactive Tag Input */}
+          <div className="pt-1">
+            <TagInput
+              label={t('offers.highlights', 'Lo Más Destacado (Highlights)')}
+              value={formData.highlights}
+              onChange={(tags) => setFormData({ ...formData, highlights: tags })}
+              placeholder={t('offers.tagPlaceholderHighlights', 'Escriba un destacado y presione Enter o +...')}
+              variant="ocean"
+              addButtonLabel={t('offers.addTag', 'Agregar')}
+            />
+          </div>
+
+          {/* What is Included — Full Width Interactive Tag Input */}
+          <div className="pt-1">
+            <TagInput
+              label={t('offers.included', 'Qué Incluye')}
+              value={formData.included}
+              onChange={(tags) => setFormData({ ...formData, included: tags })}
+              placeholder={t('offers.tagPlaceholderIncluded', 'Escriba qué incluye y presione Enter o +...')}
+              variant="emerald"
+              addButtonLabel={t('offers.addTag', 'Agregar')}
+            />
+          </div>
+
+          {/* What is NOT Included — Full Width Interactive Tag Input */}
+          <div className="pt-1">
+            <TagInput
+              label={t('offers.notIncluded', 'Qué NO Incluye')}
+              value={formData.notIncluded}
+              onChange={(tags) => setFormData({ ...formData, notIncluded: tags })}
+              placeholder={t('offers.tagPlaceholderNotIncluded', 'Escriba qué NO incluye y presione Enter o +...')}
+              variant="rose"
+              addButtonLabel={t('offers.addTag', 'Agregar')}
+            />
+          </div>
+
+          <div className="pt-2">
+            <Checkbox
               id="isFeatured"
+              label={t('offers.featuredCheckbox', 'Destacar esta oferta en la página principal')}
               checked={formData.isFeatured}
               onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
-              className="w-4 h-4 rounded text-gold-500 focus:ring-gold-500 cursor-pointer"
             />
-            <label htmlFor="isFeatured" className="text-xs font-bold text-navy-900 cursor-pointer">
-              {t('offers.featuredCheckbox', 'Destacar esta oferta en la página principal')}
-            </label>
-          </div>
-
-          <div className="pt-4 border-t border-sand-200 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => setModalOpen(false)}
-              className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl transition-colors cursor-pointer"
-            >
-              {t('common.cancel', 'Cancelar')}
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-6 py-2.5 text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md transition-all disabled:opacity-50 cursor-pointer"
-            >
-              {submitting
-                ? isEditing ? t('offers.updating', 'Actualizando...') : t('offers.publishing', 'Publicando...')
-                : isEditing ? t('offers.updateOffer', 'Actualizar Oferta') : t('offers.publishOffer', 'Publicar Oferta')}
-            </button>
           </div>
         </form>
       </Modal>
@@ -550,12 +684,8 @@ export default function AdminOffersPage() {
         title={t('offers.deleteConfirmTitle', '¿Eliminar Oferta?')}
         icon={AlertTriangle}
         maxWidth="max-w-sm"
-      >
-        <div className="text-center space-y-4">
-          <p className="text-xs text-navy-600">
-            {t('offers.deleteConfirmDesc', 'Esta acción eliminará permanentemente la oferta de viaje del catálogo público.')}
-          </p>
-          <div className="flex items-center justify-center gap-3 pt-2">
+        footer={
+          <>
             <button
               type="button"
               onClick={() => setDeleteConfirmId(null)}
@@ -570,7 +700,13 @@ export default function AdminOffersPage() {
             >
               {t('offers.yesDelete', 'Sí, Eliminar')}
             </button>
-          </div>
+          </>
+        }
+      >
+        <div className="text-center space-y-4">
+          <p className="text-xs text-navy-600">
+            {t('offers.deleteConfirmDesc', 'Esta acción eliminará permanentemente la oferta de viaje del catálogo público.')}
+          </p>
         </div>
       </Modal>
     </AdminShell>

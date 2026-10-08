@@ -55,7 +55,7 @@ export default function CustomSelect({
   return (
     <div className={`w-full ${className}`} ref={containerRef}>
       {label && (
-        <label htmlFor={fid} className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1.5">
+        <label htmlFor={fid} className="block text-xs font-bold text-navy-800 mb-1.5">
           {label}
           {required && <span className="text-rose-500 ml-1" aria-hidden="true">*</span>}
         </label>
@@ -119,7 +119,7 @@ export default function CustomSelect({
           <div className="absolute left-0 right-0 top-full mt-1.5 bg-white rounded-2xl border border-sand-300 shadow-xl z-[150] overflow-hidden animate-scale-in max-h-72 flex flex-col">
             {/* Optional search input */}
             {(searchable || options.length > 5) && (
-              <div className="p-2 border-b border-sand-200 bg-sand-50/70 shrink-0">
+              <div className="p-2 border-b border-sand-200 bg-white shrink-0">
                 <div className="relative">
                   <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input

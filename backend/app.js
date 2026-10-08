@@ -7,6 +7,7 @@ const morgan = require("morgan");
 const swaggerUi = require("swagger-ui-express");
 const { swaggerSpec } = require("./config/swagger");
 const errorMessages = require("./libs/errorMessages");
+const successMessages = require("./libs/successMessages");
 const { onError } = require("./libs/responseWrapper");
 const { BadRequestException } = require("./libs/errorExceptionSchema");
 const { apiLimiter } = require("./middlewares/rateLimiter");
@@ -94,6 +95,24 @@ app.get("/", (req, res) => {
 
 // Apply standard API rate limiter
 app.use("/api/v1", apiLimiter);
+
+// Response Message Localization Middleware (Translates success/error messages according to Accept-Language or x-language)
+app.use((req, res, next) => {
+  const oldJson = res.json;
+  const lang = req.headers["x-language"] || req.headers["accept-language"] || req.query.lang || "es";
+
+  res.json = function (body) {
+    if (body && typeof body === "object" && body.message && typeof body.message === "string") {
+      if (body.success && successMessages.translate) {
+        body.message = successMessages.translate(body.message, lang);
+      } else if (body.error && errorMessages.translate) {
+        body.message = errorMessages.translate(body.message, lang);
+      }
+    }
+    return oldJson.call(this, body);
+  };
+  next();
+});
 
 // API v1 Routes
 app.use("/api/v1", v1Router);

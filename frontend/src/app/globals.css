@@ -30,6 +30,13 @@
     --tw-ring-shadow: none !important;
   }
 
+  /* Ensure all form controls have a pure white background */
+  input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+  select,
+  textarea {
+    background-color: #ffffff;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;

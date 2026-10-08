@@ -164,8 +164,13 @@ UserSchema.methods.isPasswordCorrect = async function (password) {
   return bcrypt.compare(password, this.password);
 };
 
-// Generate Access Token (Short-lived, e.g. 15m)
+// Generate Access Token (1 day for admin, 15m default for standard users)
 UserSchema.methods.generateAccessToken = function () {
+  const isAdmin = this.role === "admin";
+  const expiresIn = isAdmin
+    ? (process.env.ADMIN_ACCESS_TOKEN_EXPIRY || "1d")
+    : (process.env.ACCESS_TOKEN_EXPIRY || "15m");
+
   return jwt.sign(
     {
       _id: this._id,
@@ -175,8 +180,8 @@ UserSchema.methods.generateAccessToken = function () {
       role: this.role,
       membershipId: this.membershipId,
     },
-    process.env.ACCESS_TOKEN_SECRET,
-    { expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "15m" }
+    process.env.ACCESS_TOKEN_SECRET || "travel_agency_access_token_secret_super_secure_key_2026_jwt_token!",
+    { expiresIn }
   );
 };
 

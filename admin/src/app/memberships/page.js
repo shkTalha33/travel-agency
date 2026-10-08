@@ -21,6 +21,7 @@ import {
   Trash2,
   X,
   AlertCircle,
+  AlertTriangle,
   Loader2,
   Shield,
   Star,
@@ -28,6 +29,8 @@ import {
   Info,
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
+import Modal from '@/components/ui/Modal';
+import { useToast } from '@/components/ui/Toast';
 
 const ICON_MAP = {
   Compass: Compass,
@@ -79,10 +82,10 @@ const ALL_CATEGORIES = ['member', 'active_member', 'ambassador', 'elite_ambassad
 
 export default function AdminMembershipsPage() {
   const { t, isEn } = useLanguage();
+  const { toast } = useToast();
   const [tiers, setTiers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [alert, setAlert] = useState(null);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -123,9 +126,9 @@ export default function AdminMembershipsPage() {
         setTiers(res.data);
       }
     } catch (err) {
-      setAlert({
+      toast({
         type: 'error',
-        text: err.message || (isEn ? 'Error loading membership tiers' : 'Error al cargar niveles de membresía'),
+        message: err.message || (isEn ? 'Error loading membership tiers' : 'Error al cargar niveles de membresía'),
       });
     } finally {
       setLoading(false);
@@ -147,9 +150,9 @@ export default function AdminMembershipsPage() {
   // Open Create Modal
   const handleOpenCreate = () => {
     if (isFull) {
-      setAlert({
+      toast({
         type: 'error',
-        text: isEn
+        message: isEn
           ? 'All 4 membership categories (Member, Active Member, Ambassador, Elite Ambassador) already exist. You can edit existing tiers.'
           : 'Ya existen las 4 categorías permitidas (Miembro, Miembro Activo, Embajador, Embajador Élite). Puede editar los niveles existentes.',
       });
@@ -271,7 +274,6 @@ export default function AdminMembershipsPage() {
     }
 
     setSubmitting(true);
-    setAlert(null);
 
     const cleanPerks = formData.perks.map((p) => p.trim()).filter(Boolean);
     const cleanPerksEn = formData.perksEn.map((p) => p.trim()).filter(Boolean);
@@ -287,23 +289,23 @@ export default function AdminMembershipsPage() {
     try {
       if (editingTier) {
         await adminApi.updateMembershipTier(editingTier._id, payload);
-        setAlert({
+        toast({
           type: 'success',
-          text: isEn ? 'Membership tier updated successfully!' : '¡Nivel de membresía actualizado con éxito!',
+          message: isEn ? 'Membership tier updated successfully!' : '¡Nivel de membresía actualizado con éxito!',
         });
       } else {
         await adminApi.createMembershipTier(payload);
-        setAlert({
+        toast({
           type: 'success',
-          text: isEn ? 'New membership tier created successfully!' : '¡Nivel de membresía creado con éxito!',
+          message: isEn ? 'New membership tier created successfully!' : '¡Nivel de membresía creado con éxito!',
         });
       }
       setIsModalOpen(false);
       loadTiers();
     } catch (err) {
-      setAlert({
+      toast({
         type: 'error',
-        text: err.message || (isEn ? 'Error saving tier' : 'Error al guardar el nivel de membresía'),
+        message: err.message || (isEn ? 'Error saving tier' : 'Error al guardar el nivel de membresía'),
       });
     } finally {
       setSubmitting(false);
@@ -315,16 +317,16 @@ export default function AdminMembershipsPage() {
     try {
       setSubmitting(true);
       await adminApi.deleteMembershipTier(id);
-      setAlert({
+      toast({
         type: 'success',
-        text: isEn ? 'Membership tier deleted successfully!' : '¡Nivel de membresía eliminado exitosamente!',
+        message: isEn ? 'Membership tier deleted successfully!' : '¡Nivel de membresía eliminado exitosamente!',
       });
       setDeleteConfirmId(null);
       loadTiers();
     } catch (err) {
-      setAlert({
+      toast({
         type: 'error',
-        text: err.message || (isEn ? 'Error deleting tier' : 'Error al eliminar nivel de membresía'),
+        message: err.message || (isEn ? 'Error deleting tier' : 'Error al eliminar nivel de membresía'),
       });
     } finally {
       setSubmitting(false);
@@ -385,29 +387,6 @@ export default function AdminMembershipsPage() {
           </button>
         </div>
       </div>
-
-      {/* Alert Notification */}
-      {alert && (
-        <div
-          className={`p-4 rounded-2xl border flex items-center justify-between gap-3 text-xs font-semibold animate-fade-in ${
-            alert.type === 'success'
-              ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-              : 'bg-rose-50 text-rose-800 border-rose-200'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            {alert.type === 'success' ? (
-              <Check className="w-4 h-4 text-emerald-600 shrink-0" />
-            ) : (
-              <AlertCircle className="w-4 h-4 text-rose-600 shrink-0" />
-            )}
-            <span>{alert.text}</span>
-          </div>
-          <button onClick={() => setAlert(null)} className="text-slate-400 hover:text-slate-600 p-1">
-            <X className="w-3.5 h-3.5" />
-          </button>
-        </div>
-      )}
 
       {/* Loading Spinner */}
       {loading ? (
@@ -748,361 +727,345 @@ export default function AdminMembershipsPage() {
       </div>
 
       {/* CREATE / EDIT MODAL */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-xs animate-fade-in overflow-y-auto">
-          <div className="relative w-full max-w-2xl bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden my-8">
-            {/* Modal Header */}
-            <div className="px-6 py-5 bg-gradient-to-r from-slate-50 to-sand-50 border-b border-slate-200 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-[#AA303E]/10 text-[#AA303E] flex items-center justify-center font-bold">
-                  {editingTier ? <Edit2 className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                </div>
-                <div>
-                  <h3 className="text-base font-serif font-bold text-navy-950">
-                    {editingTier
-                      ? (isEn ? 'Edit Membership Tier' : 'Editar Nivel de Membresía')
-                      : (isEn ? 'Create Membership Tier' : 'Crear Nivel de Membresía')}
-                  </h3>
-                  <p className="text-xs text-slate-500">
-                    {isEn ? 'Configure category, rates, requirements, and benefits' : 'Configura categoría, comisiones, requisitos y beneficios'}
-                  </p>
-                </div>
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title={
+          editingTier
+            ? (isEn ? 'Edit Membership Tier' : 'Editar Nivel de Membresía')
+            : (isEn ? 'Create Membership Tier' : 'Crear Nivel de Membresía')
+        }
+        subtitle={
+          isEn
+            ? 'Configure category, rates, requirements, and benefits'
+            : 'Configura categoría, comisiones, requisitos y beneficios'
+        }
+        icon={editingTier ? Edit2 : Plus}
+        maxWidth="max-w-2xl"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+              className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold cursor-pointer transition-colors"
+            >
+              {isEn ? 'Cancel' : 'Cancelar'}
+            </button>
+            <button
+              type="submit"
+              form="membership-tier-form"
+              disabled={submitting}
+              className="px-5 py-2.5 rounded-xl bg-[#AA303E] hover:bg-[#8e2531] text-white text-xs font-bold inline-flex items-center gap-2 shadow-md shadow-[#AA303E]/20 cursor-pointer transition-all active:scale-95"
+            >
+              {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              <span>
+                {editingTier
+                  ? isEn
+                    ? 'Update Tier'
+                    : 'Actualizar Nivel'
+                  : isEn
+                  ? 'Create Tier'
+                  : 'Crear Nivel'}
+              </span>
+            </button>
+          </>
+        }
+      >
+        <form id="membership-tier-form" onSubmit={handleSubmit} className="space-y-5">
+          {/* Category Selector (Strict constraint: Only 1 per category) */}
+          <div>
+            <label className="block text-xs font-bold text-navy-950 mb-1.5">
+              {isEn ? 'Tier Category' : 'Categoría del Nivel'} <span className="text-[#AA303E]">*</span>
+            </label>
+            {editingTier ? (
+              <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-950 flex items-center justify-between">
+                <span className="capitalize">{editingTier.category.replace('_', ' ')}</span>
+                <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-600 uppercase font-semibold">
+                  {isEn ? 'Locked' : 'Fijo'}
+                </span>
               </div>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-1.5 text-slate-400 hover:text-slate-600 rounded-xl hover:bg-slate-200/60 transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Modal Form */}
-            <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[75vh] overflow-y-auto">
-              {/* Category Selector (Strict constraint: Only 1 per category) */}
-              <div>
-                <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1.5">
-                  {isEn ? 'Tier Category' : 'Categoría del Nivel'} <span className="text-[#AA303E]">*</span>
-                </label>
-                {editingTier ? (
-                  <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-navy-950 flex items-center justify-between">
-                    <span className="capitalize">{editingTier.category.replace('_', ' ')}</span>
-                    <span className="text-[10px] bg-slate-200 px-2 py-0.5 rounded text-slate-600 uppercase font-semibold">
-                      {isEn ? 'Locked' : 'Fijo'}
-                    </span>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-2 gap-2.5">
-                    {availableCategories.map((cat) => {
-                      const meta = CATEGORY_META[cat];
-                      const isSelected = formData.category === cat;
-                      return (
-                        <button
-                          key={cat}
-                          type="button"
-                          onClick={() => handleCategorySelectChange(cat)}
-                          className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
-                            isSelected
-                              ? 'border-[#AA303E] bg-[#AA303E]/5 ring-2 ring-[#AA303E]/20 shadow-xs'
-                              : 'border-slate-200 bg-white hover:border-slate-300'
-                          }`}
-                        >
-                          <p className={`text-xs font-bold ${isSelected ? 'text-[#AA303E]' : 'text-navy-950'}`}>
-                            {isEn ? meta.labelEn : meta.labelEs}
-                          </p>
-                          <p className="text-[10px] text-slate-400 mt-0.5">{isEn ? meta.descEn : meta.descEs}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-                {errors.category && <p className="text-[11px] text-rose-500 font-semibold mt-1">{errors.category}</p>}
+            ) : (
+              <div className="grid grid-cols-2 gap-2.5">
+                {availableCategories.map((cat) => {
+                  const meta = CATEGORY_META[cat];
+                  const isSelected = formData.category === cat;
+                  return (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() => handleCategorySelectChange(cat)}
+                      className={`p-3 rounded-2xl border text-left transition-all cursor-pointer ${
+                        isSelected
+                          ? 'border-[#AA303E] bg-[#AA303E]/5 ring-2 ring-[#AA303E]/20 shadow-xs'
+                          : 'border-slate-200 bg-white hover:border-slate-300'
+                      }`}
+                    >
+                      <p className={`text-xs font-bold ${isSelected ? 'text-[#AA303E]' : 'text-navy-950'}`}>
+                        {isEn ? meta.labelEn : meta.labelEs}
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">{isEn ? meta.descEn : meta.descEs}</p>
+                    </button>
+                  );
+                })}
               </div>
-
-              {/* Name & Tag */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
-                    {isEn ? 'Tier Name (ES)' : 'Nombre del Nivel (Español)'} <span className="text-[#AA303E]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="ej. Miembro Activo"
-                    className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                  />
-                  {errors.name && <p className="text-[11px] text-rose-500 font-semibold mt-1">{errors.name}</p>}
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
-                    {isEn ? 'Tier Name (EN)' : 'Nombre del Nivel (Inglés)'}
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.nameEn}
-                    onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
-                    placeholder="e.g. Active Member"
-                    className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                  />
-                </div>
-              </div>
-
-              {/* Tag & Icon */}
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
-                    {isEn ? 'Rank Badge Tag (ES)' : 'Etiqueta / Badge (ES)'}
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.tag}
-                    onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
-                    placeholder="ej. 1ra Compra"
-                    className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
-                    {isEn ? 'Rank Badge Tag (EN)' : 'Etiqueta / Badge (EN)'}
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.tagEn}
-                    onChange={(e) => setFormData({ ...formData, tagEn: e.target.value })}
-                    placeholder="e.g. 1st Purchase"
-                    className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
-                    {isEn ? 'Icon' : 'Ícono'}
-                  </label>
-                  <select
-                    value={formData.icon}
-                    onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
-                    className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                  >
-                    {Object.keys(ICON_MAP).map((iconKey) => (
-                      <option key={iconKey} value={iconKey}>
-                        {iconKey}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Commission Rates */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
-                <div>
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
-                    {isEn ? 'Direct Commission Rate (Level 1 %)' : 'Comisión Directa (Nivel 1 %)'}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.level1Rate}
-                      onChange={(e) => setFormData({ ...formData, level1Rate: Number(e.target.value) })}
-                      className="w-full px-3.5 py-2 text-sm font-bold bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                    />
-                    <span className="absolute right-3.5 top-2 text-xs font-bold text-slate-400">%</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
-                    {isEn ? 'Indirect Commission Rate (Level 2 %)' : 'Comisión Indirecta (Nivel 2 %)'}
-                  </label>
-                  <div className="relative">
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      value={formData.level2Rate}
-                      onChange={(e) => setFormData({ ...formData, level2Rate: Number(e.target.value) })}
-                      className="w-full px-3.5 py-2 text-sm font-bold bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                    />
-                    <span className="absolute right-3.5 top-2 text-xs font-bold text-slate-400">%</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Qualification Requirements */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
-                    {isEn ? 'Qualification Requirement (ES)' : 'Requisito de Calificación (ES)'}
-                  </label>
-                  <textarea
-                    rows="2"
-                    value={formData.qualification}
-                    onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
-                    placeholder="ej. Realizar al menos 1 compra de paquete de viaje."
-                    className="w-full px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950 resize-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider mb-1">
-                    {isEn ? 'Qualification Requirement (EN)' : 'Requisito de Calificación (EN)'}
-                  </label>
-                  <textarea
-                    rows="2"
-                    value={formData.qualificationEn}
-                    onChange={(e) => setFormData({ ...formData, qualificationEn: e.target.value })}
-                    placeholder="e.g. Make at least 1 travel package purchase."
-                    className="w-full px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950 resize-none"
-                  />
-                </div>
-              </div>
-
-              {/* Key Benefits / Perks (Spanish) */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider">
-                    {isEn ? 'Key Benefits (Spanish)' : 'Beneficios Clave (Español)'}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => handleAddPerk('es')}
-                    className="text-xs font-bold text-[#AA303E] hover:underline inline-flex items-center gap-1 cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>{isEn ? 'Add Benefit' : 'Añadir Beneficio'}</span>
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {formData.perks.map((perk, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={perk}
-                        onChange={(e) => handlePerkChange(idx, e.target.value, 'es')}
-                        placeholder={`Beneficio #${idx + 1}`}
-                        className="flex-1 px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                      />
-                      {formData.perks.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemovePerk(idx, 'es')}
-                          className="p-2 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Key Benefits / Perks (English) */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider">
-                    {isEn ? 'Key Benefits (English)' : 'Beneficios Clave (Inglés)'}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => handleAddPerk('en')}
-                    className="text-xs font-bold text-[#AA303E] hover:underline inline-flex items-center gap-1 cursor-pointer"
-                  >
-                    <Plus className="w-3.5 h-3.5" />
-                    <span>{isEn ? 'Add Benefit (EN)' : 'Añadir Beneficio (EN)'}</span>
-                  </button>
-                </div>
-                <div className="space-y-2">
-                  {formData.perksEn.map((perk, idx) => (
-                    <div key={idx} className="flex items-center gap-2">
-                      <input
-                        type="text"
-                        value={perk}
-                        onChange={(e) => handlePerkChange(idx, e.target.value, 'en')}
-                        placeholder={`Benefit #${idx + 1}`}
-                        className="flex-1 px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
-                      />
-                      {formData.perksEn.length > 1 && (
-                        <button
-                          type="button"
-                          onClick={() => handleRemovePerk(idx, 'en')}
-                          className="p-2 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="pt-4 border-t border-slate-200 flex items-center justify-end gap-3">
-                <button
-                  type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-bold cursor-pointer transition-colors"
-                >
-                  {isEn ? 'Cancel' : 'Cancelar'}
-                </button>
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="px-5 py-2.5 rounded-xl bg-[#AA303E] hover:bg-[#8e2531] text-white text-xs font-bold inline-flex items-center gap-2 shadow-md shadow-[#AA303E]/20 cursor-pointer transition-all active:scale-95"
-                >
-                  {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                  <span>
-                    {editingTier
-                      ? isEn
-                        ? 'Update Tier'
-                        : 'Actualizar Nivel'
-                      : isEn
-                      ? 'Create Tier'
-                      : 'Crear Nivel'}
-                  </span>
-                </button>
-              </div>
-            </form>
+            )}
+            {errors.category && <p className="text-[11px] text-rose-500 font-semibold mt-1">{errors.category}</p>}
           </div>
-        </div>
-      )}
 
-      {/* DELETE CONFIRMATION MODAL */}
-      {deleteConfirmId && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-950/70 backdrop-blur-xs animate-fade-in">
-          <div className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-200 p-6 space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-rose-50 text-rose-600 flex items-center justify-center border border-rose-200">
-              <Trash2 className="w-6 h-6" />
+          {/* Name & Tag */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-navy-950 mb-1">
+                {isEn ? 'Tier Name (ES)' : 'Nombre del Nivel (Español)'} <span className="text-[#AA303E]">*</span>
+              </label>
+              <input
+                type="text"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                placeholder="ej. Miembro Activo"
+                className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+              />
+              {errors.name && <p className="text-[11px] text-rose-500 font-semibold mt-1">{errors.name}</p>}
             </div>
             <div>
-              <h3 className="text-base font-serif font-bold text-navy-950">
-                {isEn ? 'Delete Membership Tier?' : '¿Eliminar Nivel de Membresía?'}
-              </h3>
-              <p className="text-xs text-slate-500 mt-1">
-                {isEn
-                  ? 'Are you sure you want to delete this membership tier? This will free up the category slot so a new tier can be configured for it.'
-                  : '¿Estás seguro de que deseas eliminar este nivel de membresía? Esto liberará el espacio de la categoría para que se pueda configurar un nuevo nivel.'}
-              </p>
-            </div>
-
-            <div className="flex items-center justify-end gap-3 pt-2">
-              <button
-                type="button"
-                onClick={() => setDeleteConfirmId(null)}
-                className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
-              >
-                {isEn ? 'Cancel' : 'Cancelar'}
-              </button>
-              <button
-                type="button"
-                onClick={() => handleDelete(deleteConfirmId)}
-                disabled={submitting}
-                className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-sm"
-              >
-                {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                <span>{isEn ? 'Yes, Delete' : 'Sí, Eliminar'}</span>
-              </button>
+              <label className="block text-xs font-bold text-navy-950 mb-1">
+                {isEn ? 'Tier Name (EN)' : 'Nombre del Nivel (Inglés)'}
+              </label>
+              <input
+                type="text"
+                value={formData.nameEn}
+                onChange={(e) => setFormData({ ...formData, nameEn: e.target.value })}
+                placeholder="e.g. Active Member"
+                className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+              />
             </div>
           </div>
+
+          {/* Tag & Icon */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-navy-950 mb-1">
+                {isEn ? 'Rank Badge Tag (ES)' : 'Etiqueta / Badge (ES)'}
+              </label>
+              <input
+                type="text"
+                value={formData.tag}
+                onChange={(e) => setFormData({ ...formData, tag: e.target.value })}
+                placeholder="ej. 1ra Compra"
+                className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-navy-950 mb-1">
+                {isEn ? 'Rank Badge Tag (EN)' : 'Etiqueta / Badge (EN)'}
+              </label>
+              <input
+                type="text"
+                value={formData.tagEn}
+                onChange={(e) => setFormData({ ...formData, tagEn: e.target.value })}
+                placeholder="e.g. 1st Purchase"
+                className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-navy-950 mb-1">
+                {isEn ? 'Icon' : 'Ícono'}
+              </label>
+              <select
+                value={formData.icon}
+                onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+                className="w-full px-3.5 py-2.5 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+              >
+                {Object.keys(ICON_MAP).map((iconKey) => (
+                  <option key={iconKey} value={iconKey}>
+                    {iconKey}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Commission Rates */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-2xl bg-slate-50 border border-slate-200">
+            <div>
+              <label className="block text-xs font-bold text-navy-950 mb-1">
+                {isEn ? 'Direct Commission Rate (Level 1 %)' : 'Comisión Directa (Nivel 1 %)'}
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.level1Rate}
+                  onChange={(e) => setFormData({ ...formData, level1Rate: Number(e.target.value) })}
+                  className="w-full px-3.5 py-2 text-sm font-bold bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                />
+                <span className="absolute right-3.5 top-2 text-xs font-bold text-slate-400">%</span>
+              </div>
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-navy-950 mb-1">
+                {isEn ? 'Indirect Commission Rate (Level 2 %)' : 'Comisión Indirecta (Nivel 2 %)'}
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={formData.level2Rate}
+                  onChange={(e) => setFormData({ ...formData, level2Rate: Number(e.target.value) })}
+                  className="w-full px-3.5 py-2 text-sm font-bold bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                />
+                <span className="absolute right-3.5 top-2 text-xs font-bold text-slate-400">%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Qualification Requirements */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs font-bold text-navy-950 mb-1">
+                {isEn ? 'Qualification Requirement (ES)' : 'Requisito de Calificación (ES)'}
+              </label>
+              <textarea
+                rows="2"
+                value={formData.qualification}
+                onChange={(e) => setFormData({ ...formData, qualification: e.target.value })}
+                placeholder="ej. Realizar al menos 1 compra de paquete de viaje."
+                className="w-full px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950 resize-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-bold text-navy-950 mb-1">
+                {isEn ? 'Qualification Requirement (EN)' : 'Requisito de Calificación (EN)'}
+              </label>
+              <textarea
+                rows="2"
+                value={formData.qualificationEn}
+                onChange={(e) => setFormData({ ...formData, qualificationEn: e.target.value })}
+                placeholder="e.g. Make at least 1 travel package purchase."
+                className="w-full px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950 resize-none"
+              />
+            </div>
+          </div>
+
+          {/* Key Benefits / Perks (Spanish) */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-bold text-navy-950">
+                {isEn ? 'Key Benefits (Spanish)' : 'Beneficios Clave (Español)'}
+              </label>
+              <button
+                type="button"
+                onClick={() => handleAddPerk('es')}
+                className="text-xs font-bold text-[#AA303E] hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{isEn ? 'Add Benefit' : 'Añadir Beneficio'}</span>
+              </button>
+            </div>
+            <div className="space-y-2">
+              {formData.perks.map((perk, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={perk}
+                    onChange={(e) => handlePerkChange(idx, e.target.value, 'es')}
+                    placeholder={`Beneficio #${idx + 1}`}
+                    className="flex-1 px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                  />
+                  {formData.perks.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePerk(idx, 'es')}
+                      className="p-2 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Key Benefits / Perks (English) */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label className="block text-xs font-bold text-navy-950">
+                {isEn ? 'Key Benefits (English)' : 'Beneficios Clave (Inglés)'}
+              </label>
+              <button
+                type="button"
+                onClick={() => handleAddPerk('en')}
+                className="text-xs font-bold text-[#AA303E] hover:underline inline-flex items-center gap-1 cursor-pointer"
+              >
+                <Plus className="w-3.5 h-3.5" />
+                <span>{isEn ? 'Add Benefit (EN)' : 'Añadir Beneficio (EN)'}</span>
+              </button>
+            </div>
+            <div className="space-y-2">
+              {formData.perksEn.map((perk, idx) => (
+                <div key={idx} className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={perk}
+                    onChange={(e) => handlePerkChange(idx, e.target.value, 'en')}
+                    placeholder={`Benefit #${idx + 1}`}
+                    className="flex-1 px-3.5 py-2 text-xs font-medium bg-white border border-slate-300 rounded-xl focus:border-[#AA303E] outline-none text-navy-950"
+                  />
+                  {formData.perksEn.length > 1 && (
+                    <button
+                      type="button"
+                      onClick={() => handleRemovePerk(idx, 'en')}
+                      className="p-2 text-slate-400 hover:text-rose-600 rounded-lg transition-colors cursor-pointer"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        </form>
+      </Modal>
+
+      {/* DELETE CONFIRMATION MODAL */}
+      <Modal
+        isOpen={!!deleteConfirmId}
+        onClose={() => setDeleteConfirmId(null)}
+        title={isEn ? 'Delete Membership Tier?' : '¿Eliminar Nivel de Membresía?'}
+        subtitle={isEn ? 'This category slot will become available again' : 'Este espacio de categoría volverá a estar disponible'}
+        icon={Trash2}
+        maxWidth="max-w-md"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmId(null)}
+              className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
+            >
+              {isEn ? 'Cancel' : 'Cancelar'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleDelete(deleteConfirmId)}
+              disabled={submitting}
+              className="px-4 py-2 rounded-xl bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-sm"
+            >
+              {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+              <span>{isEn ? 'Yes, Delete' : 'Sí, Eliminar'}</span>
+            </button>
+          </>
+        }
+      >
+        <div className="space-y-2">
+          <p className="text-xs text-slate-600">
+            {isEn
+              ? 'Are you sure you want to delete this membership tier? This will free up the category slot so a new tier can be configured for it.'
+              : '¿Estás seguro de que deseas eliminar este nivel de membresía? Esto liberará el espacio de la categoría para que se pueda configurar un nuevo nivel.'}
+          </p>
         </div>
-      )}
+      </Modal>
     </AdminShell>
   );
 }

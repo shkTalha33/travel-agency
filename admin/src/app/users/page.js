@@ -20,9 +20,12 @@ import {
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
 import Modal from '@/components/ui/Modal';
+import Checkbox from '@/components/ui/Checkbox';
+import { useToast } from '@/components/ui/Toast';
 
 export default function AdminUsersPage() {
   const { t, isEn } = useLanguage();
+  const { toast } = useToast();
   const [users, setUsers] = useState([]);
   const [pagination, setPagination] = useState({ page: 1, totalPages: 1, total: 0 });
   const [loading, setLoading] = useState(true);
@@ -32,7 +35,6 @@ export default function AdminUsersPage() {
   const [filterStatus, setFilterStatus] = useState('');
   const [editUserModal, setEditUserModal] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
-  const [alert, setAlert] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   const MEMBERSHIP_LABELS = {
@@ -93,7 +95,6 @@ export default function AdminUsersPage() {
   const handleSaveEdit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setAlert(null);
 
     try {
       await adminApi.updateUserStatus(editUserModal.id, {
@@ -104,14 +105,14 @@ export default function AdminUsersPage() {
         availablePoints: Number(editUserModal.availablePoints),
       });
 
-      setAlert({
-        type: 'success',
-        text: `${t('users.successUpdated', 'Usuario actualizado correctamente.')} (${editUserModal.fullname})`,
-      });
+      toast(
+        `${t('users.successUpdated', 'Usuario actualizado correctamente.')} (${editUserModal.fullname})`,
+        'success'
+      );
       setEditUserModal(null);
       loadUsers();
     } catch (err) {
-      setAlert({ type: 'error', text: err.message || 'Error al actualizar usuario' });
+      toast(err.message || (isEn ? 'Error updating user' : 'Error al actualizar usuario'), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -121,10 +122,10 @@ export default function AdminUsersPage() {
     try {
       await adminApi.deleteUser(id);
       setDeleteConfirmId(null);
-      setAlert({ type: 'success', text: t('users.successDeleted', 'Usuario eliminado permanentemente.') });
+      toast(t('users.successDeleted', 'Usuario eliminado permanentemente.'), 'success');
       loadUsers();
     } catch (err) {
-      setAlert({ type: 'error', text: err.message || 'Error al eliminar usuario' });
+      toast(err.message || (isEn ? 'Error deleting user' : 'Error al eliminar usuario'), 'error');
     }
   };
 
@@ -133,24 +134,6 @@ export default function AdminUsersPage() {
       title={t('users.title', 'Gestión de Miembros y Usuarios')}
       subtitle={t('users.subtitle', 'Administración de cuentas, niveles de membresía del club, roles y supervisión de red')}
     >
-      {/* Alert */}
-      {alert && (
-        <div
-          className={`p-4 rounded-xl text-xs flex items-center justify-between shadow-sm animate-fade-in ${
-            alert.type === 'success'
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-              : 'bg-rose-50 border border-rose-200 text-rose-800'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            {alert.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-            <span className="font-semibold">{alert.text}</span>
-          </div>
-          <button onClick={() => setAlert(null)} className="p-1 hover:opacity-75 cursor-pointer">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
 
       {/* Search & Filter Bar */}
       <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm space-y-3">
@@ -162,7 +145,7 @@ export default function AdminUsersPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('users.searchPlaceholder', 'Buscar por nombre, correo, usuario o código de referido...')}
-              className="w-full pl-10 pr-4 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none"
+              className="w-full pl-10 pr-4 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none"
             />
           </div>
 
@@ -171,7 +154,7 @@ export default function AdminUsersPage() {
             <select
               value={filterTier}
               onChange={(e) => setFilterTier(e.target.value)}
-              className="px-3 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none font-medium text-navy-800"
+              className="px-3 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none font-medium text-navy-800 cursor-pointer"
             >
               <option value="">{t('users.allTiers', 'Todas las Membresías')}</option>
               <option value="member">{isEn ? 'Member' : 'Miembro'}</option>
@@ -184,7 +167,7 @@ export default function AdminUsersPage() {
             <select
               value={filterRole}
               onChange={(e) => setFilterRole(e.target.value)}
-              className="px-3 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none font-medium text-navy-800"
+              className="px-3 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none font-medium text-navy-800 cursor-pointer"
             >
               <option value="">{t('users.allRoles', 'Todos los Roles')}</option>
               <option value="user">{t('users.roleUser', 'Usuario Regular')}</option>
@@ -195,7 +178,7 @@ export default function AdminUsersPage() {
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
-              className="px-3 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none font-medium text-navy-800"
+              className="px-3 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none font-medium text-navy-800 cursor-pointer"
             >
               <option value="">{t('users.allStatuses', 'Todos los Estados')}</option>
               <option value="active">{t('users.statusActive', 'Activo')}</option>
@@ -393,18 +376,37 @@ export default function AdminUsersPage() {
         subtitle={editUserModal ? `${editUserModal.fullname} (${editUserModal.email})` : ''}
         icon={Shield}
         maxWidth="max-w-md"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setEditUserModal(null)}
+              className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer"
+            >
+              {t('common.cancel', 'Cancelar')}
+            </button>
+            <button
+              type="submit"
+              form="edit-user-form"
+              disabled={submitting}
+              className="px-6 py-2 text-xs font-bold bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md disabled:opacity-50 cursor-pointer transition-all"
+            >
+              {submitting ? t('common.loading', 'Guardando...') : t('common.save', 'Actualizar Usuario')}
+            </button>
+          </>
+        }
       >
         {editUserModal && (
-          <form onSubmit={handleSaveEdit} className="space-y-4">
+          <form id="edit-user-form" onSubmit={handleSaveEdit} className="space-y-4">
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+              <label className="block text-xs font-bold text-navy-800 mb-1">
                 {t('users.fullname', 'Nombre Completo')}
               </label>
               <input
                 type="text"
                 disabled
                 value={editUserModal.fullname}
-                className="w-full px-4 py-2.5 text-xs bg-sand-100 border border-sand-200 rounded-xl text-navy-700 outline-none cursor-not-allowed font-medium"
+                className="w-full px-4 py-2.5 text-xs bg-white border border-sand-200 rounded-xl text-navy-700 outline-none cursor-not-allowed font-medium"
               />
             </div>
 
@@ -450,7 +452,7 @@ export default function AdminUsersPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+              <label className="block text-xs font-bold text-navy-800 mb-1">
                 {t('users.availablePoints', 'Balance de Puntos Disponibles (PTS)')}
               </label>
               <input
@@ -462,34 +464,13 @@ export default function AdminUsersPage() {
               />
             </div>
 
-            <div className="flex items-center gap-2 pt-1">
-              <input
-                type="checkbox"
+            <div className="pt-1">
+              <Checkbox
                 id="emailVerifiedCheck"
+                label={t('users.emailVerified', 'Correo electrónico verificado')}
                 checked={editUserModal.isEmailVerified}
                 onChange={(e) => setEditUserModal({ ...editUserModal, isEmailVerified: e.target.checked })}
-                className="w-4 h-4 rounded text-gold-500 cursor-pointer"
               />
-              <label htmlFor="emailVerifiedCheck" className="text-xs font-semibold text-navy-900 cursor-pointer">
-                {t('users.emailVerified', 'Correo electrónico verificado')}
-              </label>
-            </div>
-
-            <div className="pt-4 border-t border-sand-200 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setEditUserModal(null)}
-                className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer"
-              >
-                {t('common.cancel', 'Cancelar')}
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="px-6 py-2 text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md disabled:opacity-50 cursor-pointer transition-all"
-              >
-                {submitting ? t('common.loading', 'Guardando...') : t('common.save', 'Actualizar Usuario')}
-              </button>
             </div>
           </form>
         )}
@@ -502,12 +483,8 @@ export default function AdminUsersPage() {
         title={t('users.deleteConfirmTitle', '¿Eliminar Usuario?')}
         icon={AlertTriangle}
         maxWidth="max-w-sm"
-      >
-        <div className="text-center space-y-4">
-          <p className="text-xs text-navy-600">
-            {t('users.deleteConfirmDesc', 'Esta acción eliminará de forma irreversible al usuario del sistema y sus accesos.')}
-          </p>
-          <div className="flex items-center justify-center gap-3 pt-2">
+        footer={
+          <>
             <button
               type="button"
               onClick={() => setDeleteConfirmId(null)}
@@ -522,7 +499,13 @@ export default function AdminUsersPage() {
             >
               {t('offers.yesDelete', 'Sí, Eliminar')}
             </button>
-          </div>
+          </>
+        }
+      >
+        <div className="text-center space-y-4">
+          <p className="text-xs text-navy-600">
+            {t('users.deleteConfirmDesc', 'Esta acción eliminará de forma irreversible al usuario del sistema y sus accesos.')}
+          </p>
         </div>
       </Modal>
     </AdminShell>

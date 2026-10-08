@@ -9,6 +9,7 @@ import { OfferCardSkeleton } from '@/components/common/Skeletons';
 import useMockLoading from '@/hooks/useMockLoading';
 import { useLanguage } from '@/context/LanguageContext';
 import { localizeOffer } from '@/data/offers';
+import { getCountryFlag } from '@/data/countries';
 
 const PAGE_SIZE = 6;
 
@@ -18,10 +19,10 @@ export default function OffersExplorer({ offers }) {
   const [country, setCountry] = useState('todos');
   const [page, setPage] = useState(1);
 
-  const countries = useMemo(() => [...new Set(offers.map((o) => o.country))], [offers]);
+  const countries = useMemo(() => [...new Set(offers.map((o) => o.country).filter(Boolean))], [offers]);
   const countryOptions = countries.map((c) => {
     const sample = offers.find((o) => o.country === c);
-    return { value: c, label: localizeOffer(sample, locale).country };
+    return { value: c, label: localizeOffer(sample, locale)?.country || c };
   });
   const filtered = country === 'todos' ? offers : offers.filter((o) => o.country === country);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
@@ -48,13 +49,16 @@ export default function OffersExplorer({ offers }) {
               key={opt.value}
               type="button"
               onClick={() => { setCountry(opt.value); setPage(1); }}
-              className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${
+              className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all inline-flex items-center gap-1.5 ${
                 country === opt.value
                   ? 'bg-navy-900 text-gold-300 shadow-sm'
                   : 'bg-sand-100 text-slate-600 hover:bg-sand-200 hover:text-navy-900'
               }`}
             >
-              {opt.label}
+              <span className="text-sm leading-none" role="img" aria-label={opt.label}>
+                {getCountryFlag(opt.value)}
+              </span>
+              <span>{opt.label}</span>
             </button>
           ))}
         </div>

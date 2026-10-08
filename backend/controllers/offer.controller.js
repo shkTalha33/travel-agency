@@ -76,9 +76,25 @@ const getOfferBySlugOrId = aysncHandler(async (req, res, next) => {
   const { idOrSlug } = req.params;
 
   const isMongoId = /^[0-9a-fA-F]{24}$/.test(idOrSlug);
-  const filter = isMongoId ? { _id: idOrSlug } : { slug: idOrSlug.toLowerCase() };
+  const escaped = idOrSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const filter = isMongoId
+    ? {
+        $or: [
+          { _id: idOrSlug },
+          { slug: idOrSlug },
+          { slug: idOrSlug.toLowerCase() },
+        ],
+      }
+    : {
+        $or: [
+          { slug: idOrSlug },
+          { slug: idOrSlug.toLowerCase() },
+          { id: idOrSlug },
+          { slug: new RegExp(`^${escaped}$`, "i") },
+        ],
+      };
 
-  const offer = await Offer.findOne(filter);
+  const offer = await Offer.findOne(filter).lean();
   if (!offer) {
     return next(new NotFoundException(errorMessages.OFFER_NOT_FOUND));
   }

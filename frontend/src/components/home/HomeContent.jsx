@@ -20,6 +20,8 @@ import { TRAVEL_OFFERS } from '@/data/offers';
 import { MEMBERSHIP_LEVELS } from '@/data/memberships';
 import { FAQ_DATA } from '@/data/faqs';
 import { useLanguage } from '@/context/LanguageContext';
+import { useSelector, useDispatch } from '@/store';
+import { fetchOffers } from '@/store/slices/offersSlice';
 
 const TRUST_ICONS = [Headphones, Shield, Users];
 
@@ -128,10 +130,22 @@ const TESTIMONIALS = {
 
 export default function HomeContent() {
   const { copy, faqs, locale } = useLanguage();
+  const dispatch = useDispatch();
+  const dynamicOffers = useSelector((state) => state.offers.items);
+
+  React.useEffect(() => {
+    dispatch(fetchOffers());
+  }, [dispatch]);
+
   const h = copy.home;
   const ext = h.extra || {};
   const faqItems = FAQ_DATA.slice(0, 5).map((item) => ({ id: item.id, ...faqs[item.id] }));
   const testimonialItems = TESTIMONIALS[locale] || TESTIMONIALS.es;
+
+  const featuredOffers =
+    dynamicOffers && dynamicOffers.length > 0
+      ? dynamicOffers.slice(0, 3)
+      : TRAVEL_OFFERS.slice(0, 3);
 
   return (
     <>
@@ -302,8 +316,8 @@ export default function HomeContent() {
             </div>
           </Reveal>
           <div className="mt-10 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-            {TRAVEL_OFFERS.slice(0, 3).map((o, i) => (
-              <Reveal key={o.id} delay={i * 120}>
+            {featuredOffers.map((o, i) => (
+              <Reveal key={o._id || o.id || o.slug || i} delay={i * 120}>
                 <OfferCard offer={o} />
               </Reveal>
             ))}

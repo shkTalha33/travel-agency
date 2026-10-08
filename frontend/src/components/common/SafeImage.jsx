@@ -5,6 +5,8 @@ import { MapPin } from 'lucide-react';
 
 /** Image with a graceful branded fallback if the remote image fails to load. */
 export default function SafeImage({ src, alt, className = '', priority = false }) {
+  const [failed, setFailed] = useState(false);
+
   const resolveSrc = (url) => {
     if (!url) return '';
     if (url.startsWith('/uploads')) {

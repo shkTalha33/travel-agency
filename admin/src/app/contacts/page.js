@@ -13,15 +13,16 @@ import {
   Reply,
 } from 'lucide-react';
 import Modal from '@/components/ui/Modal';
+import { useToast } from '@/components/ui/Toast';
 
 export default function AdminContactsPage() {
   const { t, isEn } = useLanguage();
+  const { toast } = useToast();
   const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
   const [selectedMessage, setSelectedMessage] = useState(null);
   const [adminNotes, setAdminNotes] = useState('');
-  const [alert, setAlert] = useState(null);
   const [submitting, setSubmitting] = useState(false);
 
   const STATUS_CONFIG = {
@@ -77,16 +78,19 @@ export default function AdminContactsPage() {
         status: statusToSet,
         adminNotes: adminNotes.trim(),
       });
-      setAlert({
+      toast({
         type: 'success',
-        text: isEn
+        message: isEn
           ? `Message updated to '${STATUS_CONFIG[statusToSet]?.label || statusToSet}'.`
           : `Mensaje actualizado a '${STATUS_CONFIG[statusToSet]?.label || statusToSet}'.`,
       });
       setSelectedMessage(null);
       loadContacts();
     } catch (err) {
-      setAlert({ type: 'error', text: err.message || 'Error al actualizar mensaje' });
+      toast({
+        type: 'error',
+        message: err.message || (isEn ? 'Error updating message' : 'Error al actualizar mensaje'),
+      });
     } finally {
       setSubmitting(false);
     }
@@ -97,24 +101,6 @@ export default function AdminContactsPage() {
       title={t('contacts.title', 'Bandeja de Mensajes de Contacto')}
       subtitle={t('contacts.subtitle', 'Atención de consultas, solicitudes de membresía y soporte de viajeros')}
     >
-      {/* Alert */}
-      {alert && (
-        <div
-          className={`p-4 rounded-xl text-xs flex items-center justify-between shadow-sm animate-fade-in ${
-            alert.type === 'success'
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-              : 'bg-rose-50 border border-rose-200 text-rose-800'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            {alert.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-            <span className="font-semibold">{alert.text}</span>
-          </div>
-          <button onClick={() => setAlert(null)} className="p-1 hover:opacity-75 cursor-pointer">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
 
       {/* Filter Tabs */}
       <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -202,51 +188,12 @@ export default function AdminContactsPage() {
         subtitle={selectedMessage ? `${selectedMessage.fullname} • ${selectedMessage.email}` : ''}
         icon={MessageSquare}
         maxWidth="max-w-xl"
-      >
-        {selectedMessage && (
-          <div className="space-y-4 text-xs">
-            <div className="p-4 rounded-xl bg-sand-50 border border-sand-200 grid grid-cols-2 gap-3">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-navy-400 block">{t('contacts.sender', 'Remitente')}</span>
-                <p className="font-bold text-navy-950 text-sm">{selectedMessage.fullname}</p>
-                <p className="text-navy-600">{selectedMessage.email}</p>
-              </div>
-              <div>
-                <span className="text-[10px] uppercase font-bold text-navy-400 block">{t('contacts.phoneDate', 'Teléfono / Fecha')}</span>
-                <p className="font-semibold text-navy-800">{selectedMessage.phone || t('common.notSpecified', 'No especificado')}</p>
-                <p className="text-navy-500 text-[11px]">{new Date(selectedMessage.createdAt).toLocaleString()}</p>
-              </div>
-            </div>
-
-            <div>
-              <span className="text-[10px] uppercase font-bold text-navy-400 block mb-1">{t('contacts.subject', 'Asunto')}</span>
-              <p className="font-bold text-navy-950 text-sm">{selectedMessage.subject}</p>
-            </div>
-
-            <div>
-              <span className="text-[10px] uppercase font-bold text-navy-400 block mb-1">{t('contacts.message', 'Mensaje')}</span>
-              <div className="p-4 rounded-xl bg-sand-50 border border-sand-200 text-navy-800 leading-relaxed whitespace-pre-wrap">
-                {selectedMessage.message}
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
-                {t('contacts.internalNotes', 'Notas de Seguimiento Interno')}
-              </label>
-              <textarea
-                rows="2"
-                value={adminNotes}
-                onChange={(e) => setAdminNotes(e.target.value)}
-                placeholder={isEn ? 'e.g. Contacted via WhatsApp and sent travel quote...' : 'Ej: Se contactó por WhatsApp y se le envió propuesta de viaje...'}
-                className="w-full px-3.5 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
-              />
-            </div>
-
-            <div className="pt-4 border-t border-sand-200 flex flex-wrap items-center justify-between gap-3">
+        footer={
+          selectedMessage ? (
+            <div className="w-full flex flex-wrap items-center justify-between gap-3">
               <a
                 href={`mailto:${selectedMessage.email}?subject=Re: ${encodeURIComponent(selectedMessage.subject || 'Consulta Viajes Dominicana')}`}
-                className="inline-flex items-center gap-1.5 px-4 py-2 bg-navy-950 text-gold-400 rounded-xl font-bold uppercase text-[11px] tracking-wider hover:bg-navy-900 transition-colors"
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-navy-950 text-gold-400 rounded-xl font-bold text-xs hover:bg-navy-900 transition-colors"
               >
                 <Reply className="w-3.5 h-3.5" />
                 <span>{t('contacts.replyEmail', 'Responder por Correo')}</span>
@@ -256,18 +203,60 @@ export default function AdminContactsPage() {
                 <button
                   disabled={submitting}
                   onClick={() => handleUpdateStatus(selectedMessage._id, 'replied')}
-                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-[11px] uppercase tracking-wider cursor-pointer transition-colors"
+                  className="px-3.5 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-bold text-xs cursor-pointer transition-colors"
                 >
                   {t('contacts.markReplied', 'Marcar Respondido')}
                 </button>
                 <button
                   disabled={submitting}
                   onClick={() => handleUpdateStatus(selectedMessage._id, 'archived')}
-                  className="px-3.5 py-2 bg-sand-200 hover:bg-sand-300 text-navy-800 rounded-xl font-bold text-[11px] uppercase tracking-wider cursor-pointer transition-colors"
+                  className="px-3.5 py-2 bg-sand-200 hover:bg-sand-300 text-navy-800 rounded-xl font-bold text-xs cursor-pointer transition-colors"
                 >
                   {t('contacts.archive', 'Archivar')}
                 </button>
               </div>
+            </div>
+          ) : null
+        }
+      >
+        {selectedMessage && (
+          <div className="space-y-4 text-xs">
+            <div className="p-4 rounded-xl bg-sand-50 border border-sand-200 grid grid-cols-2 gap-3">
+              <div>
+                <span className="text-[10px] font-bold text-navy-400 block">{t('contacts.sender', 'Remitente')}</span>
+                <p className="font-bold text-navy-950 text-sm">{selectedMessage.fullname}</p>
+                <p className="text-navy-600">{selectedMessage.email}</p>
+              </div>
+              <div>
+                <span className="text-[10px] font-bold text-navy-400 block">{t('contacts.phoneDate', 'Teléfono / Fecha')}</span>
+                <p className="font-semibold text-navy-800">{selectedMessage.phone || t('common.notSpecified', 'No especificado')}</p>
+                <p className="text-navy-500 text-[11px]">{new Date(selectedMessage.createdAt).toLocaleString()}</p>
+              </div>
+            </div>
+
+            <div>
+              <span className="text-[10px] font-bold text-navy-400 block mb-1">{t('contacts.subject', 'Asunto')}</span>
+              <p className="font-bold text-navy-950 text-sm">{selectedMessage.subject}</p>
+            </div>
+
+            <div>
+              <span className="text-[10px] font-bold text-navy-400 block mb-1">{t('contacts.message', 'Mensaje')}</span>
+              <div className="p-4 rounded-xl bg-sand-50 border border-sand-200 text-navy-800 leading-relaxed whitespace-pre-wrap">
+                {selectedMessage.message}
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-navy-800 mb-1">
+                {t('contacts.internalNotes', 'Notas de Seguimiento Interno')}
+              </label>
+              <textarea
+                rows="2"
+                value={adminNotes}
+                onChange={(e) => setAdminNotes(e.target.value)}
+                placeholder={isEn ? 'e.g. Contacted via WhatsApp and sent travel quote...' : 'Ej: Se contactó por WhatsApp y se le envió propuesta de viaje...'}
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+              />
             </div>
           </div>
         )}

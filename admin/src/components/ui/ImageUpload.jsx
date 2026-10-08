@@ -114,7 +114,7 @@ export default function ImageUpload({
     <div className={`space-y-2 ${className}`}>
       {label && (
         <div className="flex items-center justify-between">
-          <label className="block text-xs font-bold text-navy-950 uppercase tracking-wider">
+          <label className="block text-xs font-bold text-navy-950 mb-0.5">
             {label} {required && <span className="text-[#AA303E]">*</span>}
           </label>
         </div>
@@ -163,14 +163,6 @@ export default function ImageUpload({
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
 
-              {/* Top Floating Badge */}
-              <div className="absolute top-3 left-3 flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/90 text-white backdrop-blur-md shadow-sm">
-                  <Check size={12} strokeWidth={3} />
-                  {isEn ? 'Uploaded & Ready' : 'Imagen Lista'}
-                </span>
-              </div>
-
               {/* Top Floating Action Buttons */}
               <div className="absolute top-3 right-3 flex items-center gap-2">
                 <button
@@ -192,13 +184,6 @@ export default function ImageUpload({
                   <X size={15} strokeWidth={2.5} />
                 </button>
               </div>
-
-              {/* Bottom Info Bar */}
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white/90 text-xs pointer-events-none">
-                <p className="font-medium text-[11px] truncate max-w-[85%] text-slate-200">
-                  {value}
-                </p>
-              </div>
             </div>
           </div>
         ) : (
@@ -212,8 +197,8 @@ export default function ImageUpload({
               isDragging
                 ? 'border-[#AA303E] bg-[#AA303E]/5 scale-[1.01] shadow-md ring-4 ring-[#AA303E]/10'
                 : error || uploadError
-                ? 'border-rose-300 bg-rose-50/30 hover:border-rose-400'
-                : 'border-slate-200 bg-slate-50/60 hover:border-[#AA303E] hover:bg-[#AA303E]/5 hover:shadow-sm'
+                ? 'border-rose-300 bg-white hover:border-rose-400'
+                : 'border-slate-200 bg-white hover:border-[#AA303E] hover:bg-[#AA303E]/5 hover:shadow-sm'
             }`}
           >
             {isUploading ? (

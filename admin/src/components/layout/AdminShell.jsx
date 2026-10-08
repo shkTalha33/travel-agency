@@ -139,14 +139,14 @@ export default function AdminShell({ children, title, subtitle, actionButton }) 
       {/* Mobile Backdrop */}
       {mobileMenuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-navy-950/70 backdrop-blur-sm lg:hidden"
+          className="fixed inset-0 z-40 bg-navy-950/70 backdrop-blur-sm lg:hidden transition-opacity"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
 
       {/* Sidebar Navigation */}
       <aside
-        className={`fixed top-0 bottom-0 left-0 z-30 w-72 bg-navy-950 text-white flex flex-col transition-transform duration-300 ease-in-out border-r border-navy-850 shadow-2xl lg:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-navy-950 text-white flex flex-col transition-transform duration-300 ease-in-out border-r border-navy-850 shadow-2xl lg:translate-x-0 ${
           mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >

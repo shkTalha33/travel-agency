@@ -260,7 +260,7 @@ export default function AdminLoginPage() {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@gmail.com"
-                  className="w-full pl-10 pr-4 py-3 bg-sand-50/70 border border-sand-200/90 rounded-2xl text-navy-950 text-sm placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:bg-white outline-none transition-all"
+                  className="w-full pl-10 pr-4 py-3 bg-white border border-sand-300 rounded-2xl text-navy-950 text-sm placeholder-slate-400 focus:border-gold-500 outline-none transition-all shadow-2xs"
                 />
               </div>
             </div>
@@ -280,7 +280,7 @@ export default function AdminLoginPage() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="w-full pl-10 pr-11 py-3 bg-sand-50/70 border border-sand-200/90 rounded-2xl text-navy-950 text-sm placeholder-slate-400 focus:border-gold-500 focus:ring-1 focus:ring-gold-500 focus:bg-white outline-none transition-all"
+                  className="w-full pl-10 pr-11 py-3 bg-white border border-sand-300 rounded-2xl text-navy-950 text-sm placeholder-slate-400 focus:border-gold-500 outline-none transition-all shadow-2xs"
                 />
                 <button
                   type="button"
@@ -319,7 +319,7 @@ export default function AdminLoginPage() {
                 </p>
               </div>
               <span className="rounded-full bg-sand-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
-                1 Clic
+                {isEn ? '1 Click' : '1 Clic'}
               </span>
             </div>
             <p className="text-xs text-slate-500 mb-3 leading-relaxed">
@@ -333,13 +333,13 @@ export default function AdminLoginPage() {
               className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl border border-gold-400/50 bg-white hover:bg-gold-50/40 text-gold-800 text-xs font-bold shadow-xs hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer"
             >
               <KeyRound size={14} className="text-gold-600" />
-              <span>Autocompletar: admin@gmail.com</span>
+              <span>{isEn ? 'Autofill: admin@gmail.com' : 'Autocompletar: admin@gmail.com'}</span>
             </button>
           </div>
 
           {/* Footer note */}
           <div className="mt-6 border-t border-slate-100 pt-4 text-center text-xs text-slate-500">
-            © {new Date().getFullYear()} Viajes Dominicana. Módulo de Administración Independiente.
+            © {new Date().getFullYear()} Viajes Dominicana. {isEn ? 'Master Administrative Portal.' : 'Módulo de Administración Independiente.'}
           </div>
         </div>
 

@@ -36,6 +36,10 @@ const OfferSchema = new mongoose.Schema(
       default: "República Dominicana",
       trim: true,
     },
+    countryCode: {
+      type: String,
+      trim: true,
+    },
     priceUSD: {
       type: Number,
       required: true,

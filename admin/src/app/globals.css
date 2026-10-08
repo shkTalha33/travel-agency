@@ -54,4 +54,11 @@ button:focus-visible {
   --tw-ring-shadow: none !important;
 }
 
+/* Ensure all form controls have a pure white background */
+input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not([type="reset"]),
+select,
+textarea {
+  background-color: #ffffff;
+}
+
 

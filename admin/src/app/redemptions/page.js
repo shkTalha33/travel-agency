@@ -12,9 +12,11 @@ import {
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
 import Modal from '@/components/ui/Modal';
+import { useToast } from '@/components/ui/Toast';
 
 export default function AdminRedemptionsPage() {
   const { t, isEn } = useLanguage();
+  const { toast } = useToast();
   const [redemptions, setRedemptions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('pending');
@@ -22,7 +24,6 @@ export default function AdminRedemptionsPage() {
   const [newStatus, setNewStatus] = useState('approved');
   const [adminNotes, setAdminNotes] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [alert, setAlert] = useState(null);
 
   const STATUS_BADGES = {
     pending: { label: isEn ? 'Pending' : 'Pendiente', color: 'bg-amber-50 text-amber-800 border-amber-300' },
@@ -66,7 +67,6 @@ export default function AdminRedemptionsPage() {
     if (!actionModal) return;
 
     setSubmitting(true);
-    setAlert(null);
 
     try {
       await adminApi.updateRedemptionStatus(actionModal._id, {
@@ -74,16 +74,19 @@ export default function AdminRedemptionsPage() {
         adminNotes: adminNotes.trim(),
       });
 
-      setAlert({
+      toast({
         type: 'success',
-        text: isEn
+        message: isEn
           ? `Redemption request updated to '${STATUS_BADGES[newStatus]?.label || newStatus}'.`
           : `Solicitud de redención actualizada a '${STATUS_BADGES[newStatus]?.label || newStatus}'.`,
       });
       setActionModal(null);
       loadRedemptions();
     } catch (err) {
-      setAlert({ type: 'error', text: err.message || 'Error al actualizar redención' });
+      toast({
+        type: 'error',
+        message: err.message || (isEn ? 'Error updating redemption' : 'Error al actualizar redención'),
+      });
     } finally {
       setSubmitting(false);
     }
@@ -94,24 +97,6 @@ export default function AdminRedemptionsPage() {
       title={t('redemptions.title', 'Gestión de Redenciones de Puntos')}
       subtitle={t('redemptions.subtitle', 'Aprobación, liquidación y entrega de beneficios de viaje y recompensas para miembros del club')}
     >
-      {/* Alert */}
-      {alert && (
-        <div
-          className={`p-4 rounded-xl text-xs flex items-center justify-between shadow-sm animate-fade-in ${
-            alert.type === 'success'
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-              : 'bg-rose-50 border border-rose-200 text-rose-800'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            {alert.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-            <span className="font-semibold">{alert.text}</span>
-          </div>
-          <button onClick={() => setAlert(null)} className="p-1 hover:opacity-75 cursor-pointer">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
 
       {/* Filter Tabs */}
       <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
@@ -233,9 +218,28 @@ export default function AdminRedemptionsPage() {
         subtitle={actionModal ? `${actionModal.userId?.fullname} • ${actionModal.points} PTS` : ''}
         icon={Gift}
         maxWidth="max-w-md"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setActionModal(null)}
+              className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer"
+            >
+              {t('common.cancel', 'Cancelar')}
+            </button>
+            <button
+              type="submit"
+              form="redemption-form"
+              disabled={submitting}
+              className="px-6 py-2 text-xs font-bold bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md disabled:opacity-50 cursor-pointer transition-all"
+            >
+              {submitting ? t('redemptions.updating', 'Actualizando...') : t('redemptions.confirmStatus', 'Confirmar Estado')}
+            </button>
+          </>
+        }
       >
         {actionModal && (
-          <form onSubmit={handleUpdateStatus} className="space-y-4">
+          <form id="redemption-form" onSubmit={handleUpdateStatus} className="space-y-4">
             <div className="p-3.5 rounded-2xl bg-sand-50 border border-sand-200 text-xs">
               <p className="font-bold text-navy-950">{actionModal.userId?.fullname}</p>
               <p className="text-gold-700 font-bold text-sm mt-0.5">{actionModal.points} PTS</p>
@@ -257,7 +261,7 @@ export default function AdminRedemptionsPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+              <label className="block text-xs font-bold text-navy-800 mb-1">
                 {t('redemptions.adminNotes', 'Notas de Administración / Código de Voucher')}
               </label>
               <textarea
@@ -265,25 +269,8 @@ export default function AdminRedemptionsPage() {
                 value={adminNotes}
                 onChange={(e) => setAdminNotes(e.target.value)}
                 placeholder={isEn ? 'e.g. Voucher #VOUCH-882 sent via email...' : 'Ej: Voucher #VOUCH-882 enviado al correo...'}
-                className="w-full px-3.5 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+                className="w-full px-3.5 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
               />
-            </div>
-
-            <div className="pt-4 border-t border-sand-200 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setActionModal(null)}
-                className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer"
-              >
-                {t('common.cancel', 'Cancelar')}
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="px-6 py-2 text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md disabled:opacity-50 cursor-pointer transition-all"
-              >
-                {submitting ? t('redemptions.updating', 'Actualizando...') : t('redemptions.confirmStatus', 'Confirmar Estado')}
-              </button>
             </div>
           </form>
         )}

@@ -38,8 +38,11 @@ export const removeAdminSession = () => {
 
 export async function apiRequest(endpoint, options = {}) {
   const token = getAuthToken();
+  const currentLang = typeof window !== 'undefined' ? (localStorage.getItem('admin_language_locale') || 'es') : 'es';
   const headers = {
     'Content-Type': 'application/json',
+    'x-language': currentLang,
+    'Accept-Language': currentLang,
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...options.headers,
   };

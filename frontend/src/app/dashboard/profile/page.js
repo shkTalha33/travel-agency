@@ -108,7 +108,7 @@ export default function ProfilePage() {
           <div>
             <label htmlFor="enlace" className="mb-1 block text-xs font-medium capitalize tracking-wide text-slate-500">{pv.referralLink || 'Enlace de referido'}</label>
             <div className="flex gap-2">
-              <input id="enlace" readOnly value={u.referralLink} className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm" />
+              <input id="enlace" readOnly value={u.referralLink} className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-800" />
               <Button variant="secondary" onClick={copyRefLink} icon={copied ? <Check size={16} /> : <Copy size={16} />}>
                 {copied ? (pv.copied || 'Copiado') : (pv.copy || 'Copiar')}
               </Button>

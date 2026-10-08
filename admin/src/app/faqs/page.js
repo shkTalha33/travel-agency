@@ -18,9 +18,11 @@ import {
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
 import Modal from '@/components/ui/Modal';
+import { useToast } from '@/components/ui/Toast';
 
 export default function AdminFaqsPage() {
   const { t, isEn } = useLanguage();
+  const { toast } = useToast();
   const [faqs, setFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
@@ -36,7 +38,6 @@ export default function AdminFaqsPage() {
   });
   const [errors, setErrors] = useState({});
   const [submitting, setSubmitting] = useState(false);
-  const [alert, setAlert] = useState(null);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
 
   const CATEGORIES = [
@@ -110,7 +111,6 @@ export default function AdminFaqsPage() {
 
     setErrors({});
     setSubmitting(true);
-    setAlert(null);
 
     const payload = {
       ...formData,
@@ -120,15 +120,15 @@ export default function AdminFaqsPage() {
     try {
       if (isEditing) {
         await adminApi.updateFaq(currentId, payload);
-        setAlert({ type: 'success', text: t('faqs.successUpdated', 'Pregunta frecuente actualizada correctamente.') });
+        toast(t('faqs.successUpdated', 'Pregunta frecuente actualizada correctamente.'), 'success');
       } else {
         await adminApi.createFaq(payload);
-        setAlert({ type: 'success', text: t('faqs.successCreated', 'Nueva pregunta frecuente agregada.') });
+        toast(t('faqs.successCreated', 'Nueva pregunta frecuente agregada.'), 'success');
       }
       setModalOpen(false);
       loadFaqs();
     } catch (err) {
-      setAlert({ type: 'error', text: err.message || 'Error al guardar la FAQ' });
+      toast(err.message || (isEn ? 'Error saving FAQ' : 'Error al guardar la FAQ'), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -138,10 +138,10 @@ export default function AdminFaqsPage() {
     try {
       await adminApi.deleteFaq(id);
       setDeleteConfirmId(null);
-      setAlert({ type: 'success', text: t('faqs.successDeleted', 'Pregunta eliminada exitosamente.') });
+      toast(t('faqs.successDeleted', 'Pregunta eliminada exitosamente.'), 'success');
       loadFaqs();
     } catch (err) {
-      setAlert({ type: 'error', text: err.message || 'Error al eliminar FAQ' });
+      toast(err.message || (isEn ? 'Error deleting FAQ' : 'Error al eliminar FAQ'), 'error');
     }
   };
 
@@ -168,24 +168,6 @@ export default function AdminFaqsPage() {
         </button>
       }
     >
-      {/* Alert Banner */}
-      {alert && (
-        <div
-          className={`p-4 rounded-xl text-xs flex items-center justify-between shadow-sm animate-fade-in ${
-            alert.type === 'success'
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-              : 'bg-rose-50 border border-rose-200 text-rose-800'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            {alert.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-            <span className="font-semibold">{alert.text}</span>
-          </div>
-          <button onClick={() => setAlert(null)} className="p-1 hover:opacity-75">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
 
       {/* Filter and Category Tabs */}
       <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm space-y-4">
@@ -197,7 +179,7 @@ export default function AdminFaqsPage() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder={t('faqs.searchPlaceholder', 'Buscar en preguntas o respuestas...')}
-              className="w-full pl-10 pr-4 py-2 text-xs bg-sand-50 border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
+              className="w-full pl-10 pr-4 py-2 text-xs bg-white border border-sand-200 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 transition-colors"
             />
           </div>
           <span className="text-xs text-navy-500">
@@ -283,10 +265,33 @@ export default function AdminFaqsPage() {
         subtitle={isEn ? 'Official answer for members & visitors' : 'Respuesta oficial para miembros y visitantes'}
         icon={HelpCircle}
         maxWidth="max-w-lg"
+        footer={
+          <>
+            <button
+              type="button"
+              onClick={() => setModalOpen(false)}
+              className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer transition-colors"
+            >
+              {t('common.cancel', 'Cancelar')}
+            </button>
+            <button
+              type="submit"
+              form="faq-form"
+              disabled={submitting}
+              className="px-6 py-2 text-xs font-bold bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md disabled:opacity-50 cursor-pointer transition-all"
+            >
+              {submitting
+                ? t('common.loading', 'Guardando...')
+                : isEditing
+                ? t('faqs.saveChanges', 'Guardar Cambios')
+                : t('faqs.saveFaq', 'Crear FAQ')}
+            </button>
+          </>
+        }
       >
-        <form onSubmit={handleSubmit} className="space-y-4" noValidate>
+        <form id="faq-form" onSubmit={handleSubmit} className="space-y-4" noValidate>
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+            <label className="block text-xs font-bold text-navy-800 mb-1">
               {t('faqs.questionLabel', 'Pregunta')} <span className="text-rose-500">*</span>
             </label>
             <input
@@ -296,9 +301,9 @@ export default function AdminFaqsPage() {
                 setFormData({ ...formData, question: e.target.value });
                 if (errors.question) setErrors((prev) => ({ ...prev, question: '' }));
               }}
-              placeholder="¿Cómo funcionan los puntos por referidos?"
-              className={`w-full px-3.5 py-2.5 text-xs bg-sand-50 border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
-                errors.question ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20' : 'border-sand-200 focus:border-gold-500'
+              placeholder={isEn ? 'How do referral points work?' : '¿Cómo funcionan los puntos por referidos?'}
+              className={`w-full px-3.5 py-2.5 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
+                errors.question ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
               }`}
             />
             {errors.question && (
@@ -310,7 +315,7 @@ export default function AdminFaqsPage() {
           </div>
 
           <div>
-            <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+            <label className="block text-xs font-bold text-navy-800 mb-1">
               {t('faqs.answerLabel', 'Respuesta Detallada')} <span className="text-rose-500">*</span>
             </label>
             <textarea
@@ -320,9 +325,9 @@ export default function AdminFaqsPage() {
                 setFormData({ ...formData, answer: e.target.value });
                 if (errors.answer) setErrors((prev) => ({ ...prev, answer: '' }));
               }}
-              placeholder="Explique detalladamente la respuesta que verán los usuarios..."
-              className={`w-full px-3.5 py-2 text-xs bg-sand-50 border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
-                errors.answer ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20' : 'border-sand-200 focus:border-gold-500'
+              placeholder={isEn ? 'Explain the answer in detail for members...' : 'Explique detalladamente la respuesta que verán los usuarios...'}
+              className={`w-full px-3.5 py-2 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 transition-colors ${
+                errors.answer ? 'border-rose-400 focus:border-rose-500 bg-white' : 'border-sand-200 focus:border-gold-500 bg-white'
               }`}
             />
             {errors.answer && (
@@ -350,7 +355,7 @@ export default function AdminFaqsPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+              <label className="block text-xs font-bold text-navy-800 mb-1">
                 {t('faqs.positionLabel', 'Posición / Orden')}
               </label>
               <input
@@ -360,27 +365,6 @@ export default function AdminFaqsPage() {
                 className="w-full px-3.5 py-2.5 text-xs bg-white border border-sand-300 rounded-xl focus:border-gold-500 outline-none ring-0 focus:outline-none focus:ring-0 font-semibold text-navy-950 transition-colors"
               />
             </div>
-          </div>
-
-          <div className="pt-4 border-t border-sand-200 flex items-center justify-end gap-3">
-            <button
-              type="button"
-              onClick={() => setModalOpen(false)}
-              className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer transition-colors"
-            >
-              {t('common.cancel', 'Cancelar')}
-            </button>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="px-6 py-2 text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md disabled:opacity-50 cursor-pointer transition-all"
-            >
-              {submitting
-                ? t('common.loading', 'Guardando...')
-                : isEditing
-                ? t('faqs.saveChanges', 'Guardar Cambios')
-                : t('faqs.saveFaq', 'Crear FAQ')}
-            </button>
           </div>
         </form>
       </Modal>
@@ -392,12 +376,8 @@ export default function AdminFaqsPage() {
         title={t('faqs.deleteConfirmTitle', '¿Eliminar FAQ?')}
         icon={AlertTriangle}
         maxWidth="max-w-sm"
-      >
-        <div className="text-center space-y-4">
-          <p className="text-xs text-navy-600">
-            {t('faqs.deleteConfirmDesc', 'Esta pregunta frecuente ya no se mostrará a los usuarios en la sección de soporte.')}
-          </p>
-          <div className="flex items-center justify-center gap-3 pt-2">
+        footer={
+          <>
             <button
               type="button"
               onClick={() => setDeleteConfirmId(null)}
@@ -412,7 +392,13 @@ export default function AdminFaqsPage() {
             >
               {t('offers.yesDelete', 'Sí, Eliminar')}
             </button>
-          </div>
+          </>
+        }
+      >
+        <div className="text-center space-y-4">
+          <p className="text-xs text-navy-600">
+            {t('faqs.deleteConfirmDesc', 'Esta pregunta frecuente ya no se mostrará a los usuarios en la sección de soporte.')}
+          </p>
         </div>
       </Modal>
     </AdminShell>

@@ -161,14 +161,6 @@ export default function ImageUpload({
               {/* Gradient Overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
 
-              {/* Top Floating Badge */}
-              <div className="absolute top-3 left-3 flex items-center gap-2">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/90 text-white backdrop-blur-md shadow-sm">
-                  <Check size={12} strokeWidth={3} />
-                  {isEn ? 'Uploaded & Ready' : 'Imagen Lista'}
-                </span>
-              </div>
-
               {/* Top Floating Action Buttons */}
               <div className="absolute top-3 right-3 flex items-center gap-2">
                 <button
@@ -189,13 +181,6 @@ export default function ImageUpload({
                 >
                   <X size={15} strokeWidth={2.5} />
                 </button>
-              </div>
-
-              {/* Bottom Info Bar */}
-              <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-white/90 text-xs pointer-events-none">
-                <p className="font-medium text-[11px] truncate max-w-[85%] text-slate-200">
-                  {value}
-                </p>
               </div>
             </div>
           </div>

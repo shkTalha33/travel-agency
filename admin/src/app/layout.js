@@ -1,6 +1,7 @@
 import './globals.css';
 import { AdminAuthProvider } from '@/context/AdminAuthContext';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { ToastProvider } from '@/components/ui/Toast';
 
 export const metadata = {
   title: 'Círculo Wingding — Portal Administrativo',
@@ -9,11 +10,13 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="es" className="h-full bg-sand-50">
-      <body className="h-full antialiased font-sans text-navy-950 bg-sand-50">
+    <html lang="es" className="h-full bg-sand-50" suppressHydrationWarning>
+      <body className="h-full antialiased font-sans text-navy-950 bg-sand-50" suppressHydrationWarning>
         <LanguageProvider>
           <AdminAuthProvider>
-            {children}
+            <ToastProvider>
+              {children}
+            </ToastProvider>
           </AdminAuthProvider>
         </LanguageProvider>
       </body>

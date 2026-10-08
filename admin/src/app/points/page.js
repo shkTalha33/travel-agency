@@ -15,9 +15,11 @@ import {
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
 import Modal from '@/components/ui/Modal';
+import { useToast } from '@/components/ui/Toast';
 
 export default function AdminPointsPage() {
   const { t, isEn } = useLanguage();
+  const { toast } = useToast();
   const [transactions, setTransactions] = useState([]);
   const [users, setUsers] = useState([]);
   const [offers, setOffers] = useState([]);
@@ -33,7 +35,6 @@ export default function AdminPointsPage() {
   const [purchasePoints, setPurchasePoints] = useState(150);
   const [submitting, setSubmitting] = useState(false);
   const [resultData, setResultData] = useState(null);
-  const [alert, setAlert] = useState(null);
   const [errors, setErrors] = useState({});
 
   useEffect(() => {
@@ -116,7 +117,6 @@ export default function AdminPointsPage() {
 
     setErrors({});
     setSubmitting(true);
-    setAlert(null);
     setResultData(null);
 
     try {
@@ -128,10 +128,16 @@ export default function AdminPointsPage() {
       });
 
       setResultData(res.data);
-      setAlert({ type: 'success', text: t('points.successDistributed', '¡Puntos asignados y comisiones multinivel calculadas con éxito!') });
+      toast({
+        type: 'success',
+        message: t('points.successDistributed', '¡Puntos asignados y comisiones multinivel calculadas con éxito!'),
+      });
       loadTransactions();
     } catch (err) {
-      setAlert({ type: 'error', text: err.message || 'Error al asignar puntos de compra' });
+      toast({
+        type: 'error',
+        message: err.message || (isEn ? 'Error assigning purchase points' : 'Error al asignar puntos de compra'),
+      });
     } finally {
       setSubmitting(false);
     }
@@ -150,32 +156,13 @@ export default function AdminPointsPage() {
             setErrors({});
             setAssignModalOpen(true);
           }}
-          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl font-bold text-xs uppercase tracking-wider shadow-sm transition-all cursor-pointer"
+          className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl font-bold text-xs shadow-sm transition-all cursor-pointer"
         >
           <PlusCircle className="w-4 h-4" />
           <span>{t('points.assignBtn', 'Asignar Puntos de Venta')}</span>
         </button>
       }
     >
-      {/* Alert */}
-      {alert && (
-        <div
-          className={`p-4 rounded-xl text-xs flex items-center justify-between shadow-sm animate-fade-in ${
-            alert.type === 'success'
-              ? 'bg-emerald-50 border border-emerald-200 text-emerald-800'
-              : 'bg-rose-50 border border-rose-200 text-rose-800'
-          }`}
-        >
-          <div className="flex items-center gap-2">
-            {alert.type === 'success' ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />}
-            <span className="font-semibold">{alert.text}</span>
-          </div>
-          <button onClick={() => setAlert(null)} className="p-1 hover:opacity-75 cursor-pointer">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-      )}
-
       {/* Rules Banner */}
       <div className="p-5 rounded-2xl bg-gradient-to-r from-navy-950 via-navy-900 to-navy-950 text-white border border-navy-800 shadow-md">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -342,6 +329,38 @@ export default function AdminPointsPage() {
         subtitle={isEn ? 'Assign points & distribute upline commissions' : 'Asigna puntos y calcula comisiones multinivel'}
         icon={Coins}
         maxWidth="max-w-xl"
+        footer={
+          resultData ? (
+            <button
+              type="button"
+              onClick={() => {
+                setResultData(null);
+                setAssignModalOpen(false);
+              }}
+              className="px-6 py-2.5 bg-navy-950 text-gold-400 rounded-xl text-xs font-bold cursor-pointer shadow-md hover:bg-navy-900 transition-colors"
+            >
+              {t('common.close', 'Cerrar')}
+            </button>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => setAssignModalOpen(false)}
+                className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer transition-colors"
+              >
+                {t('common.cancel', 'Cancelar')}
+              </button>
+              <button
+                type="submit"
+                form="assign-points-form"
+                disabled={submitting}
+                className="px-6 py-2.5 text-xs font-bold bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md disabled:opacity-50 cursor-pointer transition-all"
+              >
+                {submitting ? t('points.calculating', 'Calculando y Asignando...') : t('points.confirmAndAssign', 'Confirmar y Asignar Puntos')}
+              </button>
+            </>
+          )
+        }
       >
         {resultData ? (
           <div className="space-y-4">
@@ -357,7 +376,7 @@ export default function AdminPointsPage() {
             </div>
 
             <div className="border border-sand-200 rounded-xl p-4 bg-sand-50 space-y-2">
-              <p className="text-xs font-bold uppercase tracking-wider text-navy-800">
+              <p className="text-xs font-bold text-navy-800">
                 {t('points.uplinesAwarded', 'Comisiones Multinivel Asignadas a la Línea Ascendente:')}
               </p>
               {resultData.distributedCommissions?.length > 0 ? (
@@ -381,20 +400,9 @@ export default function AdminPointsPage() {
                 </p>
               )}
             </div>
-
-            <button
-              type="button"
-              onClick={() => {
-                setResultData(null);
-                setAssignModalOpen(false);
-              }}
-              className="w-full py-2.5 bg-navy-950 text-gold-400 rounded-xl text-xs font-bold uppercase tracking-wider cursor-pointer shadow-md hover:bg-navy-900 transition-colors"
-            >
-              {t('common.close', 'Cerrar')}
-            </button>
           </div>
         ) : (
-          <form onSubmit={handleAssignPoints} className="space-y-4" noValidate>
+          <form id="assign-points-form" onSubmit={handleAssignPoints} className="space-y-4" noValidate>
             {/* Select Purchaser with Custom Luxury Dropdown & Error */}
             <div>
               <CustomSelect
@@ -446,7 +454,7 @@ export default function AdminPointsPage() {
                     setOfferTitle(e.target.value);
                     if (errors.title) setErrors((prev) => ({ ...prev, title: '' }));
                   }}
-                  placeholder="Descripción del paquete comprado..."
+                  placeholder={isEn ? 'Purchased package description...' : 'Descripción del paquete comprado...'}
                   className={`w-full px-4 py-2.5 text-xs bg-white border rounded-xl outline-none ring-0 focus:outline-none focus:ring-0 text-navy-900 font-medium transition-colors ${
                     errors.title
                       ? 'border-rose-400 focus:border-rose-500 bg-rose-50/20'
@@ -464,7 +472,7 @@ export default function AdminPointsPage() {
 
             {/* Purchase Points Input with Field-Level Error */}
             <div>
-              <label className="block text-[11px] font-bold uppercase tracking-wider text-navy-800 mb-1">
+              <label className="block text-xs font-bold text-navy-800 mb-1">
                 {t('points.purchasePoints', 'Puntos Base de la Compra (PTS)')} <span className="text-rose-500">*</span>
               </label>
               <input
@@ -507,23 +515,6 @@ export default function AdminPointsPage() {
                 </p>
               </div>
             )}
-
-            <div className="pt-4 border-t border-sand-200 flex items-center justify-end gap-3">
-              <button
-                type="button"
-                onClick={() => setAssignModalOpen(false)}
-                className="px-4 py-2 text-xs font-bold text-navy-700 bg-sand-100 hover:bg-sand-200 rounded-xl cursor-pointer transition-colors"
-              >
-                {t('common.cancel', 'Cancelar')}
-              </button>
-              <button
-                type="submit"
-                disabled={submitting}
-                className="px-6 py-2.5 text-xs font-bold uppercase tracking-wider bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-xl shadow-md disabled:opacity-50 cursor-pointer transition-all"
-              >
-                {submitting ? t('points.calculating', 'Calculando y Asignando...') : t('points.confirmAndAssign', 'Confirmar y Asignar Puntos')}
-              </button>
-            </div>
           </form>
         )}
       </Modal>

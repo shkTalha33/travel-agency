@@ -11,11 +11,15 @@ export default function Modal({
   subtitle,
   icon: Icon,
   children,
+  footer,
   maxWidth = 'max-w-xl',
   showClose = true,
+  closeOnBackdrop = false, // Defaults to false to prevent accidental dismissal during form entry
+  closeOnEsc = true,
 }) {
   const [mounted, setMounted] = useState(false);
   const overlayRef = useRef(null);
+  const mouseDownTargetRef = useRef(null);
 
   useEffect(() => {
     setMounted(true);
@@ -27,7 +31,7 @@ export default function Modal({
     document.body.style.overflow = 'hidden';
 
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') {
+      if (closeOnEsc && e.key === 'Escape') {
         onClose?.();
       }
     };
@@ -37,29 +41,43 @@ export default function Modal({
       document.body.style.overflow = originalOverflow;
       document.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, onClose, closeOnEsc]);
 
   if (!mounted || !isOpen) return null;
+
+  const handleMouseDown = (e) => {
+    mouseDownTargetRef.current = e.target;
+  };
+
+  const handleMouseUp = (e) => {
+    if (
+      closeOnBackdrop &&
+      mouseDownTargetRef.current === overlayRef.current &&
+      e.target === overlayRef.current
+    ) {
+      onClose?.();
+    }
+    mouseDownTargetRef.current = null;
+  };
 
   return createPortal(
     <div
       ref={overlayRef}
       role="presentation"
-      className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-screen h-screen z-[99999] flex items-center justify-center p-4 sm:p-6 bg-navy-950/80 backdrop-blur-md overflow-y-auto animate-fade-in"
-      onClick={(e) => {
-        if (e.target === overlayRef.current) {
-          onClose?.();
-        }
-      }}
+      onMouseDown={handleMouseDown}
+      onMouseUp={handleMouseUp}
+      className="fixed inset-0 top-0 left-0 right-0 bottom-0 w-screen h-screen z-[99999] flex items-center justify-center p-4 sm:p-6 bg-navy-950/80 backdrop-blur-md overflow-hidden animate-fade-in"
     >
       <div
         role="dialog"
         aria-modal="true"
-        className={`relative z-10 w-full ${maxWidth} m-auto overflow-hidden rounded-3xl border border-sand-200 bg-white shadow-2xl animate-scale-in flex flex-col`}
+        onMouseDown={(e) => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
+        className={`relative z-10 w-full ${maxWidth} m-auto overflow-hidden rounded-3xl border border-sand-200 bg-white shadow-2xl animate-scale-in flex flex-col max-h-[90vh]`}
       >
-        {/* Modal Header */}
+        {/* Modal Header (Fixed at top) */}
         {(title || showClose) && (
-          <div className="flex items-center justify-between border-b border-sand-200 px-6 py-5 bg-white shrink-0">
+          <div className="flex items-center justify-between border-b border-sand-200 px-6 py-5 bg-white shrink-0 z-10">
             <div className="flex items-center gap-3">
               {Icon && (
                 <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-gold-600 via-gold-500 to-amber-400 text-navy-950 flex items-center justify-center shadow-md shadow-gold-500/20 shrink-0">
@@ -93,10 +111,17 @@ export default function Modal({
           </div>
         )}
 
-        {/* Modal Body */}
-        <div className="p-6 sm:p-8 max-h-[calc(90vh-80px)] overflow-y-auto">
+        {/* Modal Body (Scrollable container) */}
+        <div className="p-6 sm:p-8 flex-1 overflow-y-auto">
           {children}
         </div>
+
+        {/* Modal Footer (Fixed at bottom, never scrolls) */}
+        {footer && (
+          <div className="border-t border-slate-200 bg-slate-50/95 px-6 py-4 flex items-center justify-end gap-3 shrink-0 z-10 backdrop-blur-xs">
+            {footer}
+          </div>
+        )}
       </div>
     </div>,
     document.body
