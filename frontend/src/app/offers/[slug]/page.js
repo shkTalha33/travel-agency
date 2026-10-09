@@ -7,10 +7,10 @@ import { Check, X, Clock, MapPin, Sparkles, ShieldCheck, Loader2, ArrowLeft, Gif
 import PublicShell from '@/components/layout/PublicShell';
 import OfferCard from '@/components/offers/OfferCard';
 import OfferImageGallery from '@/components/offers/OfferImageGallery';
+import { OfferDetailSkeleton } from '@/components/common/Skeletons';
 import Breadcrumb from '@/components/ui/Breadcrumb';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
-import CardSpotlight from '@/components/ui/CardSpotlight';
 import { AccentRule } from '@/components/common/Linework';
 import { TRAVEL_OFFERS, localizeOffer } from '@/data/offers';
 import { getCountryFlag } from '@/data/countries';
@@ -115,11 +115,8 @@ export default function OfferDetailPage({ params }) {
   if (loading) {
     return (
       <PublicShell>
-        <div className="mx-auto max-w-7xl px-4 py-28 sm:px-6 lg:px-8 flex flex-col items-center justify-center space-y-4">
-          <Loader2 className="w-10 h-10 animate-spin text-ocean-600" />
-          <p className="text-sm font-semibold text-slate-600">
-            {locale === 'en' ? 'Loading travel offer details...' : 'Cargando detalles de la oferta de viaje...'}
-          </p>
+        <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <OfferDetailSkeleton />
         </div>
       </PublicShell>
     );
@@ -179,13 +176,11 @@ export default function OfferDetailPage({ params }) {
           ]}
         />
 
-        {/* Luxury Interactive Photo Carousel & Thumbnails */}
-        <div className="mt-6">
-          <OfferImageGallery images={galleryImages} title={offer.destination || offer.title} />
-        </div>
+        <div className="mt-8 grid gap-8 lg:grid-cols-3 items-start">
+          <div className="space-y-10 lg:col-span-2">
+            {/* Luxury Interactive Photo Carousel & Thumbnails */}
+            <OfferImageGallery images={galleryImages} title={offer.destination || offer.title} />
 
-        <div className="mt-12 grid gap-10 lg:grid-cols-3">
-          <div className="space-y-12 lg:col-span-2">
             <header>
               <div className="flex items-center gap-2">
                 {offer.badge && (
@@ -320,13 +315,9 @@ export default function OfferDetailPage({ params }) {
             )}
           </div>
 
-          {/* Aceternity CardSpotlight Booking Aside */}
+          {/* Booking Aside Card */}
           <aside className="lg:sticky lg:top-24">
-            <CardSpotlight
-              color="rgba(212, 180, 90, 0.2)"
-              radius={280}
-              className="rounded-3xl border border-slate-200/90 bg-white p-7 shadow-sm hover:shadow-md transition-all"
-            >
+            <div className="rounded-3xl border border-slate-200/90 bg-white p-7 shadow-sm transition-all">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                 {d.specialPriceFrom || 'Precio especial desde'}
               </p>
@@ -353,7 +344,7 @@ export default function OfferDetailPage({ params }) {
               {isAuthenticated ? (
                 <div className="mt-6 space-y-3">
                   <Link href={`/dashboard/redeem?offer=${encodeURIComponent(offer.title)}`} className="block">
-                    <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-ocean-700 via-ocean-600 to-ocean-800 text-white">
+                    <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all text-white">
                       <Gift size={16} className="mr-2 text-gold-300 shrink-0" aria-hidden="true" />
                       <span>{locale === 'en' ? 'Redeem Points for this Trip' : 'Redimir Puntos para este Viaje'}</span>
                     </Button>
@@ -367,7 +358,7 @@ export default function OfferDetailPage({ params }) {
               ) : (
                 <div className="mt-6 space-y-3">
                   <Link href={`/register?offer=${encodeURIComponent(offer.slug || '')}`} className="block">
-                    <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-ocean-700 via-ocean-600 to-ocean-800 text-white">
+                    <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all text-white">
                       <Sparkles size={16} className="mr-2 text-gold-300 shrink-0" aria-hidden="true" />
                       <span>{d.bookVipBtn || (locale === 'en' ? 'I want this VIP offer' : 'Quiero esta oferta VIP')}</span>
                     </Button>
@@ -389,7 +380,7 @@ export default function OfferDetailPage({ params }) {
                 {d.noOnlinePaymentHint ||
                   '🔒 Sin pagos en línea. Al registrarte o reservar, un asesor oficial coordinará los detalles de tu estancia contigo.'}
               </p>
-            </CardSpotlight>
+            </div>
           </aside>
         </div>
 

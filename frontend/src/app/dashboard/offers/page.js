@@ -3,7 +3,7 @@
 import React, { useEffect } from 'react';
 import SectionHeading from '@/components/common/SectionHeading';
 import OffersExplorer from '@/components/offers/OffersExplorer';
-import { PageSkeleton } from '@/components/common/Skeletons';
+import { OffersPageSkeleton } from '@/components/common/Skeletons';
 import useMockLoading from '@/hooks/useMockLoading';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSelector, useDispatch } from '@/store';
@@ -28,7 +28,7 @@ export default function DashboardOffersPage() {
 
   const offers = (reduxOffers && reduxOffers.length > 0) ? reduxOffers : TRAVEL_OFFERS;
 
-  if (loading) return <PageSkeleton />;
+  if (loading) return <OffersPageSkeleton />;
 
   return (
     <div className="space-y-5">

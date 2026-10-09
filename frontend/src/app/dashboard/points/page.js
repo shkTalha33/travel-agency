@@ -8,7 +8,7 @@ import Badge from '@/components/ui/Badge';
 import EmptyState from '@/components/ui/EmptyState';
 import PointsStat from '@/components/points/PointsStat';
 import TransactionList from '@/components/points/TransactionList';
-import { ListSkeleton } from '@/components/common/Skeletons';
+import { ListSkeleton, PointsSkeleton } from '@/components/common/Skeletons';
 import useMockLoading from '@/hooks/useMockLoading';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -33,6 +33,8 @@ export default function PointsPage() {
     dispatch(fetchPointsSummary());
     dispatch(fetchPointsTransactions({}));
   }, [dispatch]);
+
+  if (loading || !currentUser) return <PointsSkeleton />;
 
   const userStats = currentUser?.stats || currentUser?.pointsStats || {
     availablePoints: 0,

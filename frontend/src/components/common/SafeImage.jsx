@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { MapPin } from 'lucide-react';
 
 /** Image with a graceful branded fallback if the remote image fails to load. */
-export default function SafeImage({ src, alt, className = '', priority = false }) {
+export default function SafeImage({ src, alt, className = '', priority = false, onError }) {
   const [failed, setFailed] = useState(false);
 
   const resolveSrc = (url) => {
@@ -25,12 +25,15 @@ export default function SafeImage({ src, alt, className = '', priority = false }
       }
     }
     setFailed(true);
+    if (onError && typeof onError === 'function') {
+      onError(src);
+    }
   };
 
   if (!src || failed) {
     return (
-      <div role="img" aria-label={alt} className={`flex items-center justify-center bg-gradient-to-br from-navy-800 to-ocean-700 text-white/70 ${className}`}>
-        <MapPin size={32} aria-hidden="true" />
+      <div role="img" aria-label={alt} className={`flex items-center justify-center bg-slate-100 text-slate-400 ${className}`}>
+        <MapPin size={28} aria-hidden="true" />
       </div>
     );
   }

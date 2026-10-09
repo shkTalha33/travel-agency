@@ -9,7 +9,7 @@ import NetworkTree from '@/components/referral/NetworkTree';
 import MemberRow from '@/components/referral/MemberRow';
 import MemberDetailModal from '@/components/referral/MemberDetailModal';
 import InviteButton from '@/components/referral/InviteButton';
-import { ListSkeleton } from '@/components/common/Skeletons';
+import { ListSkeleton, NetworkSkeleton } from '@/components/common/Skeletons';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import { useToast } from '@/components/ui/Toast';
@@ -38,6 +38,8 @@ export default function NetworkPage() {
   useEffect(() => {
     dispatch(fetchNetworkData());
   }, [dispatch]);
+
+  if (loading || !currentUser) return <NetworkSkeleton />;
 
   const copyRefLink = async () => {
     try {

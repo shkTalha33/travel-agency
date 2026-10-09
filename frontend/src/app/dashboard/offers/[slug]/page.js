@@ -13,14 +13,13 @@ import {
   Loader2, 
   ArrowLeft, 
   Gift, 
-  PhoneCall, 
   Building
 } from 'lucide-react';
 import OfferCard from '@/components/offers/OfferCard';
 import OfferImageGallery from '@/components/offers/OfferImageGallery';
+import { OfferDetailSkeleton } from '@/components/common/Skeletons';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
-import CardSpotlight from '@/components/ui/CardSpotlight';
 import { AccentRule } from '@/components/common/Linework';
 import { TRAVEL_OFFERS, localizeOffer } from '@/data/offers';
 import { getCountryFlag } from '@/data/countries';
@@ -123,11 +122,8 @@ export default function DashboardOfferDetailPage({ params }) {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-7xl px-4 py-28 flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="w-10 h-10 animate-spin text-ocean-600" />
-        <p className="text-sm font-semibold text-slate-600">
-          {locale === 'en' ? 'Loading travel offer details...' : 'Cargando detalles de la oferta de viaje...'}
-        </p>
+      <div className="w-full">
+        <OfferDetailSkeleton />
       </div>
     );
   }
@@ -177,12 +173,12 @@ export default function DashboardOfferDetailPage({ params }) {
   const userPoints = userStats.availablePoints || 0;
 
   return (
-    <div className="mx-auto max-w-7xl px-2 sm:px-4 py-2 space-y-10">
-      {/* Luxury Interactive Photo Carousel & Thumbnails */}
-      <OfferImageGallery images={galleryImages} title={offer.destination || offer.title} />
+    <div className="mx-auto max-w-7xl px-2 sm:px-4 py-2">
+      <div className="grid gap-8 lg:grid-cols-3 items-start">
+        <div className="space-y-10 lg:col-span-2">
+          {/* Luxury Interactive Photo Carousel & Thumbnails */}
+          <OfferImageGallery images={galleryImages} title={offer.destination || offer.title} />
 
-      <div className="grid gap-10 lg:grid-cols-3">
-        <div className="space-y-12 lg:col-span-2">
           <header>
             <div className="flex items-center gap-2">
               {offer.badge && (
@@ -318,12 +314,8 @@ export default function DashboardOfferDetailPage({ params }) {
         </div>
 
         {/* Aside Booking / Points Redemption Card */}
-        <aside className="lg:sticky lg:top-8 space-y-6">
-          <CardSpotlight
-            color="rgba(212, 180, 90, 0.2)"
-            radius={280}
-            className="rounded-3xl border border-slate-200/90 bg-white p-7 shadow-sm hover:shadow-md transition-all"
-          >
+        <aside className="lg:sticky lg:top-20 space-y-6">
+          <div className="rounded-3xl border border-slate-200/90 bg-white p-7 shadow-sm transition-all">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               {d.specialPriceFrom || 'Precio especial desde'}
             </p>
@@ -349,7 +341,7 @@ export default function DashboardOfferDetailPage({ params }) {
             {/* Direct Action Area */}
             <div className="mt-6 space-y-3">
               <Link href={`/dashboard/redeem?offer=${encodeURIComponent(offer.title)}`} className="block">
-                <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-ocean-700 via-ocean-600 to-ocean-800 text-white">
+                <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all text-white">
                   <Gift size={16} className="mr-2 text-gold-300 shrink-0" aria-hidden="true" />
                   <span>{locale === 'en' ? 'Redeem Points for this Trip' : 'Redimir Puntos para este Viaje'}</span>
                 </Button>
@@ -359,28 +351,13 @@ export default function DashboardOfferDetailPage({ params }) {
                   ? `Available: ${userPoints} PTS • Min. 50 PTS per redemption`
                   : `Disponibles: ${userPoints} PTS • Mínimo 50 PTS por solicitud`}
               </p>
-
-              <a
-                href={`https://wa.me/?text=${encodeURIComponent(`Hola, soy miembro de Círculo Wingding y deseo coordinar la reserva de la oferta: ${offer.title}`)}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block pt-1"
-              >
-                <button
-                  type="button"
-                  className="w-full py-3 px-4 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white text-navy-900 font-bold text-xs flex items-center justify-center gap-2 hover:bg-sand-50 shadow-xs transition-all"
-                >
-                  <PhoneCall size={14} className="text-ocean-600 shrink-0" />
-                  <span>{locale === 'en' ? 'Contact VIP Concierge' : 'Contactar Asesor VIP'}</span>
-                </button>
-              </a>
             </div>
 
             <p className="mt-4 text-center text-xs leading-relaxed text-slate-500">
               {d.noOnlinePaymentHint ||
                 '🔒 Sin pagos en línea. Al solicitar tu viaje o canje, un asesor oficial coordinará los detalles de tu estancia contigo.'}
             </p>
-          </CardSpotlight>
+          </div>
         </aside>
       </div>
 

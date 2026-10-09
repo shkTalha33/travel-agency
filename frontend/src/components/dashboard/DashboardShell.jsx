@@ -16,7 +16,6 @@ import {
   ChevronRight,
   ShieldCheck,
 } from 'lucide-react';
-import Badge from '@/components/ui/Badge';
 import Avatar from '@/components/ui/Avatar';
 import Dropdown from '@/components/ui/Dropdown';
 import { useAuth } from '@/context/AuthContext';
@@ -211,7 +210,6 @@ export default function DashboardShell({ children }) {
           {/* Right Header Controls */}
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <Badge variant={currentMembership.id}>{membershipLabel}</Badge>
             <Dropdown
               label={t('auth.userMenu')}
               trigger={<Avatar src={currentUser.avatar} name={currentUser.name} size="sm" />}

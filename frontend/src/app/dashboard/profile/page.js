@@ -26,12 +26,15 @@ import Checkbox from '@/components/ui/Checkbox';
 import RadioGroup from '@/components/ui/RadioGroup';
 import ImageUpload from '@/components/ui/ImageUpload';
 import InviteButton from '@/components/referral/InviteButton';
+import { ProfileSkeleton } from '@/components/common/Skeletons';
+import useMockLoading from '@/hooks/useMockLoading';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import { userApi } from '@/lib/apiClient';
 
 export default function ProfilePage() {
+  const loading = useMockLoading();
   const { currentUser: u, currentMembership: m, refreshUser } = useAuth();
   const { t, copy, isEn } = useLanguage();
   const { toast } = useToast();
@@ -123,7 +126,7 @@ export default function ProfilePage() {
     }
   };
 
-  if (!u) return null;
+  if (loading || !u) return <ProfileSkeleton />;
 
   return (
     <div className="w-full space-y-5">

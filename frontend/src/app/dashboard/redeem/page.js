@@ -23,6 +23,8 @@ import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import EmptyState from '@/components/ui/EmptyState';
+import { RedeemSkeleton } from '@/components/common/Skeletons';
+import useMockLoading from '@/hooks/useMockLoading';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -31,6 +33,7 @@ import { fetchPointsSummary } from '@/store/slices/pointsSlice';
 import { fetchMyRedemptions, requestRedemption } from '@/store/slices/redemptionsSlice';
 
 export default function RedeemPage() {
+  const pageLoading = useMockLoading();
   const { currentUser, currentMembership: m } = useAuth();
   const { t, copy, isEn } = useLanguage();
   const { toast } = useToast();
@@ -62,6 +65,8 @@ export default function RedeemPage() {
     dispatch(fetchPointsSummary());
     dispatch(fetchMyRedemptions());
   }, [dispatch]);
+
+  if (pageLoading || !currentUser) return <RedeemSkeleton />;
 
   useEffect(() => {
     if (initialOffer && !paymentDetails) {
