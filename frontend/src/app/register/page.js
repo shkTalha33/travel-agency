@@ -60,11 +60,11 @@ function RegisterForm() {
   const submitForm = async (e) => {
     e.preventDefault();
     const err = {};
-    if (f.name.trim().length < 3) err.name = isEn ? 'Please enter your full name (at least 3 characters).' : 'Por favor ingresa tu nombre completo (mínimo 3 caracteres).';
-    if (!/^\S+@\S+\.\S+$/.test(f.email)) err.email = isEn ? 'Please enter a valid email address.' : 'Por favor ingresa un correo electrónico válido.';
-    if (f.password.length < 8) err.password = isEn ? 'Password must be at least 8 characters.' : 'La contraseña debe tener al menos 8 caracteres.';
-    if (f.confirm !== f.password) err.confirm = isEn ? 'Passwords do not match.' : 'Las contraseñas no coinciden.';
-    if (!f.terms) err.terms = isEn ? 'You must accept the terms and conditions.' : 'Debes aceptar los términos y condiciones.';
+    if (f.name.trim().length < 3) err.name = copy.validation?.nameRequired || 'Please enter your full name.';
+    if (!/^\S+@\S+\.\S+$/.test(f.email)) err.email = copy.validation?.emailValid || 'Please enter a valid email address.';
+    if (f.password.length < 8) err.password = copy.validation?.passwordMinLength || 'Password must be at least 8 characters.';
+    if (f.confirm !== f.password) err.confirm = copy.validation?.passwordsMatch || 'Passwords do not match.';
+    if (!f.terms) err.terms = copy.validation?.termsRequired || 'You must accept the terms and conditions.';
     setErrors(err);
 
     if (Object.keys(err).length) {
@@ -76,11 +76,11 @@ function RegisterForm() {
     setLoading(true);
     try {
       await register({ name: f.name, email: f.email, password: f.password, referralCode: f.referralCode });
-      toast(isEn ? '4-digit verification code sent to your email!' : '¡Código de verificación de 4 dígitos enviado a tu correo!');
+      toast(copy.toasts?.codeSent || '4-digit verification code sent to your email!');
       setStep('otp');
       setCountdown(60);
     } catch (apiErr) {
-      const msg = apiErr.message || (isEn ? 'Error creating account.' : 'Error al crear la cuenta.');
+      const msg = apiErr.message || copy.toasts?.errorCreating || 'Error creating account.';
       setErrors({ email: msg });
       toast(msg, 'error');
     } finally {
@@ -91,7 +91,7 @@ function RegisterForm() {
   const submitOtp = async (e) => {
     e.preventDefault();
     if (!otp || otp.trim().length !== 4) {
-      const msg = isEn ? 'Please enter the 4-digit OTP code.' : 'Por favor ingresa el código OTP de 4 dígitos.';
+      const msg = copy.validation?.enterOtp4 || 'Please enter the 4-digit OTP code.';
       setErrors({ otp: msg });
       toast(msg, 'error');
       return;
@@ -100,10 +100,10 @@ function RegisterForm() {
     setLoading(true);
     try {
       await verifyOtpAndRegister({ email: f.email, otp: otp.trim() });
-      toast(isEn ? 'Account verified successfully! Welcome.' : '¡Cuenta verificada con éxito! Bienvenido.');
+      toast(copy.toasts?.accountVerified || 'Account verified successfully!');
       router.push('/dashboard');
     } catch (apiErr) {
-      const msg = apiErr.message || (isEn ? 'Invalid or expired OTP code.' : 'Código OTP inválido o expirado.');
+      const msg = apiErr.message || copy.toasts?.invalidOtp || 'Invalid or expired OTP code.';
       setErrors({ otp: msg });
       toast(msg, 'error');
     } finally {
@@ -117,9 +117,9 @@ function RegisterForm() {
     try {
       await authApi.resendRegisterOtp(f.email);
       setCountdown(60);
-      toast(isEn ? 'New verification code sent!' : '¡Nuevo código de verificación enviado!');
+      toast(copy.toasts?.newCodeSent || 'New verification code sent!');
     } catch (apiErr) {
-      toast(apiErr.message || (isEn ? 'Error resending code.' : 'Error al reenviar código.'), 'error');
+      toast(apiErr.message || copy.toasts?.errorResending || 'Error resending code.', 'error');
     } finally {
       setResending(false);
     }
@@ -128,28 +128,26 @@ function RegisterForm() {
   if (step === 'otp') {
     return (
       <AuthShell
-        title={av.verifyTitle || 'Verifica tu correo con OTP'}
-        subtitle={typeof av.otpSentTo === 'function' ? av.otpSentTo(f.email) : `Enviamos un código de 4 dígitos a ${f.email}`}
+        title={av.verifyTitle}
+        subtitle={typeof av.otpSentTo === 'function' ? av.otpSentTo(f.email) : `We sent a 4-digit code to ${f.email}`}
         footer={
           <button
             type="button"
             onClick={() => setStep('form')}
             className="font-bold text-ocean-700 hover:underline"
           >
-            {isEn ? '← Change email or edit details' : '← Cambiar correo o editar datos'}
+            {av.changeEmailDetails}
           </button>
         }
       >
         <form onSubmit={submitOtp} className="space-y-4" noValidate>
           <p className="text-xs text-slate-500 text-center max-w-sm mx-auto leading-relaxed">
-            {isEn
-              ? 'Check your inbox (and spam folder) for the 4-digit code sent from Círculo Wingding.'
-              : 'Revisa tu bandeja de entrada (y spam) para encontrar el código de 4 dígitos enviado por Círculo Wingding.'}
+            {av.checkInboxSpam}
           </p>
 
           <div className="space-y-2 pt-1">
             <label className="block text-xs font-semibold text-navy-900 text-center">
-              {isEn ? 'Verification Code' : 'Código de Verificación'}
+              {av.otpLabel}
             </label>
             <OtpInput
               length={4}
@@ -169,11 +167,11 @@ function RegisterForm() {
           </div>
 
           <Button type="submit" size="md" className="w-full rounded-xl py-2.5 font-bold shadow-soft" isLoading={loading}>
-            {loading ? (av.verifying || 'Verificando código...') : (av.verifyOtpBtn || 'Verificar código y continuar')}
+            {loading ? (av.verifying || 'Verifying...') : av.verifyOtpBtn}
           </Button>
 
           <div className="flex items-center justify-between pt-2 text-xs text-slate-600">
-            <span>{av.didntReceive || '¿No recibiste el código?'}</span>
+            <span>{av.didntReceive}</span>
             <button
               type="button"
               onClick={resendCode}
@@ -183,7 +181,7 @@ function RegisterForm() {
               <RefreshCw size={12} className={resending ? 'animate-spin' : ''} />
               {countdown > 0
                 ? (isEn ? `Resend in ${countdown}s` : `Reenviar en ${countdown}s`)
-                : (av.resendEmail || 'Reenviar código OTP')}
+                : av.resendEmail}
             </button>
           </div>
         </form>
@@ -193,13 +191,13 @@ function RegisterForm() {
 
   return (
     <AuthShell
-      title={av.regTitle || (isEn ? 'Create Account' : 'Crear cuenta')}
-      subtitle={av.regSubtitle || 'Regístrate gratis y desbloquea beneficios exclusivos de viaje.'}
+      title={av.regTitle}
+      subtitle={av.regSubtitle}
       footer={
         <>
-          {(av.haveAccount || '¿Ya tienes una cuenta registrada?')}{' '}
+          {av.haveAccount}{' '}
           <Link href="/login" className="font-bold text-ocean-700 hover:underline">
-            {av.loginLink || 'Inicia sesión'}
+            {av.loginLink}
           </Link>
         </>
       }
@@ -207,7 +205,7 @@ function RegisterForm() {
       <form onSubmit={submitForm} className="space-y-4" noValidate>
         <Input
           id="name"
-          label={av.fullNameLabel || 'Nombre completo'}
+          label={av.fullNameLabel}
           autoComplete="name"
           placeholder="Maria Perez"
           value={f.name}
@@ -218,7 +216,7 @@ function RegisterForm() {
         />
         <Input
           id="email"
-          label={av.emailLabel || 'Correo electrónico'}
+          label={av.emailLabel}
           type="email"
           autoComplete="email"
           placeholder="yourname@example.com"
@@ -230,7 +228,7 @@ function RegisterForm() {
         />
         <Input
           id="password"
-          label={av.passwordLabel || 'Contraseña'}
+          label={av.passwordLabel}
           type="password"
           autoComplete="new-password"
           placeholder="Min. 8 chars"
@@ -242,7 +240,7 @@ function RegisterForm() {
         />
         <Input
           id="confirm"
-          label={av.confirmPasswordLabel || 'Confirmar contraseña'}
+          label={av.confirmPasswordLabel}
           type="password"
           autoComplete="new-password"
           placeholder="Repeat password"
@@ -254,12 +252,12 @@ function RegisterForm() {
         />
         <Input
           id="referral"
-          label={av.referralCodeLabel || (isEn ? 'Referral code (optional)' : 'Código de referido (opcional)')}
+          label={av.referralCodeLabel}
           placeholder="SOFIA-VIAJES"
           value={f.referralCode}
           onChange={set('referralCode')}
           icon={<Ticket size={16} />}
-          helperText={av.referralCodeHint || (isEn ? 'If a friend invited you, enter their code to join their network.' : 'Si un amigo te invitó, ingresa su código para vincularte a su red.')}
+          helperText={av.referralCodeHint}
         />
         <Checkbox
           id="terms"
@@ -268,12 +266,12 @@ function RegisterForm() {
           error={errors.terms}
           label={
             <>
-              {av.termsAgree || 'Acepto los términos y condiciones y la política de privacidad.'}
+              {av.termsAgree}
             </>
           }
         />
         <Button type="submit" size="md" className="w-full rounded-xl py-2.5 font-bold shadow-soft" isLoading={loading}>
-          {loading ? (av.creatingAccount || 'Enviando código...') : (av.registerBtn || 'Crear mi cuenta gratis')}
+          {loading ? (av.creatingAccount || 'Creating account...') : av.registerBtn}
         </Button>
       </form>
     </AuthShell>

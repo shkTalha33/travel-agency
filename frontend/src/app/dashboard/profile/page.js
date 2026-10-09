@@ -72,9 +72,9 @@ export default function ProfilePage() {
       if (typeof refreshUser === 'function') {
         await refreshUser();
       }
-      toast(pv.savedToast || (isEn ? 'Profile updated successfully.' : 'Perfil actualizado correctamente.'));
+      toast(pv.savedToast);
     } catch (err) {
-      toast(err?.message || (isEn ? 'Error saving changes' : 'Error al guardar los cambios'), 'error');
+      toast(err?.message || pv.savedToast, 'error');
     } finally {
       setSaving(false);
     }
@@ -84,10 +84,10 @@ export default function ProfilePage() {
     try {
       await navigator.clipboard.writeText(u?.referralLink || '');
       setCopied(true);
-      toast(pv.copySuccessToast || (isEn ? 'Referral link copied.' : 'Enlace de referido copiado.'));
+      toast(pv.copySuccessToast);
       setTimeout(() => setCopied(false), 1800);
     } catch (_) {
-      toast(pv.copyFailToast || (isEn ? 'Could not copy the link. Please try again.' : 'No pudimos copiar el enlace. Intenta nuevamente.'), 'error');
+      toast(pv.copyFailToast, 'error');
     }
   };
 
@@ -95,13 +95,13 @@ export default function ProfilePage() {
     e.preventDefault();
     const err = {};
     if (!pw.cur || !pw.cur.trim()) {
-      err.cur = pv.errCurPw || (isEn ? 'Please enter your current password.' : 'Ingresa tu contraseña actual.');
+      err.cur = pv.errCurPw;
     }
     if (!pw.next || pw.next.length < 6) {
-      err.next = pv.errNextPw || (isEn ? 'Use at least 6 characters.' : 'Usa al menos 6 caracteres.');
+      err.next = pv.errNextPw;
     }
     if (pw.conf !== pw.next) {
-      err.conf = pv.errMatchPw || (isEn ? 'Passwords do not match.' : 'Las contraseñas no coinciden.');
+      err.conf = pv.errMatchPw;
     }
     setPwErrors(err);
 
@@ -116,9 +116,9 @@ export default function ProfilePage() {
       await userApi.changePassword(pw.cur, pw.next);
       setPw({ cur: '', next: '', conf: '' });
       setPwErrors({});
-      toast(isEn ? 'Password changed successfully.' : 'Contraseña actualizada correctamente.');
+      toast(pv.pwSuccessToast);
     } catch (apiErr) {
-      const msg = apiErr?.data?.message || apiErr?.message || (isEn ? 'Current password is incorrect.' : 'La contraseña actual es incorrecta.');
+      const msg = apiErr?.data?.message || apiErr?.message || pv.pwCurrentIncorrect;
       setPwErrors({ cur: msg });
       toast(msg, 'error');
     } finally {
@@ -158,7 +158,7 @@ export default function ProfilePage() {
                   <>
                     <span className="text-sand-500">·</span>
                     <span className="text-sand-400 text-xs">
-                      {(pv.memberSince || (isEn ? 'Member since' : 'Miembro desde'))} {formattedJoinedDate}
+                      {pv.memberSince} {formattedJoinedDate}
                     </span>
                   </>
                 )}
@@ -170,7 +170,7 @@ export default function ProfilePage() {
           <div className="shrink-0 rounded-2xl bg-navy-900 p-4 flex items-center justify-between sm:justify-start gap-4">
             <div>
               <p className="text-[10px] font-bold uppercase tracking-wider text-sand-400">
-                {isEn ? 'REFERRAL CODE' : 'CÓDIGO DE REFERIDO'}
+                {pv.referralCodeEyebrow}
               </p>
               <p className="font-mono text-base font-bold text-gold-300 mt-0.5">
                 {u.referralCode || 'N/A'}
@@ -180,7 +180,7 @@ export default function ProfilePage() {
               type="button"
               onClick={copyRefLink}
               className="p-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-white transition-all cursor-pointer border-0 outline-none focus:outline-none focus:ring-0 active:outline-none"
-              title={isEn ? 'Copy Referral Code' : 'Copiar Código'}
+              title={pv.copy}
             >
               {copied ? <Check size={16} className="text-ocean-400" /> : <Copy size={16} />}
             </button>
@@ -198,12 +198,10 @@ export default function ProfilePage() {
               <div>
                 <h2 className="font-serif text-xl sm:text-2xl font-bold text-navy-950 flex items-center gap-2">
                   <User className="w-5 h-5 text-ocean-600" />
-                  <span>{isEn ? 'Personal Information' : 'Información Personal'}</span>
+                  <span>{pv.personalInfoTitle}</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-1">
-                  {isEn
-                    ? 'Update your photo and personal profile details'
-                    : 'Actualiza tu foto y los datos personales de tu cuenta'}
+                  {pv.personalInfoDesc}
                 </p>
               </div>
             </div>
@@ -211,17 +209,17 @@ export default function ProfilePage() {
             <form onSubmit={handleSaveAccount} className="grid gap-5 sm:grid-cols-2">
               <div className="sm:col-span-2">
                 <ImageUpload
-                  label={pv.avatarLabel || (isEn ? 'Profile Picture' : 'Foto de Perfil')}
+                  label={pv.avatarLabel}
                   value={avatarUrl}
                   onChange={setAvatarUrl}
                   folder="avatars"
-                  helperText={pv.avatarHelper || (isEn ? 'Click or drag to update your profile photo' : 'Haz clic o arrastra para actualizar tu foto de perfil')}
+                  helperText={pv.avatarHelper}
                 />
               </div>
 
               <Input
                 id="perfil-nombre"
-                label={pv.fullName || (isEn ? 'Full name' : 'Nombre completo')}
+                label={pv.fullName}
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="Juan Pérez"
@@ -229,7 +227,7 @@ export default function ProfilePage() {
 
               <Input
                 id="perfil-correo"
-                label={pv.email || (isEn ? 'Email address' : 'Correo electrónico')}
+                label={pv.email}
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -238,7 +236,7 @@ export default function ProfilePage() {
 
               <Input
                 id="perfil-telefono"
-                label={pv.phone || (isEn ? 'Phone number' : 'Teléfono')}
+                label={pv.phone}
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 placeholder="+1 (809) 000-0000"
@@ -246,7 +244,7 @@ export default function ProfilePage() {
 
               <Input
                 id="perfil-ciudad"
-                label={pv.city || (isEn ? 'City' : 'Ciudad')}
+                label={pv.city}
                 value={formData.city}
                 onChange={(e) => setFormData({ ...formData, city: e.target.value })}
                 placeholder="Santo Domingo"
@@ -254,7 +252,7 @@ export default function ProfilePage() {
 
               <div className="sm:col-span-2 pt-2 flex items-center justify-end">
                 <Button type="submit" disabled={saving} size="md" className="rounded-xl px-6 font-bold">
-                  {saving ? (isEn ? 'Saving Changes...' : 'Guardando Cambios...') : (pv.saveChanges || (isEn ? 'Save Profile Changes' : 'Guardar Cambios'))}
+                  {saving ? pv.savingChanges : pv.saveProfileChanges}
                 </Button>
               </div>
             </form>
@@ -266,12 +264,10 @@ export default function ProfilePage() {
               <div>
                 <h2 className="font-serif text-xl sm:text-2xl font-bold text-navy-950 flex items-center gap-2">
                   <ShieldCheck className="w-5 h-5 text-ocean-600" />
-                  <span>{isEn ? 'Security & Password' : 'Seguridad y Contraseña'}</span>
+                  <span>{pv.securityTitle}</span>
                 </h2>
                 <p className="text-xs text-slate-500 mt-1">
-                  {isEn
-                    ? 'Keep your account protected with a strong, updated password'
-                    : 'Protege tu cuenta con una contraseña segura y actualizada'}
+                  {pv.securityDesc}
                 </p>
               </div>
             </div>
@@ -279,7 +275,7 @@ export default function ProfilePage() {
             <form onSubmit={savePassword} className="space-y-4 max-w-xl" noValidate>
               <Input
                 id="pw-actual"
-                label={pv.currentPw || (isEn ? 'Current password' : 'Contraseña actual')}
+                label={pv.currentPw}
                 type="password"
                 value={pw.cur}
                 onChange={(e) => {
@@ -293,7 +289,7 @@ export default function ProfilePage() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Input
                   id="pw-nueva"
-                  label={pv.newPw || (isEn ? 'New password' : 'Nueva contraseña')}
+                  label={pv.newPw}
                   type="password"
                   value={pw.next}
                   onChange={(e) => {
@@ -301,13 +297,13 @@ export default function ProfilePage() {
                     if (pwErrors.next) setPwErrors((prev) => ({ ...prev, next: '' }));
                   }}
                   error={pwErrors.next}
-                  helperText={pv.min8Chars || (isEn ? 'Minimum 6 characters.' : 'Mínimo 6 caracteres.')}
+                  helperText={pv.min8Chars}
                   placeholder="••••••••"
                 />
 
                 <Input
                   id="pw-confirmar"
-                  label={pv.confirmPw || (isEn ? 'Confirm password' : 'Confirmar contraseña')}
+                  label={pv.confirmPw}
                   type="password"
                   value={pw.conf}
                   onChange={(e) => {
@@ -327,7 +323,7 @@ export default function ProfilePage() {
                   className="rounded-xl px-6 font-bold"
                 >
                   <KeyRound className="w-4 h-4 mr-1.5 text-gold-300" />
-                  <span>{savingPw ? (isEn ? 'Updating Password...' : 'Actualizando Contraseña...') : (isEn ? 'Update Password' : 'Actualizar Contraseña')}</span>
+                  <span>{savingPw ? pv.updatingPwBtn : pv.updatePwBtn}</span>
                 </Button>
               </div>
             </form>
@@ -341,14 +337,14 @@ export default function ProfilePage() {
             <div className="border-b border-sand-100 pb-2.5 flex items-center justify-between">
               <h2 className="font-serif text-lg font-bold text-navy-950 flex items-center gap-2">
                 <Share2 className="w-4 h-4 text-ocean-600" />
-                <span>{isEn ? 'Referral Program' : 'Red de Referidos'}</span>
+                <span>{pv.referralProgramTitle}</span>
               </h2>
-              <Badge variant="ocean" size="sm">{m?.referralLevelsAllowed > 0 ? (isEn ? 'Active' : 'Activo') : (isEn ? 'Standard' : 'Estándar')}</Badge>
+              <Badge variant="ocean" size="sm">{m?.referralLevelsAllowed > 0 ? pv.active : pv.standard}</Badge>
             </div>
 
             <div>
               <p className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1">
-                {pv.referralCode || (isEn ? 'Your Unique Code' : 'Tu Código')}
+                {pv.yourUniqueCode}
               </p>
               <div className="p-3 rounded-2xl bg-sand-50 flex items-center justify-between">
                 <span className="font-mono text-lg font-bold text-navy-950 tracking-wider">
@@ -360,14 +356,14 @@ export default function ProfilePage() {
                   className="text-xs font-bold text-ocean-600 hover:text-ocean-800 flex items-center gap-1 cursor-pointer"
                 >
                   {copied ? <Check size={14} className="text-ocean-600" /> : <Copy size={14} />}
-                  <span>{copied ? (pv.copied || 'Copiado') : (pv.copy || 'Copiar')}</span>
+                  <span>{copied ? pv.copied : pv.copy}</span>
                 </button>
               </div>
             </div>
 
             <div>
               <label htmlFor="enlace" className="mb-1.5 block text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                {pv.referralLink || (isEn ? 'Shareable Referral Link' : 'Enlace de Referido')}
+                {pv.shareableRefLink}
               </label>
               <div className="flex gap-2">
                 <input
@@ -393,12 +389,10 @@ export default function ProfilePage() {
 
             <p className="text-xs leading-relaxed text-slate-500 pt-2 border-t border-sand-100">
               {m.referralLevelsAllowed === 0
-                ? (pv.notActiveHint || (isEn ? 'Referral commissions & point earnings are enabled with the Active Member tier.' : 'Los beneficios de referidos se habilitan con la membresía de Miembro Activo.'))
+                ? pv.notActiveHint
                 : (typeof pv.allowedLevelsDesc === 'function' 
                     ? pv.allowedLevelsDesc(m.referralLevelsAllowed) 
-                    : (isEn 
-                        ? `Your membership allows you to receive points from ${m.referralLevelsAllowed} referral levels.` 
-                        : `Tu membresía te permite recibir puntos de ${m.referralLevelsAllowed} niveles de tu red.`))}
+                    : pv.notActiveHint)}
             </p>
           </div>
 
@@ -407,25 +401,25 @@ export default function ProfilePage() {
             <div className="border-b border-sand-100 pb-2.5 flex items-center justify-between">
               <h2 className="font-serif text-lg font-bold text-navy-950 flex items-center gap-2">
                 <Bell className="w-4 h-4 text-ocean-600" />
-                <span>{isEn ? 'Notification Preferences' : 'Preferencias de Contacto'}</span>
+                <span>{pv.notificationPreferences}</span>
               </h2>
             </div>
 
             <RadioGroup
-              legend={pv.contactLegend || (isEn ? 'How do you prefer us to contact you?' : '¿Cómo prefieres que te contactemos?')}
+              legend={pv.contactLegend}
               name="contacto"
               value={contact}
               onChange={setContact}
               options={[
                 { value: 'whatsapp', label: pv.contactWhatsapp || 'WhatsApp' },
-                { value: 'correo', label: pv.contactEmail || (isEn ? 'Email' : 'Correo electrónico') },
-                { value: 'telefono', label: pv.contactPhone || (isEn ? 'Phone Call' : 'Llamada telefónica') },
+                { value: 'correo', label: pv.contactEmail },
+                { value: 'telefono', label: pv.contactPhone },
               ]}
             />
 
             <div className="pt-2 border-t border-sand-100">
               <Checkbox
-                label={pv.promoCheckbox || (isEn ? 'I want to receive alerts about new resort deals and member rewards' : 'Quiero recibir avisos sobre nuevas ofertas y recompensas')}
+                label={pv.promoCheckbox}
                 checked={notify}
                 onChange={(e) => setNotify(e.target.checked)}
               />

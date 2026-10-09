@@ -47,8 +47,8 @@ export default function VerifyEmailPage() {
   const submit = async (e) => {
     e.preventDefault();
     const err = {};
-    if (!/^\S+@\S+\.\S+$/.test(email)) err.email = isEn ? 'Valid email is required.' : 'El correo electrónico es requerido.';
-    if (!otp || otp.trim().length !== 4) err.otp = isEn ? '4-digit OTP code is required.' : 'El código OTP de 4 dígitos es requerido.';
+    if (!/^\S+@\S+\.\S+$/.test(email)) err.email = copy.validation?.emailRequired || 'Valid email is required.';
+    if (!otp || otp.trim().length !== 4) err.otp = copy.validation?.otpRequired || '4-digit OTP code is required.';
     setErrors(err);
 
     if (Object.keys(err).length) {
@@ -60,10 +60,10 @@ export default function VerifyEmailPage() {
     setLoading(true);
     try {
       await verifyOtpAndRegister({ email: email.trim(), otp: otp.trim() });
-      toast(isEn ? 'Account verified successfully! Welcome.' : '¡Cuenta verificada con éxito! Bienvenido.');
+      toast(copy.toasts?.accountVerified || 'Account verified successfully!');
       router.push('/dashboard');
     } catch (apiErr) {
-      const msg = apiErr.message || (isEn ? 'Invalid or expired OTP code.' : 'Código OTP inválido o expirado.');
+      const msg = apiErr.message || copy.toasts?.invalidOtp || 'Invalid or expired OTP code.';
       setErrors({ otp: msg });
       toast(msg, 'error');
     } finally {
@@ -73,7 +73,7 @@ export default function VerifyEmailPage() {
 
   const resendCode = async () => {
     if (!/^\S+@\S+\.\S+$/.test(email)) {
-      const msg = isEn ? 'Please enter your email to resend OTP.' : 'Por favor ingresa tu correo para reenviar el código.';
+      const msg = copy.validation?.enterEmailResend || 'Please enter your email to resend OTP.';
       setErrors({ email: msg });
       toast(msg, 'error');
       return;
@@ -84,9 +84,9 @@ export default function VerifyEmailPage() {
     try {
       await authApi.resendRegisterOtp(email.trim());
       setCountdown(60);
-      toast(isEn ? 'New verification code sent!' : '¡Nuevo código de verificación enviado!');
+      toast(copy.toasts?.newCodeSent || 'New verification code sent!');
     } catch (apiErr) {
-      toast(apiErr.message || (isEn ? 'Error resending code.' : 'Error al reenviar código.'), 'error');
+      toast(apiErr.message || copy.toasts?.errorResending || 'Error resending code.', 'error');
     } finally {
       setResending(false);
     }
@@ -94,18 +94,18 @@ export default function VerifyEmailPage() {
 
   return (
     <AuthShell
-      title={av.verifyTitle || 'Verifica tu correo con OTP'}
-      subtitle={av.verifySubtitle || 'Ingresa el código de 4 dígitos para activar tu cuenta VIP.'}
+      title={av.verifyTitle}
+      subtitle={av.verifySubtitle}
       footer={
         <Link href="/login" className="font-bold text-ocean-700 hover:underline">
-          {av.backToLogin || 'Volver a iniciar sesión'}
+          {av.backToLogin}
         </Link>
       }
     >
       <form onSubmit={submit} className="space-y-5" noValidate>
         <Input
           id="email"
-          label={av.emailLabel || 'Correo electrónico'}
+          label={av.emailLabel}
           type="email"
           placeholder="yourname@example.com"
           value={email}
@@ -120,7 +120,7 @@ export default function VerifyEmailPage() {
 
         <div className="space-y-2">
           <label className="block text-sm font-semibold capitalize text-navy-900 text-center">
-            {isEn ? 'Verification Code' : 'Código de Verificación'}
+            {av.otpLabel}
           </label>
           <OtpInput
             length={4}
@@ -140,11 +140,11 @@ export default function VerifyEmailPage() {
         </div>
 
         <Button type="submit" size="lg" className="w-full rounded-2xl py-3.5 shadow-md" isLoading={loading}>
-          {loading ? (av.verifying || 'Verificando código...') : (av.verifyOtpBtn || 'Verificar código y continuar')}
+          {loading ? (av.verifying || 'Verifying...') : (av.verifyOtpBtn || 'Verify code')}
         </Button>
 
         <div className="flex items-center justify-between pt-2 text-xs text-slate-600">
-          <span>{av.didntReceive || '¿No recibiste el código?'}</span>
+          <span>{av.didntReceive}</span>
           <button
             type="button"
             onClick={resendCode}
@@ -154,7 +154,7 @@ export default function VerifyEmailPage() {
             <RefreshCw size={12} className={resending ? 'animate-spin' : ''} />
             {countdown > 0
               ? (isEn ? `Resend in ${countdown}s` : `Reenviar en ${countdown}s`)
-              : (av.resendEmail || 'Reenviar código OTP')}
+              : av.resendEmail}
           </button>
         </div>
       </form>

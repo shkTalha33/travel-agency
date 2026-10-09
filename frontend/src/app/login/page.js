@@ -30,12 +30,12 @@ export default function LoginPage() {
     e.preventDefault();
     const err = {};
     if (!email.trim()) {
-      err.email = isEn ? 'Email or username is required.' : 'El correo o nombre de usuario es requerido.';
+      err.email = copy.validation?.emailRequired || 'Email is required';
     }
     if (!password) {
-      err.password = isEn ? 'Password is required.' : 'La contraseña es requerida.';
+      err.password = copy.validation?.passwordRequired || 'Password is required';
     } else if (password.length < 6) {
-      err.password = isEn ? 'Password must be at least 6 characters.' : 'La contraseña debe tener al menos 6 caracteres.';
+      err.password = copy.validation?.passwordMinLength6 || 'Password must be at least 6 characters';
     }
     setErrors(err);
 
@@ -47,10 +47,10 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login(email, password, remember);
-      toast(isEn ? 'Logged in successfully!' : '¡Inicio de sesión exitoso!');
+      toast(copy.toasts?.loginSuccess || 'Logged in successfully!');
       router.push('/dashboard');
     } catch (apiErr) {
-      const msg = apiErr.message || (isEn ? 'Invalid email/username or password.' : 'Correo o contraseña incorrectos.');
+      const msg = apiErr.message || copy.authViews?.invalidCreds || 'Invalid credentials';
       setErrors({ email: msg });
       toast(msg, 'error');
     } finally {
@@ -60,13 +60,13 @@ export default function LoginPage() {
 
   return (
     <AuthShell
-      title={isEn ? 'Welcome Back' : (av.loginTitle || 'Bienvenido de nuevo')}
-      subtitle={isEn ? 'Enter your email and password to access your account' : (av.loginSubtitle || 'Ingresa tus credenciales para acceder a tu panel.')}
+      title={av.loginTitle || 'Log in'}
+      subtitle={av.loginSubtitle || 'Enter your email and password to access your account'}
       footer={
         <>
-          {(av.noAccount || '¿Aún no tienes cuenta?')}{' '}
+          {av.noAccount}{' '}
           <Link href="/register" className="font-bold text-ocean-700 hover:underline">
-            {av.registerFree || 'Regístrate gratis'}
+            {av.registerFree}
           </Link>
         </>
       }
@@ -74,10 +74,10 @@ export default function LoginPage() {
       <form onSubmit={submit} className="space-y-4" noValidate>
         <Input
           id="email"
-          label={av.emailLabel || (isEn ? 'Email Address' : 'Correo electrónico')}
+          label={av.emailLabel}
           type="email"
           autoComplete="email"
-          placeholder={isEn ? 'yourname@example.com' : 'tuemail@ejemplo.com'}
+          placeholder="yourname@example.com"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           error={errors.email}
@@ -86,7 +86,7 @@ export default function LoginPage() {
         />
         <Input
           id="password"
-          label={av.passwordLabel || (isEn ? 'Password' : 'Contraseña')}
+          label={av.passwordLabel}
           type="password"
           autoComplete="current-password"
           placeholder="••••••••"

@@ -4,32 +4,36 @@ import React from 'react';
 import { useLanguage } from '@/context/LanguageContext';
 
 export default function LanguageSwitcher({ className = '' }) {
-  const { locale, setLocale, t } = useLanguage();
+  const { locale, setLocale, isEn } = useLanguage();
 
   return (
     <div
       role="group"
-      aria-label={t('language.label')}
-      className={`inline-flex rounded-full border border-sand-200 bg-sand-50 p-0.5 text-xs font-semibold ${className}`}
+      aria-label="Language selection"
+      className={`flex items-center p-0.5 rounded-xl bg-sand-100 border border-sand-200 text-xs font-bold select-none ${className}`}
     >
-      {['es', 'en'].map((code) => {
-        const active = locale === code;
-        return (
-          <button
-            key={code}
-            type="button"
-            onClick={() => setLocale(code)}
-            aria-pressed={active}
-            className={`rounded-full px-2.5 py-1 text-xs font-bold transition-all duration-200 cursor-pointer select-none ${
-              active
-                ? 'bg-ocean-600 text-white shadow-soft'
-                : 'text-slate-500 hover:text-navy-900'
-            }`}
-          >
-            {t(`language.${code}`)}
-          </button>
-        );
-      })}
+      <button
+        type="button"
+        onClick={() => setLocale('es')}
+        className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+          !isEn
+            ? 'bg-ocean-600 text-white font-bold shadow-xs'
+            : 'text-navy-600 hover:text-navy-950'
+        }`}
+      >
+        <span>ES</span>
+      </button>
+      <button
+        type="button"
+        onClick={() => setLocale('en')}
+        className={`px-2.5 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1 ${
+          isEn
+            ? 'bg-ocean-600 text-white font-bold shadow-xs'
+            : 'text-navy-600 hover:text-navy-950'
+        }`}
+      >
+        <span>EN</span>
+      </button>
     </div>
   );
 }

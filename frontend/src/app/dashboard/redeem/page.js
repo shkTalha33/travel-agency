@@ -66,13 +66,13 @@ export default function RedeemPage() {
     dispatch(fetchMyRedemptions());
   }, [dispatch]);
 
-  if (pageLoading || !currentUser) return <RedeemSkeleton />;
-
   useEffect(() => {
     if (initialOffer && !paymentDetails) {
       setPaymentDetails(decodeURIComponent(initialOffer));
     }
   }, [initialOffer]);
+
+  if (pageLoading || !currentUser) return <RedeemSkeleton />;
 
   const handleQuickAmount = (val) => {
     const num = Math.min(val, available);
@@ -337,7 +337,7 @@ export default function RedeemPage() {
             <div className="border-b border-sand-100 pb-2.5">
               <h3 className="font-serif text-base font-bold text-navy-950 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-ocean-600" />
-                <span>{isEn ? 'Redemption Perks' : 'Beneficios de Canje'}</span>
+                <span>{rv.perksTitle || 'Redemption Perks'}</span>
               </h3>
             </div>
 
@@ -347,8 +347,8 @@ export default function RedeemPage() {
                   1
                 </span>
                 <span>
-                  <strong className="text-navy-950 block">{isEn ? 'Real Travel Savings' : 'Ahorro Real en Viajes'}</strong>
-                  {isEn ? 'Apply points directly toward hotels, tours, or full vacation packages.' : 'Aplica tus puntos en hoteles, tours o paquetes vacacionales completos.'}
+                  <strong className="text-navy-950 block">{rv.perk1Title || 'Real Travel Savings'}</strong>
+                  {rv.perk1Desc || 'Apply points directly toward hotels, tours, or full vacation packages.'}
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
@@ -356,8 +356,8 @@ export default function RedeemPage() {
                   2
                 </span>
                 <span>
-                  <strong className="text-navy-950 block">{isEn ? 'Concierge Assistance' : 'Asistencia de Concierge'}</strong>
-                  {isEn ? 'Our booking specialists handle your reservations smoothly and quickly.' : 'Nuestros especialistas se encargan de tus reservas de forma rápida y personalizada.'}
+                  <strong className="text-navy-950 block">{rv.perk2Title || 'Concierge Assistance'}</strong>
+                  {rv.perk2Desc || 'Our booking specialists handle your reservations smoothly and quickly.'}
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
@@ -365,8 +365,8 @@ export default function RedeemPage() {
                   3
                 </span>
                 <span>
-                  <strong className="text-navy-950 block">{isEn ? 'No Hidden Fees' : 'Sin Cargos Ocultos'}</strong>
-                  {isEn ? 'Clear point-to-dollar valuation with transparent redemption history.' : 'Valoración clara de puntos a dólares con historial transparente.'}
+                  <strong className="text-navy-950 block">{rv.perk3Title || 'No Hidden Fees'}</strong>
+                  {rv.perk3Desc || 'Clear point-to-dollar valuation with transparent redemption history.'}
                 </span>
               </li>
             </ul>

@@ -45,10 +45,10 @@ export default function NetworkPage() {
     try {
       await navigator.clipboard.writeText(currentUser?.referralLink || '');
       setCopied(true);
-      toast(isEn ? 'Referral link copied!' : '¡Enlace de referido copiado!');
+      toast(nv.copySuccess || 'Referral link copied!');
       setTimeout(() => setCopied(false), 1800);
     } catch (_) {
-      toast(isEn ? 'Could not copy link' : 'No se pudo copiar el enlace', 'error');
+      toast(nv.copyFail || 'Could not copy link', 'error');
     }
   };
 
@@ -59,9 +59,9 @@ export default function NetworkPage() {
   const isFreeMember = (m?.referralLevelsAllowed || 0) === 0;
 
   const tabs = [
-    { id: 'tree', label: nv.tabTree || (isEn ? 'Hierarchy' : 'Jerarquía') },
-    { id: 'l1', label: nv.tabL1 || (isEn ? 'Level 1' : 'Nivel 1'), count: net?.level1?.length || 0 },
-    ...(twoLevels ? [{ id: 'l2', label: nv.tabL2 || (isEn ? 'Level 2' : 'Nivel 2'), count: net?.level2?.length || 0 }] : []),
+    { id: 'tree', label: nv.tabTree || 'Hierarchy' },
+    { id: 'l1', label: nv.tabL1 || 'Level 1', count: net?.level1?.length || 0 },
+    ...(twoLevels ? [{ id: 'l2', label: nv.tabL2 || 'Level 2', count: net?.level2?.length || 0 }] : []),
   ];
   const flat = tab === 'l1' ? (net?.level1 || []) : (net?.level2 || []);
 
@@ -74,7 +74,7 @@ export default function NetworkPage() {
             <div className="flex items-center gap-2">
               <Users className="w-4 h-4 text-gold-400" />
               <span className="text-xs font-bold uppercase tracking-widest text-gold-300">
-                {isEn ? 'REFERRAL NETWORK' : 'RED DE AFILIADOS'}
+                {nv.referralNetworkEyebrow || 'REFERRAL NETWORK'}
               </span>
               <Badge variant={m?.id || 'active'}>{membershipName}</Badge>
             </div>
@@ -84,8 +84,8 @@ export default function NetworkPage() {
             </h1>
 
             <p className="text-xs sm:text-sm text-sand-300 max-w-xl">
-              {nv.descL1 || (isEn ? 'Level 1: your direct referrals.' : 'Nivel 1: tus referidos directos.')}
-              {twoLevels && (nv.descL2 || (isEn ? ' Level 2: referrals made by your network members.' : ' Nivel 2: los referidos de tus referidos.'))}
+              {nv.descL1}
+              {twoLevels && nv.descL2}
             </p>
           </div>
 
@@ -93,7 +93,7 @@ export default function NetworkPage() {
             <div className="rounded-2xl bg-navy-900 p-4 flex items-center gap-3">
               <div>
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  {isEn ? 'YOUR REFERRAL CODE' : 'TU CÓDIGO DE REFERIDO'}
+                  {nv.yourReferralCode || 'YOUR REFERRAL CODE'}
                 </p>
                 <p className="font-mono text-lg font-bold text-gold-300 mt-0.5">
                   {currentUser?.referralCode || 'N/A'}
@@ -103,7 +103,7 @@ export default function NetworkPage() {
                 type="button"
                 onClick={copyRefLink}
                 className="p-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-white transition-all cursor-pointer border-0 outline-none focus:outline-none focus:ring-0 active:outline-none"
-                title={isEn ? 'Copy Referral Link' : 'Copiar Enlace'}
+                title={nv.copyLink || 'Copy Referral Link'}
               >
                 {copied ? <Check size={16} className="text-ocean-400" /> : <Copy size={16} />}
               </button>
@@ -123,18 +123,16 @@ export default function NetworkPage() {
             </div>
             <div>
               <p className="font-bold text-sm text-navy-900">
-                {isEn ? 'Unlock Referral Point Rewards' : 'Desbloquea Recompensas de Puntos por Referidos'}
+                {nv.unlockPointRewards}
               </p>
               <p className="text-xs text-slate-500 mt-0.5">
-                {isEn 
-                  ? 'Upgrade to Active Member to earn 100% points reward commissions from all direct purchases.' 
-                  : 'Actualiza a Miembro Activo para ganar comisiones del 100% en puntos por compras directas.'}
+                {nv.unlockPointRewardsDesc}
               </p>
             </div>
           </div>
           <Link href="/membership" className="shrink-0">
             <Button variant="primary" size="sm" className="rounded-xl">
-              {dash.viewMemberships || (isEn ? 'View Memberships' : 'Ver membresías')}
+              {dash.viewMemberships || 'View Memberships'}
             </Button>
           </Link>
         </div>
@@ -150,9 +148,9 @@ export default function NetworkPage() {
         ) : (!net?.level1 || net.level1.length === 0) ? (
           <EmptyState
             icon={<Users size={28} />}
-            title={dash.noActivityTitle || (isEn ? 'No referral activity yet' : 'Aún no tienes actividad de referidos')}
-            description={dash.noActivityDesc || (isEn ? 'Share your referral link or code to invite friends and start building your network.' : 'Comparte tu enlace o código de referido para invitar amigos y comenzar a construir tu red.')}
-            actionText={isEn ? 'Copy Referral Link' : 'Copiar Enlace de Referido'}
+            title={dash.noActivityTitle}
+            description={dash.noActivityDesc}
+            actionText={nv.copyLink || 'Copy Referral Link'}
             onAction={copyRefLink}
             className="py-10"
           />
@@ -165,7 +163,7 @@ export default function NetworkPage() {
                 <MemberRow
                   person={p}
                   onSelect={setSelected}
-                  subtitle={tab === 'l1' ? `${nv.joinedOn || (isEn ? 'Joined on' : 'Se unió el')} ${p.joinedDate}` : `${nv.referredBy || (isEn ? 'Referred by' : 'Referido por')} ${p.sponsorName}`}
+                  subtitle={tab === 'l1' ? `${nv.joinedOn || 'Joined on'} ${p.joinedDate}` : `${nv.referredBy || 'Referred by'} ${p.sponsorName}`}
                 />
               </li>
             ))}

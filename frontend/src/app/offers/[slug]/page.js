@@ -176,8 +176,8 @@ export default function OfferDetailPage({ params }) {
           ]}
         />
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-3 items-start">
-          <div className="space-y-10 lg:col-span-2">
+        <div className="mt-8 grid gap-6 lg:grid-cols-3 items-start">
+          <div className="space-y-6 lg:col-span-2">
             {/* Luxury Interactive Photo Carousel & Thumbnails */}
             <OfferImageGallery images={galleryImages} title={offer.destination || offer.title} />
 
@@ -223,9 +223,9 @@ export default function OfferDetailPage({ params }) {
 
             {/* Highlights */}
             {Array.isArray(offer.highlights) && offer.highlights.filter((h) => h && h.trim()).length > 0 && (
-              <section className="rounded-3xl border border-slate-200/90 bg-white p-7 shadow-sm">
+              <section className="rounded-3xl bg-white p-6 sm:p-7">
                 <h2 className="font-serif text-2xl font-bold text-navy-900 mb-4">
-                  {d.highlightsTitle || (locale === 'en' ? 'Highlights' : 'Lo más destacado')}
+                  {d.highlightsTitle}
                 </h2>
                 <ul className="grid gap-3 text-sm text-slate-700 sm:grid-cols-2">
                   {offer.highlights
@@ -245,12 +245,12 @@ export default function OfferDetailPage({ params }) {
             {/* Inclusions / Exclusions */}
             {((Array.isArray(offer.included) && offer.included.filter((h) => h && h.trim()).length > 0) ||
               (Array.isArray(offer.notIncluded) && offer.notIncluded.filter((h) => h && h.trim()).length > 0)) && (
-              <section className="grid gap-6 sm:grid-cols-2">
+              <section className="grid gap-4 sm:grid-cols-2">
                 {Array.isArray(offer.included) && offer.included.filter((h) => h && h.trim()).length > 0 && (
-                  <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-sm">
+                  <div className="rounded-3xl bg-white p-6">
                     <h2 className="font-serif text-xl font-bold text-navy-900 mb-3 flex items-center gap-2">
                       <ShieldCheck size={18} className="text-emerald-600" />
-                      {d.includedTitle || (locale === 'en' ? 'What is included' : 'Qué incluye')}
+                      {d.includedTitle}
                     </h2>
                     <ul className="space-y-2.5 text-sm text-slate-700">
                       {offer.included
@@ -266,10 +266,10 @@ export default function OfferDetailPage({ params }) {
                 )}
 
                 {Array.isArray(offer.notIncluded) && offer.notIncluded.filter((h) => h && h.trim()).length > 0 && (
-                  <div className="rounded-3xl border border-slate-200/90 bg-white p-6 shadow-sm">
+                  <div className="rounded-3xl bg-white p-6">
                     <h2 className="font-serif text-xl font-bold text-navy-900 mb-3 flex items-center gap-2">
                       <X size={18} className="text-rose-500" />
-                      {d.notIncludedTitle || (locale === 'en' ? 'What is not included' : 'Qué no incluye')}
+                      {d.notIncludedTitle}
                     </h2>
                     <ul className="space-y-2.5 text-sm text-slate-700">
                       {offer.notIncluded
@@ -288,9 +288,9 @@ export default function OfferDetailPage({ params }) {
 
             {/* Itinerary Timeline */}
             {offer.itinerary && offer.itinerary.length > 0 && (
-              <section className="rounded-3xl border border-slate-200/90 bg-white p-7 shadow-sm">
+              <section className="rounded-3xl bg-white p-6 sm:p-7">
                 <h2 className="font-serif text-2xl font-bold text-navy-900 mb-6">
-                  {d.itineraryTitle || 'Itinerario de viaje'}
+                  {d.itineraryTitle}
                 </h2>
                 <ol className="relative space-y-6 border-l-2 border-ocean-300/60 pl-6 sm:pl-8 ml-3">
                   {offer.itinerary.map((dItem, idx) => (
@@ -303,7 +303,7 @@ export default function OfferDetailPage({ params }) {
                       </span>
                       <h3 className="font-serif text-lg font-bold text-navy-900">
                         <span className="sr-only">
-                          {(d.dayPrefix || 'Día')} {dItem.day || idx + 1}:{' '}
+                          {d.dayPrefix || 'Día'} {dItem.day || idx + 1}:{' '}
                         </span>
                         {dItem.title}
                       </h3>
@@ -316,23 +316,23 @@ export default function OfferDetailPage({ params }) {
           </div>
 
           {/* Booking Aside Card */}
-          <aside className="lg:sticky lg:top-24">
-            <div className="rounded-3xl border border-slate-200/90 bg-white p-7 shadow-sm transition-all">
+          <aside className="lg:sticky lg:top-24 space-y-6">
+            <div className="rounded-3xl bg-white p-6 sm:p-7 transition-all">
               <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                {d.specialPriceFrom || 'Precio especial desde'}
+                {d.specialPriceFrom}
               </p>
               <p className="font-serif text-4xl font-bold text-navy-900 mt-1">
                 ${(offer.priceUSD || 0).toLocaleString('en-US')}
               </p>
               <p className="mt-1 text-xs text-slate-500">
-                {(d.perPerson || 'por persona')} {offer.duration ? `· ${offer.duration}` : ''}
+                {d.perPerson} {offer.duration ? `· ${offer.duration}` : ''}
               </p>
 
               <div className="mt-5 rounded-2xl border border-ocean-200 bg-ocean-50 p-3.5 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Sparkles size={16} className="text-ocean-600" />
                   <span className="text-xs font-bold text-ocean-900">
-                    {d.referralReward || 'Recompensa de Referido'}
+                    {d.referralReward}
                   </span>
                 </div>
                 <Badge variant="ocean" size="sm">
@@ -346,13 +346,15 @@ export default function OfferDetailPage({ params }) {
                   <Link href={`/dashboard/redeem?offer=${encodeURIComponent(offer.title)}`} className="block">
                     <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all text-white">
                       <Gift size={16} className="mr-2 text-gold-300 shrink-0" aria-hidden="true" />
-                      <span>{locale === 'en' ? 'Redeem Points for this Trip' : 'Redimir Puntos para este Viaje'}</span>
+                      <span>{d.redeemTripBtn}</span>
                     </Button>
                   </Link>
                   <p className="text-center text-[11px] text-slate-500 font-medium">
-                    {locale === 'en'
-                      ? `Available: ${(currentUser?.stats?.availablePoints || currentUser?.pointsStats?.availablePoints || 0)} PTS • Min. 50 PTS per redemption`
-                      : `Disponibles: ${(currentUser?.stats?.availablePoints || currentUser?.pointsStats?.availablePoints || 0)} PTS • Mínimo 50 PTS por solicitud`}
+                    {typeof d.ptsAvailableMin === 'function'
+                      ? d.ptsAvailableMin(currentUser?.stats?.availablePoints || currentUser?.pointsStats?.availablePoints || 0)
+                      : (locale === 'en'
+                        ? `Available: ${(currentUser?.stats?.availablePoints || currentUser?.pointsStats?.availablePoints || 0)} PTS • Min. 50 PTS per redemption`
+                        : `Disponibles: ${(currentUser?.stats?.availablePoints || currentUser?.pointsStats?.availablePoints || 0)} PTS • Mínimo 50 PTS por solicitud`)}
                   </p>
                 </div>
               ) : (
@@ -360,7 +362,7 @@ export default function OfferDetailPage({ params }) {
                   <Link href={`/register?offer=${encodeURIComponent(offer.slug || '')}`} className="block">
                     <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all text-white">
                       <Sparkles size={16} className="mr-2 text-gold-300 shrink-0" aria-hidden="true" />
-                      <span>{d.bookVipBtn || (locale === 'en' ? 'I want this VIP offer' : 'Quiero esta oferta VIP')}</span>
+                      <span>{d.bookVipBtn}</span>
                     </Button>
                   </Link>
 
@@ -370,15 +372,14 @@ export default function OfferDetailPage({ params }) {
                       className="text-xs font-semibold text-ocean-700 hover:text-ocean-900 underline inline-flex items-center gap-1.5"
                     >
                       <Gift size={13} className="text-ocean-600 shrink-0" />
-                      <span>{locale === 'en' ? 'Already a member? Sign in to redeem points' : '¿Ya eres miembro? Inicia sesión para redimir puntos'}</span>
+                      <span>{d.alreadyMemberSignIn}</span>
                     </Link>
                   </div>
                 </div>
               )}
 
               <p className="mt-4 text-center text-xs leading-relaxed text-slate-500">
-                {d.noOnlinePaymentHint ||
-                  '🔒 Sin pagos en línea. Al registrarte o reservar, un asesor oficial coordinará los detalles de tu estancia contigo.'}
+                {d.noOnlinePaymentHint}
               </p>
             </div>
           </aside>
@@ -386,11 +387,11 @@ export default function OfferDetailPage({ params }) {
 
         {/* Related Offers */}
         {fallbackRelated.length > 0 && (
-          <section className="mt-20 border-t border-sand-200/80 pt-16" aria-labelledby="relacionadas">
-            <h2 id="relacionadas" className="font-serif text-3xl font-bold text-navy-900 mb-8">
-              {d.relatedTitle || 'Otras experiencias destacadas'}
+          <section className="mt-14 border-t border-sand-200/80 pt-10" aria-labelledby="relacionadas">
+            <h2 id="relacionadas" className="font-serif text-3xl font-bold text-navy-900 mb-6">
+              {d.relatedTitle}
             </h2>
-            <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {fallbackRelated.map((o) => (
                 <OfferCard key={o.id || o._id || o.slug} offer={o} />
               ))}

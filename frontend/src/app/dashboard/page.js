@@ -69,10 +69,10 @@ export default function DashboardHome() {
     try {
       await navigator.clipboard.writeText(currentUser?.referralCode || '');
       setCopied(true);
-      toast(isEn ? 'Referral code copied!' : '¡Código de referido copiado!');
+      toast(dash.referralCodeCopied || 'Referral code copied!');
       setTimeout(() => setCopied(false), 1800);
     } catch (_) {
-      toast(isEn ? 'Could not copy code' : 'No se pudo copiar el código', 'error');
+      toast(dash.referralCodeCopyFail || 'Could not copy code', 'error');
     }
   };
 
@@ -101,7 +101,7 @@ export default function DashboardHome() {
   const hasPoints = s.availablePoints > 0 || s.totalEarnedPoints > 0;
   const showStats = true;
 
-  const formattedJoinedDate = currentUser?.joinedDate || (currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString(isEn ? 'en-US' : 'es-ES', { month: 'short', year: 'numeric' }) : '');
+  const formattedJoinedDate = currentUser?.joinedDate || (currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US', { month: 'short', year: 'numeric' }) : '');
 
   const getStatusBadge = (status) => {
     switch (status) {
@@ -109,20 +109,20 @@ export default function DashboardHome() {
       case 'completed':
         return (
           <Badge variant="success" size="xs">
-            {isEn ? 'Approved' : 'Aprobado'}
+            {copy.redeemView?.statusApproved || 'Approved'}
           </Badge>
         );
       case 'rejected':
         return (
           <Badge variant="danger" size="xs">
-            {isEn ? 'Rejected' : 'Rechazado'}
+            {copy.redeemView?.statusRejected || 'Rejected'}
           </Badge>
         );
       case 'pending':
       default:
         return (
           <Badge variant="gold" size="xs">
-            {isEn ? 'Pending Review' : 'En Revisión'}
+            {copy.redeemView?.statusPending || 'Pending Review'}
           </Badge>
         );
     }
@@ -146,23 +146,23 @@ export default function DashboardHome() {
 
             <div className="space-y-1">
               <h1 className="font-serif text-2xl sm:text-3xl font-bold text-navy-950 tracking-tight">
-                {dash.welcome || (isEn ? 'Welcome,' : 'Bienvenido,')} {currentUser?.name ? currentUser.name.split(' ')[0] : (isEn ? 'Member' : 'Miembro')}
+                {dash.welcome || 'Welcome,'} {currentUser?.name ? currentUser.name.split(' ')[0] : membershipName}
               </h1>
 
               <div className="flex flex-wrap items-center gap-2.5 text-xs text-slate-500">
                 <span className="flex items-center gap-1.5 font-medium text-navy-700">
                   <Wallet className="w-3.5 h-3.5 text-ocean-600" />
-                  <span>{s.availablePoints.toLocaleString()} PTS {isEn ? 'Available' : 'Disponibles'}</span>
+                  <span>{s.availablePoints.toLocaleString()} PTS {dash.available || 'Available'}</span>
                 </span>
                 <span className="text-slate-300">·</span>
                 <span className="text-emerald-700 font-semibold">
-                  ${(s.availablePoints * 1.5).toLocaleString()} USD {isEn ? 'Travel Credit' : 'Crédito'}
+                  ${(s.availablePoints * 1.5).toLocaleString()} USD {copy.redeemView?.inTravelCredit || 'Travel Credit'}
                 </span>
                 {formattedJoinedDate && (
                   <>
                     <span className="text-slate-300">·</span>
                     <span className="text-slate-400">
-                      {isEn ? 'Member since' : 'Miembro desde'} {formattedJoinedDate}
+                      {dash.memberSince || 'Member since'} {formattedJoinedDate}
                     </span>
                   </>
                 )}
@@ -175,7 +175,7 @@ export default function DashboardHome() {
             <Link href="/dashboard/redeem">
               <Button variant="primary" size="sm" className="rounded-xl px-4 py-2 text-xs font-bold cursor-pointer shrink-0">
                 <Sparkles className="w-3.5 h-3.5 mr-1.5 text-gold-300" />
-                <span>{isEn ? 'Redeem Points' : 'Canjear Puntos'}</span>
+                <span>{dash.redeemPointsBtn || copy.panel?.redeem || 'Redeem Points'}</span>
               </Button>
             </Link>
           </div>
@@ -186,31 +186,31 @@ export default function DashboardHome() {
       {showStats && (
         <div className={`grid gap-3 sm:grid-cols-2 ${twoLevels ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
           <PointsStat 
-            label={dash.available || (isEn ? 'Available Points' : 'Disponibles')} 
+            label={dash.available || 'Available Points'} 
             value={s.availablePoints} 
             tone="accent" 
-            hint={isEn ? `≈ $${(s.availablePoints * 1.5).toLocaleString()} USD Value` : `≈ $${(s.availablePoints * 1.5).toLocaleString()} USD en viajes`}
+            hint={`≈ $${(s.availablePoints * 1.5).toLocaleString()} USD`}
           />
           <PointsStat 
-            label={dash.totalEarned || (isEn ? 'Total Earned' : 'Total ganado')} 
+            label={dash.totalEarned || 'Total Earned'} 
             value={s.totalEarnedPoints} 
             tone="emerald"
             prefix="+"
           />
           <PointsStat 
-            label={dash.redeemed || (isEn ? 'Redeemed' : 'Redimidos')} 
+            label={dash.redeemed || 'Redeemed'} 
             value={s.redeemedPoints} 
             tone="rose"
             prefix={s.redeemedPoints > 0 ? '-' : ''}
           />
           <PointsStat 
-            label={dash.l1Points || (isEn ? 'Level 1 Points' : 'Puntos Nivel 1')} 
+            label={dash.l1Points || 'Level 1 Points'} 
             value={s.level1Points} 
             tone="ocean"
           />
           {twoLevels && (
             <PointsStat 
-              label={dash.l2Points || (isEn ? 'Level 2 Points' : 'Puntos Nivel 2')} 
+              label={dash.l2Points || 'Level 2 Points'} 
               value={s.level2Points} 
               tone="purple"
             />
@@ -238,21 +238,21 @@ export default function DashboardHome() {
             <div>
               <h2 className="font-serif text-lg font-bold text-navy-950 flex items-center gap-2">
                 <Clock className="w-4 h-4 text-ocean-600" />
-                <span>{dash.recentActivity || (isEn ? 'Recent Points Activity' : 'Actividad Reciente')}</span>
+                <span>{dash.recentActivity || 'Recent Activity'}</span>
               </h2>
               <p className="text-xs text-slate-500 mt-0.5">
-                {isEn ? 'Latest rewards earned from your referral network' : 'Últimas recompensas acumuladas de tu red'}
+                {dash.activitySubtitle || 'Latest rewards earned from your referral network'}
               </p>
             </div>
             <Link href="/dashboard/points" className="text-xs font-bold text-ocean-600 hover:text-ocean-700">
-              {dash.viewAll || (isEn ? 'View All' : 'Ver todo')}
+              {dash.viewAll || 'View All'}
             </Link>
           </div>
 
           {tx.length === 0 ? (
             <EmptyState
-              title={dash.noActivityTitle || (isEn ? 'No point activity yet' : 'Aún no tienes actividad de puntos.')}
-              description={dash.noActivityDesc || (isEn ? 'Share your referral code or redeem travel perks to start earning.' : 'Invita a una persona o reserva viajes para acumular puntos.')}
+              title={dash.noActivityTitle || 'No point activity yet'}
+              description={dash.noActivityDesc || 'Share your referral code or redeem travel perks to start earning.'}
               className="border-0 p-4"
             />
           ) : (

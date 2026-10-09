@@ -52,26 +52,72 @@ export default function DashboardShell({ children }) {
 
   useEffect(() => setMobileMenuOpen(false), [pathname]);
 
-  if (!ready || !isAuthenticated || !currentUser) return null;
-
   const doLogout = () => { 
     logout(); 
     router.push('/login'); 
   };
 
-  const membershipLabel = copy.levels?.[currentMembership?.id]?.name || currentMembership?.name || (isEn ? 'Member' : 'Miembro');
+  const membershipLabel = copy.levels?.[currentMembership?.id]?.name || currentMembership?.name || copy.levels?.member?.name;
 
-  const NAV_ITEMS = [
-    { name: isEn ? 'Dashboard' : 'Panel General', href: '/dashboard', icon: LayoutDashboard },
-    { name: isEn ? 'Travel Offers' : 'Ofertas de Viaje', href: '/dashboard/offers', icon: Palmtree },
-    { name: isEn ? 'My Referral Network' : 'Mi Red de Referidos', href: '/dashboard/network', icon: Users },
-    { name: isEn ? 'My Points Ledger' : 'Historial de Puntos', href: '/dashboard/points', icon: Coins },
-    { name: isEn ? 'Redeem Points' : 'Redimir Puntos', href: '/dashboard/redeem', icon: Gift },
-    { name: isEn ? 'My Profile & Settings' : 'Mi Perfil & Ajustes', href: '/dashboard/profile', icon: User },
-  ];
+  const NAV_ITEMS = React.useMemo(() => [
+    { name: copy.shell?.dashboard || copy.panel?.dashboard, href: '/dashboard', icon: LayoutDashboard },
+    { name: copy.shell?.travelOffers || copy.panel?.offers, href: '/dashboard/offers', icon: Palmtree },
+    { name: copy.shell?.myReferralNetwork || copy.panel?.network, href: '/dashboard/network', icon: Users },
+    { name: copy.shell?.myPointsLedger || copy.panel?.points, href: '/dashboard/points', icon: Coins },
+    { name: copy.shell?.redeemPoints || copy.panel?.redeem, href: '/dashboard/redeem', icon: Gift },
+    { name: copy.shell?.myProfileSettings || copy.panel?.profile, href: '/dashboard/profile', icon: User },
+  ], [copy]);
 
   const currentNav = NAV_ITEMS.find((item) => pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)));
-  const pageTitle = currentNav?.name || (pathname.startsWith('/dashboard/offers') ? (isEn ? 'Travel Offers' : 'Ofertas de Viaje') : (isEn ? 'Dashboard' : 'Panel'));
+  const pageTitle = currentNav?.name || (pathname.startsWith('/dashboard/offers') ? (copy.shell?.travelOffers || copy.panel?.offers) : (copy.shell?.dashboard || copy.panel?.dashboard));
+
+  // Build clickable breadcrumb items based on current route
+  const breadcrumbs = React.useMemo(() => {
+    const rootLabel = copy.shell?.memberPortal || 'Member Portal';
+    if (pathname === '/dashboard') {
+      return [{ label: rootLabel, href: null }];
+    }
+
+    const items = [{ label: rootLabel, href: '/dashboard' }];
+
+    if (pathname.startsWith('/dashboard/offers/')) {
+      items.push({
+        label: copy.shell?.travelOffers || copy.panel?.offers,
+        href: '/dashboard/offers',
+      });
+      items.push({
+        label: copy.shell?.offerDetails || 'Offer Details',
+        href: null,
+      });
+      return items;
+    }
+
+    const matchedNav = NAV_ITEMS.find((item) => item.href === pathname);
+    if (matchedNav) {
+      items.push({ label: matchedNav.name, href: null });
+    } else {
+      const parentNav = NAV_ITEMS.find(
+        (item) => item.href !== '/dashboard' && pathname.startsWith(item.href)
+      );
+      if (parentNav) {
+        items.push({ label: parentNav.name, href: parentNav.href });
+        const subSegment = pathname.replace(parentNav.href, '').replace(/^\//, '');
+        if (subSegment) {
+          const formatted = decodeURIComponent(subSegment).replace(/[-_]/g, ' ');
+          items.push({
+            label: formatted.charAt(0).toUpperCase() + formatted.slice(1),
+            href: null,
+          });
+        }
+      } else {
+        items.push({ label: pageTitle, href: null });
+      }
+    }
+
+    return items;
+  }, [pathname, copy, NAV_ITEMS, pageTitle]);
+
+  if (!ready || !isAuthenticated || !currentUser) return null;
 
   const sidebarContent = (
     <div className="flex h-full flex-col justify-between bg-navy-950 text-white">
@@ -86,9 +132,9 @@ export default function DashboardShell({ children }) {
             />
             <div>
               <span className="text-xs font-bold tracking-[0.2em] text-ocean-300 uppercase block">
-                {isEn ? 'MEMBER PORTAL' : 'PORTAL MIEMBROS'}
+                {copy.shell?.memberPortal}
               </span>
-              <h1 className="text-sm font-serif font-bold text-white tracking-wide">Círculo Wingding</h1>
+              <h1 className="text-sm font-serif font-bold text-white tracking-wide">{copy.brand}</h1>
             </div>
           </div>
           <button
@@ -124,7 +170,7 @@ export default function DashboardShell({ children }) {
         {/* Nav Links */}
         <nav className="overflow-y-auto px-4 py-4 space-y-1.5">
           <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-sand-400/60 mb-2">
-            {isEn ? 'MAIN MODULES' : 'MÓDULOS PRINCIPALES'}
+            {copy.shell?.mainModules}
           </p>
           {NAV_ITEMS.map((item) => {
             const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
@@ -163,7 +209,7 @@ export default function DashboardShell({ children }) {
           className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:text-white hover:bg-rose-950/50 border border-rose-900/40 transition-all cursor-pointer"
         >
           <LogOut className="w-4 h-4" />
-          <span>{isEn ? 'Sign Out' : 'Cerrar Sesión'}</span>
+          <span>{copy.shell?.signOut || copy.auth?.logout}</span>
         </button>
       </div>
     </div>
@@ -200,11 +246,28 @@ export default function DashboardShell({ children }) {
             >
               <Menu className="w-6 h-6" />
             </button>
-            <div className="flex items-center gap-2 text-xs text-navy-600 font-medium">
-              <span className="text-navy-950 font-bold">{isEn ? 'Member Portal' : 'Portal Miembros'}</span>
-              <ChevronRight className="w-3 h-3 text-navy-400" />
-              <span className="text-ocean-700 font-semibold">{pageTitle}</span>
-            </div>
+            <nav aria-label={copy.shell?.breadcrumbAria || "Ruta de navegación"} className="flex items-center gap-1.5 text-xs text-navy-600 font-medium">
+              {breadcrumbs.map((b, idx) => {
+                const isLast = idx === breadcrumbs.length - 1;
+                return (
+                  <React.Fragment key={`${b.label}-${idx}`}>
+                    {idx > 0 && <ChevronRight className="w-3 h-3 text-slate-400 shrink-0" aria-hidden="true" />}
+                    {b.href && !isLast ? (
+                      <Link
+                        href={b.href}
+                        className="text-slate-600 hover:text-navy-950 hover:underline transition-colors font-medium cursor-pointer"
+                      >
+                        {b.label}
+                      </Link>
+                    ) : (
+                      <span className={`truncate max-w-[140px] sm:max-w-xs ${isLast ? 'text-ocean-700 font-semibold' : 'text-navy-950 font-bold'}`}>
+                        {b.label}
+                      </span>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </nav>
           </div>
 
           {/* Right Header Controls */}
@@ -214,8 +277,8 @@ export default function DashboardShell({ children }) {
               label={t('auth.userMenu')}
               trigger={<Avatar src={currentUser.avatar} name={currentUser.name} size="sm" />}
               items={[
-                { label: isEn ? 'My Profile' : 'Mi Perfil', href: '/dashboard/profile' },
-                { label: isEn ? 'Sign Out' : 'Cerrar Sesión', onClick: doLogout },
+                { label: copy.shell?.myProfile || copy.auth?.profile, href: '/dashboard/profile' },
+                { label: copy.shell?.signOut || copy.auth?.logout, onClick: doLogout },
               ]}
             />
           </div>

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Compass, Sparkles } from 'lucide-react';
 import SafeImage from '@/components/common/SafeImage';
+import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
 import { useLanguage } from '@/context/LanguageContext';
 
 const TRAVEL_SLIDES = [
@@ -143,7 +144,24 @@ export default function AuthShell({ title, subtitle, children, footer }) {
 
         {/* Right Side: Centered Auth Form */}
         <div className="lg:col-span-6 w-full max-w-md mx-auto flex flex-col justify-center py-2 sm:py-4 px-2 sm:px-6">
-          <div className="text-center sm:text-left mb-5">
+          {/* Top Bar inside form container */}
+          <div className="flex items-center justify-between mb-4">
+            <Link href="/" className="lg:hidden inline-flex items-center gap-2 group">
+              <img
+                src="/logo.jpg"
+                alt="Círculo Wingding Logo"
+                className="h-8 w-8 rounded-lg object-cover border border-slate-200"
+              />
+              <span className="font-serif text-sm font-bold text-navy-950">
+                Círculo Wingding
+              </span>
+            </Link>
+            <div className="ml-auto">
+              <LanguageSwitcher />
+            </div>
+          </div>
+
+          <div className="text-left mb-6">
             <h1 className="font-serif text-[26px] sm:text-[28px] font-bold text-navy-950 tracking-tight leading-tight">
               {title}
             </h1>

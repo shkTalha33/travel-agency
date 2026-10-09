@@ -44,15 +44,16 @@ export default function OfferImageGallery({ images = [], title = '', badge = '' 
     return () => clearInterval(interval);
   }, [safeImages.length, isHovered]);
 
-  // Keep thumbnail in view if scrolling container
+  // Keep thumbnail in view inside the horizontal thumbnail container without scrolling the window
   useEffect(() => {
     if (thumbnailsRef.current && safeImages.length > 1) {
-      const activeThumb = thumbnailsRef.current.children[activeIndex];
+      const container = thumbnailsRef.current;
+      const activeThumb = container.children[activeIndex];
       if (activeThumb) {
-        activeThumb.scrollIntoView({
+        const targetLeft = activeThumb.offsetLeft - (container.clientWidth - activeThumb.clientWidth) / 2;
+        container.scrollTo({
+          left: Math.max(0, targetLeft),
           behavior: 'smooth',
-          block: 'nearest',
-          inline: 'center',
         });
       }
     }

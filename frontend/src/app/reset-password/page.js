@@ -38,10 +38,10 @@ export default function ResetPasswordPage() {
   const submit = async (e) => {
     e.preventDefault();
     const err = {};
-    if (!/^\S+@\S+\.\S+$/.test(email)) err.email = isEn ? 'Valid email is required.' : 'El correo electrónico es requerido.';
-    if (!otp || otp.trim().length !== 4) err.otp = isEn ? '4-digit OTP code is required.' : 'El código OTP de 4 dígitos es requerido.';
-    if (pw.length < 8) err.pw = isEn ? 'Password must be at least 8 characters.' : 'La contraseña debe tener al menos 8 caracteres.';
-    if (confirm !== pw) err.confirm = isEn ? 'Passwords do not match.' : 'Las contraseñas no coinciden.';
+    if (!/^\S+@\S+\.\S+$/.test(email)) err.email = copy.validation?.emailRequired || 'Valid email is required.';
+    if (!otp || otp.trim().length !== 4) err.otp = copy.validation?.otpRequired || '4-digit OTP code is required.';
+    if (pw.length < 8) err.pw = copy.validation?.passwordMinLength || 'Password must be at least 8 characters.';
+    if (confirm !== pw) err.confirm = copy.validation?.passwordsMatch || 'Passwords do not match.';
     setErrors(err);
 
     if (Object.keys(err).length) {
@@ -54,10 +54,10 @@ export default function ResetPasswordPage() {
     try {
       await authApi.resetPassword({ email: email.trim(), otp: otp.trim(), newPassword: pw });
       setDone(true);
-      toast(isEn ? 'Password reset successfully!' : '¡Contraseña restablecida con éxito!');
+      toast(copy.toasts?.passwordReset || 'Password reset successfully!');
       setTimeout(() => router.push('/login'), 2000);
     } catch (apiErr) {
-      const msg = apiErr.message || (isEn ? 'Invalid or expired OTP code.' : 'Código OTP inválido o expirado.');
+      const msg = apiErr.message || copy.toasts?.invalidOtp || 'Invalid or expired OTP code.';
       setErrors({ otp: msg });
       toast(msg, 'error');
     } finally {
@@ -67,11 +67,11 @@ export default function ResetPasswordPage() {
 
   return (
     <AuthShell
-      title={av.resetTitle || 'Nueva contraseña'}
-      subtitle={av.resetWithOtpSubtitle || 'Ingresa el código OTP de tu correo y tu nueva contraseña.'}
+      title={av.resetTitle}
+      subtitle={av.resetWithOtpSubtitle}
       footer={
         <Link href="/login" className="font-semibold text-ocean-600 hover:underline">
-          {av.backToLogin || 'Volver a iniciar sesión'}
+          {av.backToLogin}
         </Link>
       }
     >
@@ -79,20 +79,20 @@ export default function ResetPasswordPage() {
         <div className="rounded-2xl bg-emerald-50 border border-emerald-200 p-6 text-center space-y-4">
           <CheckCircle2 className="mx-auto text-emerald-600" size={40} />
           <div>
-            <p className="font-semibold text-emerald-800">{isEn ? 'Password reset successfully!' : '¡Contraseña restablecida con éxito!'}</p>
+            <p className="font-semibold text-emerald-800">{copy.toasts?.passwordReset}</p>
             <p className="mt-1 text-xs text-emerald-700">
-              {isEn ? 'You can now log in with your new password.' : 'Ya puedes iniciar sesión con tu nueva contraseña.'}
+              {av.resetSentDesc || 'You can now log in with your new password.'}
             </p>
           </div>
           <Link href="/login" className="block">
-            <Button className="w-full">{av.loginBtn || 'Iniciar sesión'}</Button>
+            <Button className="w-full">{av.loginBtn}</Button>
           </Link>
         </div>
       ) : (
         <form onSubmit={submit} className="space-y-4" noValidate>
           <Input
             id="email"
-            label={av.emailLabel || 'Correo electrónico'}
+            label={av.emailLabel}
             type="email"
             placeholder="yourname@example.com"
             value={email}
@@ -107,7 +107,7 @@ export default function ResetPasswordPage() {
 
           <div className="space-y-2">
             <label className="block text-xs font-semibold capitalize text-navy-900 text-center">
-              {isEn ? 'Verification Code' : 'Código de Verificación'}
+              {av.otpLabel}
             </label>
             <OtpInput
               length={4}
@@ -128,7 +128,7 @@ export default function ResetPasswordPage() {
 
           <Input
             id="pw"
-            label={av.resetTitle || 'Nueva contraseña'}
+            label={av.resetTitle}
             type="password"
             placeholder="Min. 8 chars"
             value={pw}
@@ -140,7 +140,7 @@ export default function ResetPasswordPage() {
 
           <Input
             id="confirm"
-            label={av.confirmPasswordLabel || 'Confirmar contraseña'}
+            label={av.confirmPasswordLabel}
             type="password"
             placeholder="Repeat new password"
             value={confirm}
@@ -151,7 +151,7 @@ export default function ResetPasswordPage() {
           />
 
           <Button type="submit" size="md" className="w-full rounded-xl py-2.5 font-bold shadow-soft" isLoading={loading}>
-            {loading ? (av.loggingIn || 'Restableciendo...') : (av.resetBtn || 'Restablecer contraseña')}
+            {loading ? (av.verifying || 'Updating...') : av.resetBtn}
           </Button>
         </form>
       )}

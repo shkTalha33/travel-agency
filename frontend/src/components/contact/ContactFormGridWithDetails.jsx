@@ -10,9 +10,9 @@ import Checkbox from '@/components/ui/Checkbox';
 import Button from '@/components/ui/Button';
 
 export default function ContactFormGridWithDetails() {
-  const { t, language } = useLanguage();
+  const { copy, isEn } = useLanguage();
   const { toast } = useToast();
-  const isEn = language === 'en';
+  const cp = copy.contactPage || {};
 
   const [form, setForm] = useState({
     fullname: '',
@@ -29,18 +29,18 @@ export default function ContactFormGridWithDetails() {
   const validate = () => {
     const errs = {};
     if (!form.fullname.trim()) {
-      errs.fullname = isEn ? 'Full name is required' : 'El nombre completo es requerido';
+      errs.fullname = cp.errFullname;
     }
     if (!form.email.trim()) {
-      errs.email = isEn ? 'Email address is required' : 'El correo electrónico es requerido';
+      errs.email = cp.errEmail;
     } else if (!/^\S+@\S+\.\S+$/.test(form.email)) {
-      errs.email = isEn ? 'Invalid email format' : 'Formato de correo no válido';
+      errs.email = cp.errEmailFormat;
     }
     if (!form.message.trim() || form.message.length < 5) {
-      errs.message = isEn ? 'Message must be at least 5 characters' : 'El mensaje debe tener al menos 5 caracteres';
+      errs.message = cp.errMessage;
     }
     if (!form.agree) {
-      errs.agree = isEn ? 'Please accept the terms' : 'Debes aceptar los términos';
+      errs.agree = cp.errTerms;
     }
     setErrors(errs);
     return Object.keys(errs).length === 0;
@@ -55,17 +55,14 @@ export default function ContactFormGridWithDetails() {
       await contactApi.submit({
         fullname: form.fullname.trim(),
         email: form.email.trim(),
-        subject: form.company.trim() || (isEn ? 'General VIP Travel Inquiry' : 'Consulta VIP de Viaje'),
+        subject: form.company.trim() || cp.defaultSubject,
         message: form.message.trim(),
       });
 
       setSubmitted(true);
-      toast(
-        isEn ? 'Inquiry sent successfully!' : '¡Mensaje enviado con éxito!',
-        'success'
-      );
+      toast(cp.toastSuccess, 'success');
     } catch (err) {
-      const msg = err.message || (isEn ? 'Error submitting contact form.' : 'Error al enviar el mensaje de contacto.');
+      const msg = err.message || cp.toastError;
       toast(msg, 'error');
     } finally {
       setLoading(false);
@@ -96,14 +93,12 @@ export default function ContactFormGridWithDetails() {
 
               {/* Main Heading */}
               <h1 className="mt-6 font-serif text-4xl sm:text-5xl font-bold tracking-tight text-navy-950">
-                {isEn ? 'Contact us' : 'Contáctanos'}
+                {cp.pageTitle}
               </h1>
 
               {/* Subtitle Description */}
               <p className="mt-4 text-base text-slate-600 leading-relaxed max-w-xl">
-                {isEn 
-                  ? 'We are always looking for ways to improve our travel experiences and membership rewards. Contact us and let us know how we can help you.'
-                  : 'Siempre buscamos perfeccionar tus experiencias de viaje y recompensas VIP. Contáctanos y cuéntanos cómo podemos ayudarte a planear tu próxima escapada.'}
+                {cp.pageDesc}
               </p>
 
               {/* Inline Contact Info Row */}
@@ -172,7 +167,7 @@ export default function ContactFormGridWithDetails() {
                 >
                   <div className="relative flex items-center gap-1.5 rounded-xl border border-gold-500 bg-navy-950 px-3.5 py-1 text-xs font-bold text-gold-300 shadow-[0_4px_20px_rgba(212,175,55,0.35)] backdrop-blur-md whitespace-nowrap">
                     <span className="h-2 w-2 rounded-full bg-gold-400 animate-ping" />
-                    <span>{isEn ? 'We are here' : 'Estamos aquí'}</span>
+                    <span>{cp.weAreHere}</span>
                   </div>
                 </div>
 
@@ -192,12 +187,10 @@ export default function ContactFormGridWithDetails() {
                     <Check size={32} strokeWidth={3} />
                   </div>
                   <h3 className="font-serif text-2xl font-bold text-navy-950">
-                    {isEn ? 'Inquiry sent successfully!' : '¡Mensaje enviado con éxito!'}
+                    {cp.successTitle}
                   </h3>
                   <p className="mx-auto mt-2 max-w-sm text-sm text-slate-600">
-                    {isEn 
-                      ? 'We have received your message. One of our VIP travel specialists will get back to you shortly.'
-                      : 'Hemos recibido tu solicitud. Uno de nuestros asesores de viajes de lujo te contactará en breve.'}
+                    {cp.successDesc}
                   </p>
                   <div className="mt-6 flex justify-center">
                     <Button
@@ -205,7 +198,7 @@ export default function ContactFormGridWithDetails() {
                       onClick={resetForm}
                       className="rounded-2xl px-6 py-2.5 font-bold shadow-md"
                     >
-                      {isEn ? 'Send another message' : 'Enviar otra consulta'}
+                      {cp.sendAnother}
                     </Button>
                   </div>
                 </div>
@@ -215,21 +208,19 @@ export default function ContactFormGridWithDetails() {
                   
                   <div>
                     <h2 className="font-serif text-2xl font-bold text-navy-950 capitalize sm:text-3xl">
-                      {isEn ? 'Send us a message' : 'Envíanos un mensaje'}
+                      {cp.formTitle}
                     </h2>
                     <p className="mt-1 text-xs sm:text-sm text-slate-500">
-                      {isEn 
-                        ? 'Fill out the form below and a dedicated travel specialist will get back to you within 2 hours.'
-                        : 'Completa el formulario y un asesor exclusivo se comunicará contigo en menos de 2 horas.'}
+                      {cp.formSubtitle}
                     </p>
                   </div>
 
                   {/* Full Name */}
                   <Input
                     id="contact-fullname"
-                    label={isEn ? 'Full name' : 'Nombre completo'}
+                    label={cp.fullnameLabel}
                     type="text"
-                    placeholder={isEn ? 'Alexander Miller' : 'Alejandro Morales'}
+                    placeholder={cp.fullnamePlaceholder}
                     value={form.fullname}
                     onChange={(e) => {
                       setForm({ ...form, fullname: e.target.value });
@@ -243,9 +234,9 @@ export default function ContactFormGridWithDetails() {
                   {/* Email Address */}
                   <Input
                     id="contact-email"
-                    label={isEn ? 'Email address' : 'Correo electrónico'}
+                    label={cp.emailLabel}
                     type="email"
-                    placeholder="yourname@example.com"
+                    placeholder={cp.emailPlaceholder}
                     value={form.email}
                     onChange={(e) => {
                       setForm({ ...form, email: e.target.value });
@@ -259,9 +250,9 @@ export default function ContactFormGridWithDetails() {
                   {/* Company / Trip Topic */}
                   <Input
                     id="contact-company"
-                    label={isEn ? 'Company / Trip subject' : 'Empresa / Asunto del viaje'}
+                    label={cp.companyLabel}
                     type="text"
-                    placeholder={isEn ? 'e.g. Punta Cana VIP Vacation' : 'Ej. Vacaciones VIP Punta Cana'}
+                    placeholder={cp.companyPlaceholder}
                     value={form.company}
                     onChange={(e) => setForm({ ...form, company: e.target.value })}
                     icon={<Building size={16} />}
@@ -270,7 +261,7 @@ export default function ContactFormGridWithDetails() {
                   {/* Message Textarea */}
                   <div>
                     <label htmlFor="contact-message" className="mb-1.5 block text-sm font-medium capitalize text-slate-700">
-                      {isEn ? 'Message or trip details' : 'Mensaje o detalles del viaje'}
+                      {cp.messageLabel}
                       <span className="ml-1 text-rose-500" aria-hidden="true">*</span>
                     </label>
                     <div className="relative">
@@ -282,9 +273,7 @@ export default function ContactFormGridWithDetails() {
                           setForm({ ...form, message: e.target.value });
                           if (errors.message) setErrors({ ...errors, message: '' });
                         }}
-                        placeholder={isEn 
-                          ? 'Tell us about your estimated dates, party size, preferred vibe, or any special requests...' 
-                          : 'Cuéntanos sobre fechas estimadas, número de viajeros, destinos preferidos o solicitudes especiales...'}
+                        placeholder={cp.messagePlaceholder}
                         className={`w-full rounded-xl border bg-white px-3.5 py-2.5 text-sm text-slate-900 transition-colors placeholder:text-slate-400 outline-none focus:outline-none focus:ring-0 resize-y ${
                           errors.message ? 'border-rose-500' : 'border-slate-300 hover:border-slate-400 focus:border-gold-500'
                         }`}
@@ -297,9 +286,7 @@ export default function ContactFormGridWithDetails() {
                   <div className="pt-1">
                     <Checkbox
                       id="contact-terms"
-                      label={isEn 
-                        ? 'I agree to receive personalized travel recommendations and terms.' 
-                        : 'Acepto recibir atención personalizada y los términos del servicio.'}
+                      label={cp.termsCheckbox}
                       checked={form.agree}
                       onChange={(e) => {
                         setForm({ ...form, agree: e.target.checked });
@@ -320,9 +307,7 @@ export default function ContactFormGridWithDetails() {
                     >
                       <Send size={16} className="text-white" />
                       <span>
-                        {loading 
-                          ? (isEn ? 'Submitting...' : 'Enviando...') 
-                          : (isEn ? 'Send inquiry message' : 'Enviar mensaje de consulta')}
+                        {loading ? cp.submitting : cp.sendInquiryBtn}
                       </span>
                     </Button>
                   </div>
@@ -330,7 +315,7 @@ export default function ContactFormGridWithDetails() {
                   {/* Security Badge */}
                   <div className="flex items-center justify-center gap-1.5 pt-1 text-xs text-slate-400">
                     <ShieldCheck size={14} className="text-emerald-600" />
-                    <span>{isEn ? 'Your information is 100% confidential & encrypted under SSL.' : 'Tus datos están 100% confidenciales y encriptados bajo SSL.'}</span>
+                    <span>{cp.confidentialSSL}</span>
                   </div>
 
                 </form>
