@@ -174,7 +174,7 @@ UserSchema.methods.generateAccessToken = function () {
   const isAdmin = this.role === "admin";
   const expiresIn = isAdmin
     ? (process.env.ADMIN_ACCESS_TOKEN_EXPIRY || "1d")
-    : (process.env.ACCESS_TOKEN_EXPIRY || "15m");
+    : (process.env.ACCESS_TOKEN_EXPIRY || "7d");
 
   return jwt.sign(
     {

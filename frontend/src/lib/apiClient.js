@@ -50,37 +50,56 @@ const onRefreshed = (newAccessToken) => {
   refreshSubscribers = [];
 };
 
+function notifyUnauthorized() {
+  if (typeof window !== 'undefined') {
+    tokenStorage.clearTokens();
+    window.dispatchEvent(new CustomEvent('auth:unauthorized'));
+  }
+}
+
+const inFlightRequests = new Map();
+
 /**
  * Universal fetch wrapper with auto-retry and JWT token rotation
  */
 export async function apiClient(endpoint, options = {}) {
-  const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
-  const currentLang = typeof window !== 'undefined' ? (localStorage.getItem('vd_locale') || 'en') : 'en';
-  const accessToken = tokenStorage.getAccessToken();
+  const method = (options.method || 'GET').toUpperCase();
+  const isGet = method === 'GET';
 
-  const headers = {
-    'Content-Type': 'application/json',
-    'Accept-Language': currentLang,
-    'x-language': currentLang,
-    ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
-    ...options.headers,
-  };
+  // Deduplicate concurrent in-flight GET requests
+  if (isGet && inFlightRequests.has(endpoint)) {
+    return inFlightRequests.get(endpoint);
+  }
 
-  const config = {
-    ...options,
-    headers,
-  };
+  const requestPromise = (async () => {
+    const url = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`;
+    const currentLang = typeof window !== 'undefined' ? (localStorage.getItem('vd_locale') || 'en') : 'en';
+    const isEn = typeof currentLang === 'string' && currentLang.toLowerCase().startsWith('en');
+    const accessToken = tokenStorage.getAccessToken();
 
-  try {
-    const response = await fetch(url, config);
+    const headers = {
+      'Content-Type': 'application/json',
+      'Accept-Language': currentLang,
+      'x-language': currentLang,
+      ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {}),
+      ...options.headers,
+    };
+
+    const config = {
+      ...options,
+      headers,
+    };
+
+    try {
+      const response = await fetch(url, config);
 
     // Handle 401 Unauthorized -> Attempt token refresh
     if (response.status === 401 && !options._retry && !endpoint.includes('/auth/signin') && !endpoint.includes('/auth/refresh-token')) {
       const refreshToken = tokenStorage.getRefreshToken();
 
       if (!refreshToken) {
-        tokenStorage.clearTokens();
-        return Promise.reject(new Error('Sesión no autorizada'));
+        notifyUnauthorized();
+        return Promise.reject(new Error(isEn ? 'Unauthorized session. Please log in again.' : 'Sesión no autorizada'));
       }
 
       if (isRefreshing) {
@@ -123,21 +142,25 @@ export async function apiClient(endpoint, options = {}) {
           };
           return apiClient(endpoint, options);
         } else {
-          tokenStorage.clearTokens();
+          notifyUnauthorized();
           isRefreshing = false;
-          return Promise.reject(new Error('La sesión ha expirado'));
+          return Promise.reject(new Error(isEn ? 'Session has expired. Please log in again.' : 'La sesión ha expirado'));
         }
       } catch (refreshErr) {
-        tokenStorage.clearTokens();
+        notifyUnauthorized();
         isRefreshing = false;
         return Promise.reject(refreshErr);
       }
     }
 
+    if (response.status === 401 && (options._retry || endpoint.includes('/auth/refresh-token'))) {
+      notifyUnauthorized();
+    }
+
     const data = await response.json();
 
     if (!response.ok) {
-      const errorMsg = data.message || 'Error en la solicitud al servidor';
+      const errorMsg = data.message || (isEn ? 'Server request error' : 'Error en la solicitud al servidor');
       const error = new Error(errorMsg);
       error.status = response.status;
       error.data = data;
@@ -145,9 +168,19 @@ export async function apiClient(endpoint, options = {}) {
     }
 
     return data;
-  } catch (err) {
-    throw err;
+    } catch (err) {
+      throw err;
+    }
+  })();
+
+  if (isGet) {
+    inFlightRequests.set(endpoint, requestPromise);
+    requestPromise.finally(() => {
+      inFlightRequests.delete(endpoint);
+    });
   }
+
+  return requestPromise;
 }
 
 // ----------------------------------------------------

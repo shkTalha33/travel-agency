@@ -51,10 +51,14 @@ const createRedemptionRequest = aysncHandler(async (req, res, next) => {
     status: REDEMPTION_STATUS.PENDING,
   });
 
+  const desc = paymentDetails
+    ? `Canje de puntos: ${paymentDetails}`
+    : `Canje de puntos para descuento de viaje`;
+
   // Deduct points via a completed negative PointTransaction
   await PointTransaction.create({
     userId,
-    purchaseDescription: `Solicitud de canje de puntos #${redemption._id}`,
+    purchaseDescription: desc,
     type: TRANSACTION_TYPES.REDEMPTION,
     level: null,
     points: -requestedPoints,

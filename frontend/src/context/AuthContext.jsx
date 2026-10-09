@@ -12,6 +12,26 @@ export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [ready, setReady] = useState(false);
 
+  // Listen for unauthorized 401 events globally
+  useEffect(() => {
+    function handleUnauthorized() {
+      tokenStorage.clearTokens();
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(STORAGE_KEY);
+        setCurrentUser(null);
+        if (window.location.pathname.startsWith('/dashboard')) {
+          window.location.href = '/login';
+        }
+      }
+    }
+
+    if (typeof window !== 'undefined') {
+      window.addEventListener('auth:unauthorized', handleUnauthorized);
+      return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
+    }
+  }, []);
+
   // Restore session on initial load
   useEffect(() => {
     async function initAuth() {
@@ -23,7 +43,6 @@ export function AuthProvider({ children }) {
           const res = await authApi.getMe();
           if (res?.data) {
             const user = res.data;
-            // Normalize stats format
             user.name = user.fullname || user.name;
             if (user.pointsStats && !user.stats) {
               user.stats = {
@@ -42,25 +61,24 @@ export function AuthProvider({ children }) {
             return;
           }
         } catch (_) {
-          // Token expired or invalid, clear
           tokenStorage.clearTokens();
+          if (typeof window !== 'undefined') sessionStorage.removeItem(STORAGE_KEY);
+          setCurrentUser(null);
+          setReady(true);
+          return;
         }
       }
 
-      // Check session storage for fast demo accounts
-      try {
-        const saved = sessionStorage.getItem(STORAGE_KEY);
-        if (saved) setCurrentUser(JSON.parse(saved));
-      } catch (_) {
-        /* ignore */
-      }
+      // If no token exists, do not keep stale session
+      if (typeof window !== 'undefined') sessionStorage.removeItem(STORAGE_KEY);
+      setCurrentUser(null);
       setReady(true);
     }
 
     initAuth();
   }, []);
 
-  // Sync demo session storage
+  // Sync session storage
   useEffect(() => {
     if (!ready) return;
     try {
@@ -176,8 +194,52 @@ export function AuthProvider({ children }) {
       /* ignore */
     } finally {
       tokenStorage.clearTokens();
+      if (typeof window !== 'undefined') {
+        sessionStorage.removeItem(STORAGE_KEY);
+      }
       setCurrentUser(null);
     }
+  }, []);
+
+  const refreshUser = useCallback(async () => {
+    const accessToken = tokenStorage.getAccessToken();
+    if (!accessToken) {
+      setCurrentUser(null);
+      return null;
+    }
+    try {
+      const res = await authApi.getMe();
+      if (res?.data) {
+        const user = res.data;
+        user.name = user.fullname || user.name;
+        if (user.pointsStats) {
+          user.stats = {
+            availablePoints: user.pointsStats.availablePoints || 0,
+            totalEarnedPoints: user.pointsStats.totalEarnedPoints || 0,
+            redeemedPoints: user.pointsStats.redeemedPoints || 0,
+            level1Points: user.pointsStats.level1Points || 0,
+            level2Points: user.pointsStats.level2Points || 0,
+            directReferralsCount: 0,
+            secondLevelReferralsCount: 0,
+            totalNetworkCount: 0,
+          };
+        }
+        setCurrentUser((prev) => {
+          if (prev && prev._id === user._id && JSON.stringify(prev) === JSON.stringify(user)) {
+            return prev;
+          }
+          return user;
+        });
+        return user;
+      }
+    } catch (err) {
+      if (err?.status === 401 || err?.message?.toLowerCase().includes('unauthorized') || err?.message?.toLowerCase().includes('sesión')) {
+        tokenStorage.clearTokens();
+        if (typeof window !== 'undefined') sessionStorage.removeItem(STORAGE_KEY);
+        setCurrentUser(null);
+      }
+    }
+    return null;
   }, []);
 
   const membershipKey = currentUser?.membershipId
@@ -199,6 +261,7 @@ export function AuthProvider({ children }) {
         register,
         verifyOtpAndRegister,
         logout,
+        refreshUser,
       }}
     >
       {children}

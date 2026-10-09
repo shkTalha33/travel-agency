@@ -17,7 +17,7 @@ import { useLanguage } from '@/context/LanguageContext';
 
 export default function ProfilePage() {
   const { currentUser: u, currentMembership: m } = useAuth();
-  const { t, copy } = useLanguage();
+  const { t, copy, isEn } = useLanguage();
   const { toast } = useToast();
 
   const pv = copy.profileView || {};

@@ -670,7 +670,7 @@ export default function AdminUsersPage() {
               {t('common.cancel', 'Cancelar')}
             </Button>
             <Button
-              variant="gold"
+              variant="ocean"
               size="sm"
               type="submit"
               form="edit-user-form"

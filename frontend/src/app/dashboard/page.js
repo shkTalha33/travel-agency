@@ -23,7 +23,7 @@ import { getNetwork, getTransactions } from '@/lib/memberData';
 
 export default function DashboardHome() {
   const loading = useMockLoading();
-  const { currentUser, currentMembership: m } = useAuth();
+  const { currentUser, currentMembership: m, refreshUser } = useAuth();
   const { t, copy } = useLanguage();
   const dispatch = useDispatch();
 
@@ -37,14 +37,14 @@ export default function DashboardHome() {
 
   useEffect(() => {
     dispatch(fetchPointsSummary());
-    dispatch(fetchPointsTransactions());
+    dispatch(fetchPointsTransactions({}));
     dispatch(fetchOffers());
     dispatch(fetchNetworkData());
   }, [dispatch]);
 
-  if (loading) return <PageSkeleton />;
+  if (loading || !currentUser) return <PageSkeleton />;
 
-  const userStats = currentUser?.stats || {
+  const userStats = currentUser?.stats || currentUser?.pointsStats || {
     availablePoints: 0,
     totalEarnedPoints: 0,
     redeemedPoints: 0,
@@ -53,35 +53,49 @@ export default function DashboardHome() {
   };
 
   const s = {
-    availablePoints: reduxSummary.availablePoints > 0 ? reduxSummary.availablePoints : userStats.availablePoints,
-    totalEarnedPoints: reduxSummary.totalEarnedPoints > 0 ? reduxSummary.totalEarnedPoints : userStats.totalEarnedPoints,
-    redeemedPoints: reduxSummary.redeemedPoints > 0 ? reduxSummary.redeemedPoints : userStats.redeemedPoints,
-    level1Points: reduxSummary.level1Points > 0 ? reduxSummary.level1Points : userStats.level1Points,
-    level2Points: reduxSummary.level2Points > 0 ? reduxSummary.level2Points : userStats.level2Points,
+    availablePoints: reduxSummary.availablePoints > 0 ? reduxSummary.availablePoints : (userStats.availablePoints || 0),
+    totalEarnedPoints: reduxSummary.totalEarnedPoints > 0 ? reduxSummary.totalEarnedPoints : (userStats.totalEarnedPoints || 0),
+    redeemedPoints: reduxSummary.redeemedPoints > 0 ? reduxSummary.redeemedPoints : (userStats.redeemedPoints || 0),
+    level1Points: reduxSummary.level1Points > 0 ? reduxSummary.level1Points : (userStats.level1Points || 0),
+    level2Points: reduxSummary.level2Points > 0 ? reduxSummary.level2Points : (userStats.level2Points || 0),
   };
 
   const net = (reduxNetwork.level1 && reduxNetwork.level1.length > 0)
     ? reduxNetwork
     : getNetwork(currentUser);
 
-  const tx = reduxTransactions.length > 0
+  const tx = (reduxTransactions && reduxTransactions.length > 0)
     ? reduxTransactions.slice(0, 4)
     : getTransactions(currentUser).slice(0, 4);
 
   const twoLevels = m.referralLevelsAllowed >= 2;
+  const hasPoints = s.availablePoints > 0 || s.totalEarnedPoints > 0;
+  const showStats = hasPoints || m.referralLevelsAllowed > 0;
 
   return (
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-navy-900">
-          {dash.welcome || 'Bienvenido,'} {currentUser.name.split(' ')[0]}
+          {dash.welcome || 'Bienvenido,'} {currentUser?.name ? currentUser.name.split(' ')[0] : 'Miembro'}
         </h1>
         <p className="mt-1 text-sm text-slate-600">
           {dash.currentLevel || 'Tu nivel actual:'} <Badge variant={m.id}>{membershipName}</Badge>
         </p>
       </div>
 
-      {m.referralLevelsAllowed === 0 ? (
+      {/* Points Statistics Grid */}
+      {showStats && (
+        <div className={`grid gap-4 sm:grid-cols-2 ${twoLevels ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
+          <PointsStat label={dash.available || 'Disponibles'} value={s.availablePoints} tone="accent" />
+          <PointsStat label={dash.totalEarned || 'Total ganado'} value={s.totalEarnedPoints} />
+          <PointsStat label={dash.redeemed || 'Redimidos'} value={s.redeemedPoints} />
+          <PointsStat label={dash.l1Points || 'Puntos Nivel 1'} value={s.level1Points} />
+          {twoLevels && <PointsStat label={dash.l2Points || 'Puntos Nivel 2'} value={s.level2Points} />}
+        </div>
+      )}
+
+      {/* Explore Offers Card for regular members with 0 points */}
+      {!showStats && (
         <Card variant="flat" className="flex flex-wrap items-center justify-between gap-4">
           <div>
             <h2 className="font-serif text-xl font-bold text-navy-900">
@@ -96,76 +110,67 @@ export default function DashboardHome() {
             <Link href="/membership"><Button variant="secondary">{dash.viewMemberships || 'Ver membresías'}</Button></Link>
           </div>
         </Card>
-      ) : (
-        <>
-          <div className={`grid gap-4 sm:grid-cols-2 ${twoLevels ? 'lg:grid-cols-5' : 'lg:grid-cols-4'}`}>
-            <PointsStat label={dash.available || 'Disponibles'} value={s.availablePoints} tone="accent" />
-            <PointsStat label={dash.totalEarned || 'Total ganado'} value={s.totalEarnedPoints} />
-            <PointsStat label={dash.redeemed || 'Redimidos'} value={s.redeemedPoints} />
-            <PointsStat label={dash.l1Points || 'Puntos Nivel 1'} value={s.level1Points} />
-            {twoLevels && <PointsStat label={dash.l2Points || 'Puntos Nivel 2'} value={s.level2Points} />}
-          </div>
-
-          <div className="grid gap-6 lg:grid-cols-2">
-            <Card>
-              <div className="mb-2 flex items-center justify-between">
-                <h2 className="font-sans text-lg font-bold text-navy-900">
-                  {dash.recentActivity || 'Actividad reciente'}
-                </h2>
-                <Link href="/dashboard/points" className="text-sm font-semibold text-ocean-600 hover:underline">
-                  {dash.viewAll || 'Ver todo'}
-                </Link>
-              </div>
-              {tx.length === 0 ? (
-                <EmptyState
-                  title={dash.noActivityTitle || 'Aún no tienes actividad de referidos.'}
-                  description={dash.noActivityDesc || 'Invita a una persona para comenzar a construir tu red.'}
-                  className="border-0 p-4"
-                />
-              ) : (
-                <TransactionList transactions={tx} compact />
-              )}
-            </Card>
-
-            <Card>
-              <div className="mb-4 flex items-center justify-between">
-                <h2 className="font-sans text-lg font-bold text-navy-900">
-                  {dash.networkPreview || 'Vista previa de tu red'}
-                </h2>
-                <Link href="/dashboard/network" className="text-sm font-semibold text-ocean-600 hover:underline">
-                  {dash.viewNetwork || 'Ver red'}
-                </Link>
-              </div>
-              <div className={`mb-4 grid gap-3 text-center ${twoLevels ? 'grid-cols-2' : 'grid-cols-1'}`}>
-                <div className="rounded-xl bg-sand-100 p-4">
-                  <p className="text-2xl font-bold text-navy-900">{net.level1.length}</p>
-                  <p className="text-xs text-slate-500">{dash.level1 || 'Nivel 1'}</p>
-                </div>
-                {twoLevels && (
-                  <div className="rounded-xl bg-sand-100 p-4">
-                    <p className="text-2xl font-bold text-navy-900">{net.level2.length}</p>
-                    <p className="text-xs text-slate-500">{dash.level2 || 'Nivel 2'}</p>
-                  </div>
-                )}
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <p className="text-xs text-slate-500">
-                  {dash.yourCode || 'Tu código:'} <strong className="text-navy-900">{currentUser.referralCode}</strong>
-                </p>
-                <InviteButton link={currentUser.referralLink} variant="secondary" size="sm" />
-              </div>
-            </Card>
-          </div>
-        </>
       )}
+
+      {/* Activity and Network preview */}
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Card>
+          <div className="mb-2 flex items-center justify-between">
+            <h2 className="font-sans text-lg font-bold text-navy-900">
+              {dash.recentActivity || 'Actividad reciente'}
+            </h2>
+            <Link href="/dashboard/points" className="text-sm font-semibold text-ocean-600 hover:underline">
+              {dash.viewAll || 'Ver todo'}
+            </Link>
+          </div>
+          {tx.length === 0 ? (
+            <EmptyState
+              title={dash.noActivityTitle || 'Aún no tienes actividad de referidos.'}
+              description={dash.noActivityDesc || 'Invita a una persona o reserva viajes para acumular puntos.'}
+              className="border-0 p-4"
+            />
+          ) : (
+            <TransactionList transactions={tx} compact />
+          )}
+        </Card>
+
+        <Card>
+          <div className="mb-4 flex items-center justify-between">
+            <h2 className="font-sans text-lg font-bold text-navy-900">
+              {dash.networkPreview || 'Vista previa de tu red'}
+            </h2>
+            <Link href="/dashboard/network" className="text-sm font-semibold text-ocean-600 hover:underline">
+              {dash.viewNetwork || 'Ver red'}
+            </Link>
+          </div>
+          <div className={`mb-4 grid gap-3 text-center ${twoLevels ? 'grid-cols-2' : 'grid-cols-1'}`}>
+            <div className="rounded-xl bg-sand-100 p-4">
+              <p className="text-2xl font-bold text-navy-900">{net?.level1?.length || 0}</p>
+              <p className="text-xs text-slate-500">{dash.level1 || 'Nivel 1'}</p>
+            </div>
+            {twoLevels && (
+              <div className="rounded-xl bg-sand-100 p-4">
+                <p className="text-2xl font-bold text-navy-900">{net?.level2?.length || 0}</p>
+                <p className="text-xs text-slate-500">{dash.level2 || 'Nivel 2'}</p>
+              </div>
+            )}
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <p className="text-xs text-slate-500">
+              {dash.yourCode || 'Tu código:'} <strong className="text-navy-900">{currentUser?.referralCode || 'N/A'}</strong>
+            </p>
+            <InviteButton link={currentUser?.referralLink} variant="secondary" size="sm" />
+          </div>
+        </Card>
+      </div>
 
       <section aria-labelledby="ofertas-panel">
         <h2 id="ofertas-panel" className="mb-4 text-xl font-bold text-navy-900">
           {dash.availableOffers || 'Ofertas disponibles'}
         </h2>
         <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
-          {TRAVEL_OFFERS.slice(0, 3).map((o) => (
-            <OfferCard key={o.id} offer={o} />
+          {(reduxOffers && reduxOffers.length > 0 ? reduxOffers.slice(0, 3) : TRAVEL_OFFERS.slice(0, 3)).map((o) => (
+            <OfferCard key={o._id || o.id} offer={o} />
           ))}
         </div>
       </section>

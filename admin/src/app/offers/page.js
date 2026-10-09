@@ -309,7 +309,7 @@ export default function AdminOffersPage() {
       subtitle={t('offers.subtitle', 'Creación, edición y publicación de paquetes turísticos y asignación de recompensas en puntos')}
       actionButton={
         <Button
-          variant="gold"
+          variant="ocean"
           size="sm"
           icon={<Plus className="w-4 h-4" />}
           onClick={handleOpenCreate}
@@ -473,7 +473,7 @@ export default function AdminOffersPage() {
               {t('common.cancel', 'Cancelar')}
             </Button>
             <Button
-              variant="gold"
+              variant="ocean"
               size="sm"
               type="submit"
               form="offer-form"

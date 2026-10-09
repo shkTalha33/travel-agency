@@ -94,7 +94,33 @@ const getOfferBySlugOrId = aysncHandler(async (req, res, next) => {
         ],
       };
 
-  const offer = await Offer.findOne(filter).lean();
+  let offer = await Offer.findOne(filter).lean();
+
+  if (!offer) {
+    // Try keyword / fuzzy matching against slug, title, or destination
+    const cleanStr = idOrSlug.toLowerCase();
+    const words = cleanStr
+      .split(/[-_+\s]+/)
+      .filter((w) => w.length > 2 && !['and', 'the', 'del', 'los', 'las', 'por', 'con', 'para', 'todo', 'all'].includes(w));
+
+    if (words.length > 0) {
+      const orConditions = [];
+      words.forEach((w) => {
+        const regex = new RegExp(w, 'i');
+        orConditions.push({ slug: regex });
+        orConditions.push({ title: regex });
+        orConditions.push({ destination: regex });
+        orConditions.push({ 'en.title': regex });
+        orConditions.push({ 'en.destination': regex });
+      });
+
+      offer = await Offer.findOne({
+        isActive: true,
+        $or: orConditions,
+      }).lean();
+    }
+  }
+
   if (!offer) {
     return next(new NotFoundException(errorMessages.OFFER_NOT_FOUND));
   }

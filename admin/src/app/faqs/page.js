@@ -183,7 +183,7 @@ export default function AdminFaqsPage() {
       subtitle={t('faqs.subtitle', 'Administración del centro de ayuda, respuestas oficiales y categorización')}
       actionButton={
         <Button
-          variant="gold"
+          variant="ocean"
           size="sm"
           icon={<Plus className="w-4 h-4" />}
           onClick={handleOpenCreate}
@@ -301,7 +301,7 @@ export default function AdminFaqsPage() {
               {t('common.cancel', 'Cancelar')}
             </Button>
             <Button
-              variant="gold"
+              variant="ocean"
               size="sm"
               type="submit"
               form="faq-form"

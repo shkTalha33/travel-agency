@@ -41,6 +41,7 @@ const getMyPointsSummary = aysncHandler(async (req, res) => {
 
   let level1Points = 0;
   let level2Points = 0;
+  let purchasePoints = 0;
   let totalEarned = 0;
   let totalRedeemed = 0;
 
@@ -50,6 +51,9 @@ const getMyPointsSummary = aysncHandler(async (req, res) => {
       totalEarned += item.totalPoints;
     } else if (item._id === TRANSACTION_TYPES.REFERRAL_L2) {
       level2Points += item.totalPoints;
+      totalEarned += item.totalPoints;
+    } else if (item._id === TRANSACTION_TYPES.PURCHASE_POINTS) {
+      purchasePoints += item.totalPoints;
       totalEarned += item.totalPoints;
     } else if (item._id === TRANSACTION_TYPES.MANUAL_ADJUSTMENT && item.totalPoints > 0) {
       totalEarned += item.totalPoints;
@@ -66,6 +70,7 @@ const getMyPointsSummary = aysncHandler(async (req, res) => {
     redeemedPoints: totalRedeemed,
     level1Points,
     level2Points,
+    purchasePoints,
     membershipId: user.membershipId,
   };
 
@@ -97,7 +102,8 @@ const getMyTransactions = aysncHandler(async (req, res) => {
 
   const formattedTransactions = transactions.map((t) => ({
     id: t._id,
-    iso: t.createdAt.toISOString().split("T")[0],
+    date: t.createdAt ? new Date(t.createdAt).toLocaleDateString() : '',
+    iso: t.createdAt ? t.createdAt.toISOString().split("T")[0] : '',
     createdAt: t.createdAt,
     type: t.type,
     level: t.level,
@@ -163,8 +169,16 @@ const adminAssignPurchasePoints = aysncHandler(async (req, res, next) => {
   // Automatically upgrade to Active Member if currently regular Member
   if (purchaser.membershipId === MEMBERSHIP_TIERS.MEMBER) {
     purchaser.membershipId = MEMBERSHIP_TIERS.ACTIVE_MEMBER;
-    await purchaser.save({ validateBeforeSave: false });
   }
+
+  // Update purchaser's cached points stats atomically
+  await User.findByIdAndUpdate(purchaser._id, {
+    membershipId: purchaser.membershipId,
+    $inc: {
+      "pointsStats.availablePoints": pointsNumber,
+      "pointsStats.totalEarnedPoints": pointsNumber,
+    },
+  });
 
   const distributedCommissions = [];
 

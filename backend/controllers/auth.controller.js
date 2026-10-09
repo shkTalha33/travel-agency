@@ -15,7 +15,8 @@ const {
   sendRegisterOtpEmail,
   sendPasswordResetOtpEmail,
 } = require("../utils/emailService");
-const { MEMBERSHIP_TIERS } = require("../constants");
+const PointTransaction = require("../models/pointTransaction.model");
+const { MEMBERSHIP_TIERS, TRANSACTION_TYPES } = require("../constants");
 
 const generateAccessAndRefreshToken = async (userId) => {
   const user = await User.findById(userId);
@@ -357,13 +358,53 @@ const logoutUser = aysncHandler(async (req, res) => {
   return res.status(200).json(onSuccess(successMessages.USER_LOGOUT, {}));
 });
 
-const getCurrentUser = aysncHandler(async (req, res) => {
+const getCurrentUser = aysncHandler(async (req, res, next) => {
   const user = await User.findById(req.user._id).select(
     "-password -refreshToken -emailVerificationToken -resetPasswordToken"
   );
+  if (!user) return next(new NotFoundException(errorMessages.USER_NOT_FOUND));
+
+  // Compute live point aggregations from ledger
+  const aggregations = await PointTransaction.aggregate([
+    { $match: { userId: user._id, status: "completed" } },
+    { $group: { _id: "$type", totalPoints: { $sum: "$points" } } },
+  ]);
+
+  let level1Points = 0;
+  let level2Points = 0;
+  let totalEarned = 0;
+  let totalRedeemed = 0;
+
+  aggregations.forEach((item) => {
+    if (item._id === TRANSACTION_TYPES.REFERRAL_L1) {
+      level1Points += item.totalPoints;
+      totalEarned += item.totalPoints;
+    } else if (item._id === TRANSACTION_TYPES.REFERRAL_L2) {
+      level2Points += item.totalPoints;
+      totalEarned += item.totalPoints;
+    } else if (item._id === TRANSACTION_TYPES.PURCHASE_POINTS) {
+      totalEarned += item.totalPoints;
+    } else if (item._id === TRANSACTION_TYPES.MANUAL_ADJUSTMENT && item.totalPoints > 0) {
+      totalEarned += item.totalPoints;
+    } else if (item._id === TRANSACTION_TYPES.REDEMPTION) {
+      totalRedeemed += Math.abs(item.totalPoints);
+    }
+  });
+
+  const availablePoints = Math.max(0, totalEarned - totalRedeemed);
+
+  const userObj = user.toObject();
+  userObj.pointsStats = {
+    availablePoints,
+    totalEarnedPoints: totalEarned,
+    redeemedPoints: totalRedeemed,
+    level1Points,
+    level2Points,
+  };
+
   return res
     .status(200)
-    .json(onSuccess(successMessages.CURRENT_USER, user));
+    .json(onSuccess(successMessages.CURRENT_USER, userObj));
 });
 
 /**

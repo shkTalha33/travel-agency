@@ -19,16 +19,36 @@ const DEMO_IDS = ['member', 'active_member', 'ambassador', 'elite_ambassador'];
 export default function DashboardShell({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, currentMembership, isAuthenticated, ready, logout, switchDemoAccount } = useAuth();
+  const { currentUser, currentMembership, isAuthenticated, ready, logout, refreshUser, switchDemoAccount } = useAuth();
   const { t, copy } = useLanguage();
   const [open, setOpen] = useState(false);
 
-  useEffect(() => { if (ready && !isAuthenticated) router.replace('/login'); }, [ready, isAuthenticated, router]);
+  useEffect(() => { 
+    if (ready && !isAuthenticated) {
+      router.replace('/login'); 
+    }
+  }, [ready, isAuthenticated, router]);
+
+  // Run backend authentication verification on every page change
+  const lastCheckedPath = React.useRef('');
+  useEffect(() => {
+    if (ready && isAuthenticated && typeof refreshUser === 'function') {
+      if (lastCheckedPath.current !== pathname) {
+        lastCheckedPath.current = pathname;
+        refreshUser().then((user) => {
+          if (!user) {
+            router.replace('/login');
+          }
+        });
+      }
+    }
+  }, [pathname, ready, isAuthenticated, refreshUser, router]);
+
   useEffect(() => setOpen(false), [pathname]);
 
   if (!ready || !isAuthenticated || !currentUser) return null;
 
-  const doLogout = () => { logout(); router.push('/'); };
+  const doLogout = () => { logout(); router.push('/login'); };
 
   const sidebar = (
     <div className="flex h-full flex-col">

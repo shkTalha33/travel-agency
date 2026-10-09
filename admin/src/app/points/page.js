@@ -8,10 +8,11 @@ import {
   Coins,
   PlusCircle,
   CheckCircle2,
-  XCircle,
-  X,
   Sparkles,
-  AlertCircle,
+  User,
+  Users,
+  Calendar,
+  Layers,
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
 import Modal from '@/components/ui/Modal';
@@ -156,7 +157,7 @@ export default function AdminPointsPage() {
       subtitle={t('points.subtitle', 'Registro de compras offline, activación de miembros y liquidación de comisiones multinivel (L1 / L2)')}
       actionButton={
         <Button
-          variant="gold"
+          variant="ocean"
           size="sm"
           icon={<PlusCircle className="w-4 h-4" />}
           onClick={() => {
@@ -195,7 +196,7 @@ export default function AdminPointsPage() {
       </div>
 
       {/* Filter and Status tabs */}
-      <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-4">
         <Tabs
           activeTab={typeFilter}
           onChange={(val) => {
@@ -216,94 +217,154 @@ export default function AdminPointsPage() {
         </span>
       </div>
 
-      {/* Transactions Ledger Table */}
-      <div className="bg-white rounded-2xl border border-sand-200 shadow-sm overflow-hidden">
+      {/* Transactions Ledger Table matching Users Management Table Style */}
+      <div className="bg-white rounded-2xl border border-sand-200 overflow-hidden flex flex-col">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs">
-            <thead className="bg-sand-100/70 border-b border-sand-200 text-navy-800 uppercase font-bold text-[10px] tracking-wider">
-              <tr>
-                <th className="px-5 py-3.5">{t('points.colDescription', 'Descripción / Paquete')}</th>
-                <th className="px-5 py-3.5">{t('points.colType', 'Tipo de Movimiento')}</th>
-                <th className="px-5 py-3.5">{t('points.colBeneficiary', 'Beneficiario')}</th>
-                <th className="px-5 py-3.5">{t('points.colSource', 'Miembro Origen')}</th>
-                <th className="px-5 py-3.5">{t('points.colPoints', 'Puntos')}</th>
-                <th className="px-5 py-3.5">{t('points.colDate', 'Fecha')}</th>
-                <th className="px-5 py-3.5">{t('points.colStatus', 'Estado')}</th>
+          <table className="w-full text-left text-xs border-collapse">
+            <thead>
+              <tr className="bg-navy-900 border-b border-navy-800 text-white font-bold text-[11px] tracking-wider uppercase">
+                <th className="px-5 py-4 min-w-[240px]">
+                  <div className="flex items-center gap-1.5">
+                    <Coins className="w-3.5 h-3.5 text-sand-300" />
+                    <span>{t('points.colDescription', 'Descripción / Paquete')}</span>
+                  </div>
+                </th>
+                <th className="px-5 py-4 min-w-[150px]">
+                  <div className="flex items-center gap-1.5">
+                    <Layers className="w-3.5 h-3.5 text-sand-300" />
+                    <span>{t('points.colType', 'Tipo de Movimiento')}</span>
+                  </div>
+                </th>
+                <th className="px-5 py-4 min-w-[180px]">
+                  <div className="flex items-center gap-1.5">
+                    <User className="w-3.5 h-3.5 text-sand-300" />
+                    <span>{t('points.colBeneficiary', 'Beneficiario')}</span>
+                  </div>
+                </th>
+                <th className="px-5 py-4 min-w-[160px]">
+                  <div className="flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 text-sand-300" />
+                    <span>{t('points.colSource', 'Miembro Origen')}</span>
+                  </div>
+                </th>
+                <th className="px-5 py-4 min-w-[130px]">
+                  <div className="flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5 text-gold-400" />
+                    <span>{t('points.colPoints', 'Puntos')}</span>
+                  </div>
+                </th>
+                <th className="px-5 py-4 min-w-[140px]">
+                  <div className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 text-sand-300" />
+                    <span>{t('points.colDate', 'Fecha')}</span>
+                  </div>
+                </th>
+                <th className="px-5 py-4 min-w-[120px]">
+                  <span>{t('points.colStatus', 'Estado')}</span>
+                </th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-sand-100">
               {loading ? (
-                <tr>
-                  <td colSpan="7" className="px-5 py-12 text-center text-navy-500">
-                    {t('points.loadingLedger', 'Cargando movimientos del libro mayor...')}
-                  </td>
-                </tr>
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <tr key={idx} className="animate-pulse bg-white">
+                    <td className="px-5 py-4">
+                      <div className="h-4 bg-sand-200 rounded w-48 mb-1.5" />
+                      <div className="h-3 bg-sand-100 rounded w-24" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="h-4 bg-sand-200 rounded w-24" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="h-4 bg-sand-200 rounded w-32 mb-1.5" />
+                      <div className="h-3 bg-sand-100 rounded w-40" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="h-4 bg-sand-200 rounded w-24" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="h-4 bg-sand-200 rounded w-16" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="h-3 bg-sand-200 rounded w-28" />
+                    </td>
+                    <td className="px-5 py-4">
+                      <div className="h-4 bg-sand-200 rounded w-20" />
+                    </td>
+                  </tr>
+                ))
               ) : transactions.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="px-5 py-12 text-center text-navy-500">
+                  <td colSpan="7" className="px-5 py-12 text-center text-navy-500 text-xs">
                     {t('points.noTransactions', 'No se encontraron transacciones registradas.')}
                   </td>
                 </tr>
               ) : (
                 transactions.map((tItem) => {
-                  const typeVariant =
-                    tItem.type === 'referral_l1'
-                      ? 'gold'
-                      : tItem.type === 'referral_l2'
-                      ? 'ocean'
-                      : tItem.type === 'purchase_points'
-                      ? 'success'
-                      : tItem.type === 'redemption'
-                      ? 'danger'
-                      : 'default';
-
                   return (
-                    <tr key={tItem._id} className="hover:bg-sand-50/80 transition-colors">
+                    <tr
+                      key={tItem._id}
+                      className="hover:bg-sand-50/80 transition-colors group border-b border-sand-100 last:border-0"
+                    >
                       {/* Description */}
                       <td className="px-5 py-4">
-                        <p className="font-bold text-navy-950">{tItem.purchaseDescription || 'Transacción'}</p>
-                        <p className="text-[10px] text-navy-400">TX: {tItem._id.slice(-8)}</p>
+                        <p className="font-bold text-navy-950 text-sm">{tItem.purchaseDescription || 'Transacción'}</p>
+                        <p className="text-[11px] text-navy-400 font-mono mt-0.5">TX: {tItem._id.slice(-8)}</p>
                       </td>
 
                       {/* Movement Type */}
                       <td className="px-5 py-4">
-                        <Badge variant={typeVariant} size="xs">
-                          {tItem.type?.replace('_', ' ')}
-                        </Badge>
+                        <span className="font-semibold text-xs text-navy-800 uppercase tracking-wide">
+                          {tItem.type?.replace(/_/g, ' ')}
+                        </span>
                       </td>
 
                       {/* Beneficiary */}
                       <td className="px-5 py-4">
-                        <p className="font-bold text-navy-950">{tItem.userId?.fullname || 'Usuario'}</p>
-                        <p className="text-[11px] text-navy-500">{tItem.userId?.email}</p>
+                        <p className="font-bold text-navy-950 text-xs">{tItem.userId?.fullname || 'Usuario'}</p>
+                        <p className="text-[11px] text-navy-400 truncate mt-0.5">{tItem.userId?.email}</p>
                       </td>
 
                       {/* Source Person */}
-                      <td className="px-5 py-4 text-[11px] text-navy-600">
-                        {tItem.sourceUserId?.fullname || tItem.sourcePersonName || 'Sistema'}
+                      <td className="px-5 py-4 text-xs font-semibold text-navy-700">
+                        {tItem.sourceUserId?.fullname || tItem.sourcePersonName || (
+                          <span className="text-navy-400 italic font-normal">
+                            {t('common.directSponsor', 'Sistema / Directo')}
+                          </span>
+                        )}
                       </td>
 
                       {/* Points */}
                       <td className="px-5 py-4">
-                        <span
-                          className={`font-bold text-sm ${
-                            tItem.points >= 0 ? 'text-emerald-700' : 'text-rose-700'
-                          }`}
-                        >
-                          {tItem.points >= 0 ? `+${tItem.points}` : tItem.points} PTS
-                        </span>
+                        <p className="font-bold text-navy-950 text-sm flex items-center gap-1">
+                          <span className={tItem.points >= 0 ? 'text-emerald-700 font-bold' : 'text-rose-700 font-bold'}>
+                            {tItem.points >= 0 ? `+${tItem.points}` : tItem.points}
+                          </span>
+                          <span className="text-[10px] font-bold text-gold-700">PTS</span>
+                        </p>
                       </td>
 
                       {/* Date */}
-                      <td className="px-5 py-4 text-[11px] text-navy-500">
-                        {new Date(tItem.createdAt).toLocaleString()}
+                      <td className="px-5 py-4 text-navy-600 text-[11px]">
+                        <div className="flex items-center gap-1.5">
+                          <Calendar className="w-3.5 h-3.5 text-navy-400" />
+                          <span>{new Date(tItem.createdAt).toLocaleString()}</span>
+                        </div>
                       </td>
 
                       {/* Status */}
                       <td className="px-5 py-4">
-                        <Badge variant="success" size="xs">
-                          {tItem.status || 'Completado'}
-                        </Badge>
+                        <div className="flex items-center gap-1.5">
+                          <span
+                            className={`w-2 h-2 rounded-full shrink-0 ${
+                              tItem.status === 'completed' || !tItem.status ? 'bg-emerald-500' : 'bg-amber-500'
+                            }`}
+                          />
+                          <span className="font-bold text-xs text-navy-950 uppercase">
+                            {tItem.status || t('common.completed', 'Completado')}
+                          </span>
+                        </div>
                       </td>
                     </tr>
                   );
@@ -313,23 +374,26 @@ export default function AdminPointsPage() {
           </table>
         </div>
 
-        {/* Pagination Bar */}
-        {pagination.totalPages > 1 && (
-          <div className="px-5 py-3.5 bg-sand-50 border-t border-sand-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-navy-600">
-            <span>
-              {t('common.page', 'Página')} <span className="font-bold text-navy-950">{pagination.page}</span> {t('common.of', 'de')}{' '}
-              <span className="font-bold text-navy-950">{pagination.totalPages}</span>
+        {/* Pagination Bar with Pure White Background and Interactive Controls */}
+        <div className="px-5 py-4 bg-white border-t border-sand-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-navy-600">
+          <span className="text-xs">
+            {t('common.page', 'Página')}{' '}
+            <span className="font-bold text-navy-950">{pagination.page}</span> {t('common.of', 'de')}{' '}
+            <span className="font-bold text-navy-950">{pagination.totalPages || 1}</span>{' '}
+            <span className="text-navy-400">
+              ({pagination.total} {t('points.ledgerRecords', 'registros en ledger')})
             </span>
-            <Pagination
-              page={pagination.page}
-              totalPages={pagination.totalPages}
-              onChange={(newPage) => setPagination((p) => ({ ...p, page: newPage }))}
-            />
-          </div>
-        )}
+          </span>
+
+          <Pagination
+            page={pagination.page}
+            totalPages={pagination.totalPages || 1}
+            onChange={(newPage) => setPagination((p) => ({ ...p, page: newPage }))}
+          />
+        </div>
       </div>
 
-      {/* Assign Offline Purchase Modal using Portal Modal Component */}
+      {/* Assign Offline Purchase Modal */}
       <Modal
         isOpen={assignModalOpen}
         onClose={() => {
@@ -363,7 +427,7 @@ export default function AdminPointsPage() {
                 {t('common.cancel', 'Cancelar')}
               </Button>
               <Button
-                variant="gold"
+                variant="ocean"
                 size="sm"
                 type="submit"
                 form="assign-points-form"
@@ -417,7 +481,7 @@ export default function AdminPointsPage() {
           </div>
         ) : (
           <form id="assign-points-form" onSubmit={handleAssignPoints} className="space-y-4" noValidate>
-            {/* Select Purchaser with Custom Luxury Dropdown & Error */}
+            {/* Select Purchaser */}
             <div>
               <CustomSelect
                 label={t('points.selectPurchaser', 'Seleccionar Miembro Comprador')}
@@ -438,7 +502,7 @@ export default function AdminPointsPage() {
               />
             </div>
 
-            {/* Select Travel Package with Custom Luxury Dropdown & Description Input with Error */}
+            {/* Select Travel Package */}
             <div>
               <CustomSelect
                 label={t('points.selectOffer', 'Paquete / Oferta de Viaje')}
@@ -473,7 +537,7 @@ export default function AdminPointsPage() {
               </div>
             </div>
 
-            {/* Purchase Points Input with Field-Level Error */}
+            {/* Purchase Points Input */}
             <div>
               <Input
                 label={t('points.purchasePoints', 'Puntos Base de la Compra (PTS)')}

@@ -105,6 +105,14 @@ export const TRAVEL_OFFERS = [
   },
   {
     id: 'oferta-cancun', slug: 'cancun-riviera-maya',
+    aliases: [
+      'cancun-riviera-maya',
+      'cancun-riviera-maya-mayan-wonders-cenotes',
+      'cancun-y-riviera-maya-maravillas-mayas-y-cenotes',
+      'cancun-y-riviera-maya',
+      'cancun-mayan-wonders-cenotes',
+      'cancun-cenotes'
+    ],
     title: 'Cancún y Riviera Maya', destination: 'Cancún', country: 'México',
     priceUSD: 1850, pointsReward: 150, duration: '6 días / 5 noches', hotelCategory: 'Resort 5 estrellas',
     badge: 'Internacional',

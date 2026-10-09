@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { Check, X, Clock, MapPin, Sparkles, ShieldCheck, Loader2, ArrowLeft } from 'lucide-react';
+import { Check, X, Clock, MapPin, Sparkles, ShieldCheck, Loader2, ArrowLeft, Gift } from 'lucide-react';
 import PublicShell from '@/components/layout/PublicShell';
 import OfferCard from '@/components/offers/OfferCard';
 import SafeImage from '@/components/common/SafeImage';
@@ -15,18 +15,55 @@ import { AccentRule } from '@/components/common/Linework';
 import { TRAVEL_OFFERS, localizeOffer } from '@/data/offers';
 import { getCountryFlag } from '@/data/countries';
 import { useLanguage } from '@/context/LanguageContext';
+import { useAuth } from '@/context/AuthContext';
 import { offersApi } from '@/lib/apiClient';
+
+function findLocalOffer(slug) {
+  if (!slug) return null;
+  const clean = slug.toLowerCase().trim();
+
+  // 1. Direct match by slug, id, _id or alias
+  let found = TRAVEL_OFFERS.find(
+    (o) =>
+      o.slug === clean ||
+      o.id === clean ||
+      o._id === clean ||
+      (o.aliases && o.aliases.includes(clean))
+  );
+  if (found) return found;
+
+  // 2. Substring containment match
+  found = TRAVEL_OFFERS.find(
+    (o) =>
+      (o.slug && (clean.includes(o.slug) || o.slug.includes(clean))) ||
+      (o.id && (clean.includes(o.id) || o.id.includes(clean))) ||
+      (o.aliases && o.aliases.some((a) => clean.includes(a) || a.includes(clean)))
+  );
+  if (found) return found;
+
+  // 3. Keyword token matching
+  const words = clean
+    .split(/[-_+\s]+/)
+    .filter((w) => w.length > 2 && !['and', 'the', 'del', 'los', 'las', 'por', 'con', 'para'].includes(w));
+
+  if (words.length > 0) {
+    found = TRAVEL_OFFERS.find((o) => {
+      const searchTarget = `${o.slug} ${o.id} ${o.title} ${o.destination} ${o.country || ''} ${o.en?.title || ''} ${o.en?.destination || ''} ${(o.aliases || []).join(' ')}`.toLowerCase();
+      return words.some((w) => searchTarget.includes(w));
+    });
+  }
+
+  return found || null;
+}
 
 export default function OfferDetailPage({ params }) {
   const { t, locale, copy } = useLanguage();
+  const { currentUser, isAuthenticated } = useAuth();
   const routeParams = useParams();
   const rawSlug = routeParams?.slug || params?.slug || '';
   const slug = typeof rawSlug === 'string' ? decodeURIComponent(rawSlug) : '';
 
-  const [rawOffer, setRawOffer] = useState(() => {
-    if (!slug) return null;
-    return TRAVEL_OFFERS.find((o) => o.slug === slug || o.id === slug || o._id === slug) || null;
-  });
+  const [rawOffer, setRawOffer] = useState(() => findLocalOffer(slug));
   const [relatedOffers, setRelatedOffers] = useState([]);
   const [loading, setLoading] = useState(!rawOffer);
   const [notFoundState, setNotFoundState] = useState(false);
@@ -53,13 +90,11 @@ export default function OfferDetailPage({ params }) {
       }
 
       // Check local mock data
-      const local = TRAVEL_OFFERS.find(
-        (o) => o.slug === slug || o.id === slug || o._id === slug
-      );
+      const local = findLocalOffer(slug);
       if (isMounted) {
         if (local) {
           setRawOffer(local);
-          setRelatedOffers(TRAVEL_OFFERS.filter((o) => o.slug !== slug && o.id !== slug).slice(0, 3));
+          setRelatedOffers(TRAVEL_OFFERS.filter((o) => o.slug !== local.slug && o.id !== local.id).slice(0, 3));
           setNotFoundState(false);
         } else {
           setNotFoundState(true);
@@ -341,15 +376,45 @@ export default function OfferDetailPage({ params }) {
                 </Badge>
               </div>
 
-              <Link href="/register" className="mt-6 block">
-                <Button variant="primary" size="lg" className="w-full rounded-2xl py-4 font-bold shadow-md hover:shadow-lg transition-all">
-                  <Sparkles size={16} className="mr-2 text-white shrink-0" aria-hidden="true" />
-                  <span>{d.bookVipBtn || 'Quiero esta oferta VIP'}</span>
-                </Button>
-              </Link>
+              {/* Dynamic Action Area */}
+              {isAuthenticated ? (
+                <div className="mt-6 space-y-3">
+                  <Link href={`/dashboard/redeem?offer=${encodeURIComponent(offer.title)}`} className="block">
+                    <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-ocean-700 via-ocean-600 to-ocean-800 text-white">
+                      <Gift size={16} className="mr-2 text-gold-300 shrink-0" aria-hidden="true" />
+                      <span>{locale === 'en' ? 'Redeem Points for this Trip' : 'Redimir Puntos para este Viaje'}</span>
+                    </Button>
+                  </Link>
+                  <p className="text-center text-[11px] text-slate-500 font-medium">
+                    {locale === 'en'
+                      ? `Available: ${(currentUser?.stats?.availablePoints || currentUser?.pointsStats?.availablePoints || 0)} PTS • Min. 50 PTS per redemption`
+                      : `Disponibles: ${(currentUser?.stats?.availablePoints || currentUser?.pointsStats?.availablePoints || 0)} PTS • Mínimo 50 PTS por solicitud`}
+                  </p>
+                </div>
+              ) : (
+                <div className="mt-6 space-y-3">
+                  <Link href={`/register?offer=${encodeURIComponent(offer.slug || '')}`} className="block">
+                    <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all bg-gradient-to-r from-ocean-700 via-ocean-600 to-ocean-800 text-white">
+                      <Sparkles size={16} className="mr-2 text-gold-300 shrink-0" aria-hidden="true" />
+                      <span>{d.bookVipBtn || (locale === 'en' ? 'I want this VIP offer' : 'Quiero esta oferta VIP')}</span>
+                    </Button>
+                  </Link>
+
+                  <div className="rounded-xl bg-sand-50 p-2.5 text-center border border-sand-200">
+                    <Link
+                      href={`/auth/signin?redirect=${encodeURIComponent(`/offers/${offer.slug}`)}`}
+                      className="text-xs font-semibold text-ocean-700 hover:text-ocean-900 underline inline-flex items-center gap-1.5"
+                    >
+                      <Gift size={13} className="text-ocean-600 shrink-0" />
+                      <span>{locale === 'en' ? 'Already a member? Sign in to redeem points' : '¿Ya eres miembro? Inicia sesión para redimir puntos'}</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+
               <p className="mt-4 text-center text-xs leading-relaxed text-slate-500">
                 {d.noOnlinePaymentHint ||
-                  '🔒 Sin pagos en línea. Al registrarte, un asesor oficial coordinará los detalles de tu estancia contigo.'}
+                  '🔒 Sin pagos en línea. Al registrarte o reservar, un asesor oficial coordinará los detalles de tu estancia contigo.'}
               </p>
             </CardSpotlight>
           </aside>

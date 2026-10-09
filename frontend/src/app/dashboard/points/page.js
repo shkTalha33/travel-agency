@@ -21,8 +21,8 @@ import { getTransactions } from '@/lib/memberData';
 
 export default function PointsPage() {
   const loading = useMockLoading();
-  const { currentUser, currentMembership: m } = useAuth();
-  const { t, copy } = useLanguage();
+  const { currentUser, currentMembership: m, refreshUser } = useAuth();
+  const { t, copy, isEn } = useLanguage();
   const dispatch = useDispatch();
 
   const reduxSummary = useSelector((state) => state.points.summary);
@@ -33,10 +33,10 @@ export default function PointsPage() {
 
   useEffect(() => {
     dispatch(fetchPointsSummary());
-    dispatch(fetchPointsTransactions());
+    dispatch(fetchPointsTransactions({}));
   }, [dispatch]);
 
-  const userStats = currentUser?.stats || {
+  const userStats = currentUser?.stats || currentUser?.pointsStats || {
     availablePoints: 0,
     totalEarnedPoints: 0,
     redeemedPoints: 0,
@@ -45,30 +45,34 @@ export default function PointsPage() {
   };
 
   const s = {
-    availablePoints: reduxSummary.availablePoints > 0 ? reduxSummary.availablePoints : userStats.availablePoints,
-    totalEarnedPoints: reduxSummary.totalEarnedPoints > 0 ? reduxSummary.totalEarnedPoints : userStats.totalEarnedPoints,
-    redeemedPoints: reduxSummary.redeemedPoints > 0 ? reduxSummary.redeemedPoints : userStats.redeemedPoints,
-    level1Points: reduxSummary.level1Points > 0 ? reduxSummary.level1Points : userStats.level1Points,
-    level2Points: reduxSummary.level2Points > 0 ? reduxSummary.level2Points : userStats.level2Points,
+    availablePoints: reduxSummary.availablePoints > 0 ? reduxSummary.availablePoints : (userStats.availablePoints || 0),
+    totalEarnedPoints: reduxSummary.totalEarnedPoints > 0 ? reduxSummary.totalEarnedPoints : (userStats.totalEarnedPoints || 0),
+    redeemedPoints: reduxSummary.redeemedPoints > 0 ? reduxSummary.redeemedPoints : (userStats.redeemedPoints || 0),
+    level1Points: reduxSummary.level1Points > 0 ? reduxSummary.level1Points : (userStats.level1Points || 0),
+    level2Points: reduxSummary.level2Points > 0 ? reduxSummary.level2Points : (userStats.level2Points || 0),
   };
 
-  const tx = reduxTransactions.length > 0 ? reduxTransactions : getTransactions(currentUser);
+  const tx = (reduxTransactions && reduxTransactions.length > 0)
+    ? reduxTransactions
+    : getTransactions(currentUser);
 
-  if (m.referralLevelsAllowed === 0) {
+  const twoLevels = m.referralLevelsAllowed >= 2;
+  const hasPoints = s.availablePoints > 0 || s.totalEarnedPoints > 0;
+  const showWallet = hasPoints || m.referralLevelsAllowed > 0;
+
+  if (!showWallet) {
     return (
       <div className="space-y-6">
         <h1 className="font-serif text-3xl font-bold text-navy-900">{t('panel.points')}</h1>
         <EmptyState
           icon={<Coins size={28} />}
           title={pv.notYetTitle || 'Aún no generas puntos'}
-          description={pv.notYetDesc || 'Los puntos de referido se habilitan con la membresía de Miembro Activo.'}
+          description={pv.notYetDesc || 'Los puntos se acumulan por compras y actividad de tu red de referidos.'}
         />
         <Link href="/membership"><Button>{dash.viewMemberships || 'Ver membresías'}</Button></Link>
       </div>
     );
   }
-
-  const twoLevels = m.referralLevelsAllowed >= 2;
 
   return (
     <div className="space-y-8">
@@ -132,7 +136,7 @@ export default function PointsPage() {
         {loading ? <ListSkeleton /> : tx.length === 0 ? (
           <EmptyState
             title={pv.noMovementsTitle || 'Aún no tienes movimientos'}
-            description={pv.noMovementsDesc || 'Cuando tu red genere puntos, aparecerán aquí.'}
+            description={pv.noMovementsDesc || 'Cuando tu red genere puntos o realices compras, aparecerán aquí.'}
             className="border-0"
           />
         ) : (

@@ -224,7 +224,7 @@ export default function AdminRedemptionsPage() {
               {t('common.cancel', 'Cancelar')}
             </Button>
             <Button
-              variant="gold"
+              variant="ocean"
               size="sm"
               type="submit"
               form="redemption-form"
