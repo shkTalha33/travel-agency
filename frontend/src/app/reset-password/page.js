@@ -150,7 +150,7 @@ export default function ResetPasswordPage() {
             required
           />
 
-          <Button type="submit" size="lg" className="w-full rounded-2xl py-3.5 shadow-md" isLoading={loading}>
+          <Button type="submit" size="md" className="w-full rounded-xl py-2.5 font-bold shadow-soft" isLoading={loading}>
             {loading ? (av.loggingIn || 'Restableciendo...') : (av.resetBtn || 'Restablecer contraseña')}
           </Button>
         </form>

@@ -106,7 +106,7 @@ export default function LoginPage() {
             {av.forgotPassword || (isEn ? 'Forgot password?' : '¿Olvidaste tu contraseña?')}
           </Link>
         </div>
-        <Button type="submit" size="lg" className="w-full rounded-2xl py-3.5 shadow-md" isLoading={loading}>
+        <Button type="submit" size="md" className="w-full rounded-xl py-2.5 font-bold shadow-soft" isLoading={loading}>
           {loading ? (av.loggingIn || (isEn ? 'Signing in...' : 'Iniciando sesión...')) : (av.loginBtn || (isEn ? 'Sign in' : 'Iniciar sesión'))}
         </Button>
       </form>

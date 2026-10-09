@@ -156,7 +156,7 @@ export default function DashboardHome() {
                 </span>
                 <span className="text-slate-300">·</span>
                 <span className="text-emerald-700 font-semibold">
-                  ≈ ${(s.availablePoints * 1.5).toLocaleString()} USD {isEn ? 'Travel Credit' : 'Crédito'}
+                  ${(s.availablePoints * 1.5).toLocaleString()} USD {isEn ? 'Travel Credit' : 'Crédito'}
                 </span>
                 {formattedJoinedDate && (
                   <>

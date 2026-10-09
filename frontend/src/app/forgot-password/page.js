@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
             required
             autoFocus
           />
-          <Button type="submit" size="lg" className="w-full rounded-2xl py-3.5 shadow-md" isLoading={loading}>
+          <Button type="submit" size="md" className="w-full rounded-xl py-2.5 font-bold shadow-soft" isLoading={loading}>
             {loading ? (av.loggingIn || 'Enviando código...') : (isEn ? 'Send 6-digit OTP code' : 'Enviar código OTP de 6 dígitos')}
           </Button>
         </form>
