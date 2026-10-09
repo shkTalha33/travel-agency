@@ -39,7 +39,7 @@ export default function ResetPasswordPage() {
     e.preventDefault();
     const err = {};
     if (!/^\S+@\S+\.\S+$/.test(email)) err.email = isEn ? 'Valid email is required.' : 'El correo electrónico es requerido.';
-    if (!otp || otp.trim().length !== 6) err.otp = isEn ? '6-digit OTP code is required.' : 'El código OTP de 6 dígitos es requerido.';
+    if (!otp || otp.trim().length !== 4) err.otp = isEn ? '4-digit OTP code is required.' : 'El código OTP de 4 dígitos es requerido.';
     if (pw.length < 8) err.pw = isEn ? 'Password must be at least 8 characters.' : 'La contraseña debe tener al menos 8 caracteres.';
     if (confirm !== pw) err.confirm = isEn ? 'Passwords do not match.' : 'Las contraseñas no coinciden.';
     setErrors(err);
@@ -106,11 +106,11 @@ export default function ResetPasswordPage() {
           />
 
           <div className="space-y-2">
-            <label className="block text-sm font-semibold capitalize text-navy-900 text-center">
+            <label className="block text-xs font-semibold capitalize text-navy-900 text-center">
               {isEn ? 'Verification Code' : 'Código de Verificación'}
             </label>
             <OtpInput
-              length={6}
+              length={4}
               value={otp}
               onChange={(val) => {
                 setOtp(val);

@@ -36,7 +36,7 @@ export default function ForgotPasswordPage() {
     try {
       await authApi.forgotPassword(email);
       setSent(true);
-      toast(isEn ? '6-digit reset code sent to your email!' : '¡Código de restablecimiento de 6 dígitos enviado a tu correo!');
+      toast(isEn ? '4-digit reset code sent to your email!' : '¡Código de restablecimiento de 4 dígitos enviado a tu correo!');
       setTimeout(() => {
         router.push(`/reset-password?email=${encodeURIComponent(email)}`);
       }, 1200);
@@ -65,7 +65,7 @@ export default function ForgotPasswordPage() {
           <div>
             <p className="font-semibold text-emerald-800">{isEn ? 'Reset OTP code sent!' : '¡Código de restablecimiento enviado!'}</p>
             <p className="mt-1 text-xs text-emerald-700">
-              {isEn ? `Check ${email} for your 6-digit code.` : `Revisa tu correo ${email} para ver tu código de 6 dígitos.`}
+              {isEn ? `Check ${email} for your 4-digit code.` : `Revisa tu correo ${email} para ver tu código de 4 dígitos.`}
             </p>
           </div>
           <Link href={`/reset-password?email=${encodeURIComponent(email)}`} className="block">
@@ -90,7 +90,7 @@ export default function ForgotPasswordPage() {
             autoFocus
           />
           <Button type="submit" size="md" className="w-full rounded-xl py-2.5 font-bold shadow-soft" isLoading={loading}>
-            {loading ? (av.loggingIn || 'Enviando código...') : (isEn ? 'Send 6-digit OTP code' : 'Enviar código OTP de 6 dígitos')}
+            {loading ? (av.loggingIn || 'Enviando código...') : (isEn ? 'Send 4-digit OTP code' : 'Enviar código OTP de 4 dígitos')}
           </Button>
         </form>
       )}

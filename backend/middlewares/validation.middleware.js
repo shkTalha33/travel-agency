@@ -73,8 +73,8 @@ const verifyRegisterOtpValidations = [
   check("otp")
     .notEmpty()
     .withMessage("El código OTP es requerido")
-    .isLength({ min: 6, max: 6 })
-    .withMessage("El código OTP debe tener 6 dígitos"),
+    .isLength({ min: 4, max: 4 })
+    .withMessage("El código OTP debe tener 4 dígitos"),
 ];
 
 const resendRegisterOtpValidations = [
@@ -94,8 +94,8 @@ const resetPasswordValidations = [
   check("otp")
     .notEmpty()
     .withMessage("El código OTP es requerido")
-    .isLength({ min: 6, max: 6 })
-    .withMessage("El código OTP debe tener 6 dígitos"),
+    .isLength({ min: 4, max: 4 })
+    .withMessage("El código OTP debe tener 4 dígitos"),
   check("newPassword")
     .notEmpty()
     .withMessage("La nueva contraseña es requerida")

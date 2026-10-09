@@ -48,7 +48,7 @@ export default function VerifyEmailPage() {
     e.preventDefault();
     const err = {};
     if (!/^\S+@\S+\.\S+$/.test(email)) err.email = isEn ? 'Valid email is required.' : 'El correo electrónico es requerido.';
-    if (!otp || otp.trim().length !== 6) err.otp = isEn ? '6-digit OTP code is required.' : 'El código OTP de 6 dígitos es requerido.';
+    if (!otp || otp.trim().length !== 4) err.otp = isEn ? '4-digit OTP code is required.' : 'El código OTP de 4 dígitos es requerido.';
     setErrors(err);
 
     if (Object.keys(err).length) {
@@ -95,7 +95,7 @@ export default function VerifyEmailPage() {
   return (
     <AuthShell
       title={av.verifyTitle || 'Verifica tu correo con OTP'}
-      subtitle={av.verifySubtitle || 'Ingresa el código de 6 dígitos para activar tu cuenta VIP.'}
+      subtitle={av.verifySubtitle || 'Ingresa el código de 4 dígitos para activar tu cuenta VIP.'}
       footer={
         <Link href="/login" className="font-bold text-ocean-700 hover:underline">
           {av.backToLogin || 'Volver a iniciar sesión'}
@@ -123,7 +123,7 @@ export default function VerifyEmailPage() {
             {isEn ? 'Verification Code' : 'Código de Verificación'}
           </label>
           <OtpInput
-            length={6}
+            length={4}
             value={otp}
             onChange={(val) => {
               setOtp(val);

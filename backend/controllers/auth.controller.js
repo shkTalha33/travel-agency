@@ -43,7 +43,7 @@ const generateReferralCode = (fullname) => {
 /**
  * Step 1 of Signup:
  * Validates details, checks if email/username is taken,
- * Generates 6-digit OTP and sends it to the user's email.
+ * Generates 4-digit OTP and sends it to the user's email.
  */
 const signupUser = aysncHandler(async (req, res, next) => {
   const errors = validationResult(req);
@@ -80,8 +80,8 @@ const signupUser = aysncHandler(async (req, res, next) => {
     return next(new BadRequestException(errorMessages.USERNAME_ALREADY_EXIST));
   }
 
-  // Generate 6-digit OTP code
-  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  // Generate 4-digit OTP code
+  const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
   // Save or update pending registration OTP record
@@ -125,7 +125,7 @@ const signupUser = aysncHandler(async (req, res, next) => {
 
 /**
  * Step 2 of Signup:
- * Verifies 6-digit OTP. If matched, registers user into MongoDB,
+ * Verifies 4-digit OTP. If matched, registers user into MongoDB,
  * assigns referral upline, generates JWT tokens, and returns active session.
  */
 const verifyRegisterOtp = aysncHandler(async (req, res, next) => {
@@ -245,8 +245,8 @@ const resendRegisterOtp = aysncHandler(async (req, res, next) => {
     );
   }
 
-  // Generate new OTP
-  const newOtp = Math.floor(100000 + Math.random() * 900000).toString();
+  // Generate new 4-digit OTP
+  const newOtp = Math.floor(1000 + Math.random() * 9000).toString();
   otpRecord.otp = newOtp;
   otpRecord.expiresAt = new Date(Date.now() + 15 * 60 * 1000);
   await otpRecord.save();
@@ -409,7 +409,7 @@ const getCurrentUser = aysncHandler(async (req, res, next) => {
 
 /**
  * Step 1 of Forgot Password:
- * Generates 6-digit OTP code and sends it to user's email.
+ * Generates 4-digit OTP code and sends it to user's email.
  */
 const forgotPassword = aysncHandler(async (req, res, next) => {
   const errors = validationResult(req);
@@ -429,7 +429,7 @@ const forgotPassword = aysncHandler(async (req, res, next) => {
     return next(new BadRequestException(errorMessages.NO_ACCOUNT_WITH_EMAIL));
   }
 
-  const otpCode = Math.floor(100000 + Math.random() * 900000).toString();
+  const otpCode = Math.floor(1000 + Math.random() * 9000).toString();
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
   // Save OTP record for forgot_password
@@ -456,7 +456,7 @@ const forgotPassword = aysncHandler(async (req, res, next) => {
 
 /**
  * Step 2 of Forgot Password:
- * Verifies 6-digit OTP code and updates password in database.
+ * Verifies 4-digit OTP code and updates password in database.
  */
 const resetPassword = aysncHandler(async (req, res, next) => {
   const errors = validationResult(req);

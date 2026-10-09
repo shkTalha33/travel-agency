@@ -76,7 +76,7 @@ function RegisterForm() {
     setLoading(true);
     try {
       await register({ name: f.name, email: f.email, password: f.password, referralCode: f.referralCode });
-      toast(isEn ? '6-digit verification code sent to your email!' : '¡Código de verificación de 6 dígitos enviado a tu correo!');
+      toast(isEn ? '4-digit verification code sent to your email!' : '¡Código de verificación de 4 dígitos enviado a tu correo!');
       setStep('otp');
       setCountdown(60);
     } catch (apiErr) {
@@ -90,8 +90,8 @@ function RegisterForm() {
 
   const submitOtp = async (e) => {
     e.preventDefault();
-    if (!otp || otp.trim().length !== 6) {
-      const msg = isEn ? 'Please enter the 6-digit OTP code.' : 'Por favor ingresa el código OTP de 6 dígitos.';
+    if (!otp || otp.trim().length !== 4) {
+      const msg = isEn ? 'Please enter the 4-digit OTP code.' : 'Por favor ingresa el código OTP de 4 dígitos.';
       setErrors({ otp: msg });
       toast(msg, 'error');
       return;
@@ -129,7 +129,7 @@ function RegisterForm() {
     return (
       <AuthShell
         title={av.verifyTitle || 'Verifica tu correo con OTP'}
-        subtitle={typeof av.otpSentTo === 'function' ? av.otpSentTo(f.email) : `Enviamos un código de 6 dígitos a ${f.email}`}
+        subtitle={typeof av.otpSentTo === 'function' ? av.otpSentTo(f.email) : `Enviamos un código de 4 dígitos a ${f.email}`}
         footer={
           <button
             type="button"
@@ -140,21 +140,19 @@ function RegisterForm() {
           </button>
         }
       >
-        <form onSubmit={submitOtp} className="space-y-5" noValidate>
-          <div className="rounded-2xl border border-sand-200 bg-sand-50/60 p-4 text-center">
-            <p className="text-xs text-slate-500">
-              {isEn
-                ? 'Check your inbox (and spam folder) for the 6-digit code sent from Círculo Wingding.'
-                : 'Revisa tu bandeja de entrada (y spam) para encontrar el código de 6 dígitos enviado por Círculo Wingding.'}
-            </p>
-          </div>
+        <form onSubmit={submitOtp} className="space-y-4" noValidate>
+          <p className="text-xs text-slate-500 text-center max-w-sm mx-auto leading-relaxed">
+            {isEn
+              ? 'Check your inbox (and spam folder) for the 4-digit code sent from Círculo Wingding.'
+              : 'Revisa tu bandeja de entrada (y spam) para encontrar el código de 4 dígitos enviado por Círculo Wingding.'}
+          </p>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-navy-900 text-center">
+          <div className="space-y-2 pt-1">
+            <label className="block text-xs font-semibold text-navy-900 text-center">
               {isEn ? 'Verification Code' : 'Código de Verificación'}
             </label>
             <OtpInput
-              length={6}
+              length={4}
               value={otp}
               onChange={(val) => {
                 setOtp(val);
@@ -170,7 +168,7 @@ function RegisterForm() {
             )}
           </div>
 
-          <Button type="submit" size="lg" className="w-full rounded-2xl py-3.5 shadow-md" isLoading={loading}>
+          <Button type="submit" size="md" className="w-full rounded-xl py-2.5 font-bold shadow-soft" isLoading={loading}>
             {loading ? (av.verifying || 'Verificando código...') : (av.verifyOtpBtn || 'Verificar código y continuar')}
           </Button>
 
@@ -195,7 +193,7 @@ function RegisterForm() {
 
   return (
     <AuthShell
-      title={av.regTitle || 'Crea tu cuenta VIP'}
+      title={av.regTitle || (isEn ? 'Create Account' : 'Crear cuenta')}
       subtitle={av.regSubtitle || 'Regístrate gratis y desbloquea beneficios exclusivos de viaje.'}
       footer={
         <>

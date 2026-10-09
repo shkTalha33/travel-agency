@@ -135,7 +135,7 @@ export default function DashboardHome() {
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
           {/* User info & greeting */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="relative shrink-0">
+            <div className="relative w-fit shrink-0">
               <Avatar
                 src={currentUser.avatar}
                 name={currentUser.name}

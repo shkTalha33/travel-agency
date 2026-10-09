@@ -113,8 +113,8 @@ const errorMessagesDict = {
     en: "The OTP verification code is invalid or has expired.",
   },
   OTP_CODE_REQUIRED: {
-    es: "El código OTP de 6 dígitos es requerido.",
-    en: "The 6-digit OTP code is required.",
+    es: "El código OTP de 4 dígitos es requerido.",
+    en: "The 4-digit OTP code is required.",
   },
   PENDING_REGISTRATION_NOT_FOUND: {
     es: "No se encontró un registro pendiente para este correo. Por favor complete el formulario de registro nuevamente.",
@@ -228,7 +228,7 @@ const validationTranslations = {
   "El ID de comprador (purchaserId) es requerido": "Purchaser ID is required",
   "El monto de compra (purchaseAmountUSD) debe ser positivo": "Purchase amount (USD) must be positive",
   "El código OTP es requerido": "OTP code is required",
-  "El código OTP debe tener 6 dígitos": "OTP code must be 6 digits",
+  "El código OTP debe tener 4 dígitos": "OTP code must be 4 digits",
   "El código de verificación es requerido": "Verification code is required",
   "El slug o nombre de la oferta es requerido": "Offer slug or title is required",
 };

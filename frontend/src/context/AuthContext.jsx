@@ -146,7 +146,7 @@ export function AuthProvider({ children }) {
 
   /**
    * Real backend register Step 1:
-   * Validates details and triggers 6-digit OTP code to user's email.
+   * Validates details and triggers 4-digit OTP code to user's email.
    */
   const register = useCallback(async ({ name, email, password, referralCode }) => {
     const res = await authApi.signup({
@@ -160,7 +160,7 @@ export function AuthProvider({ children }) {
 
   /**
    * Real backend register Step 2:
-   * Verifies 6-digit OTP code and creates active user session with JWT tokens.
+   * Verifies 4-digit OTP code and creates active user session with JWT tokens.
    */
   const verifyOtpAndRegister = useCallback(async ({ email, otp }) => {
     const res = await authApi.verifyRegisterOtp({ email, otp });

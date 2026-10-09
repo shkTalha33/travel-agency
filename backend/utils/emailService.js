@@ -63,7 +63,7 @@ const sendEmail = async ({ to, subject, html, text }) => {
 };
 
 /**
- * Send 6-digit OTP email for registration verification
+ * Send 4-digit OTP email for registration verification
  */
 const sendRegisterOtpEmail = async (email, otp, fullname = "Viajero VIP", lang = "es") => {
   const isEn = typeof lang === "string" && lang.toLowerCase().startsWith("en");
@@ -75,8 +75,8 @@ const sendRegisterOtpEmail = async (email, otp, fullname = "Viajero VIP", lang =
   const title = isEn ? "Verify your email address" : "Verifica tu correo electrónico";
   const greeting = isEn ? `Hello <strong>${fullname}</strong>,` : `Hola <strong>${fullname}</strong>,`;
   const bodyText = isEn
-    ? "Thank you for joining Viajes Dominicana! Use the following 6-digit verification code to complete your registration and activate your VIP travel rewards account:"
-    : "¡Gracias por unirte a Viajes Dominicana! Usa el siguiente código de verificación de 6 dígitos para completar tu registro y activar tu cuenta de beneficios de viaje:";
+    ? "Thank you for joining Viajes Dominicana! Use the following 4-digit verification code to complete your registration and activate your VIP travel rewards account:"
+    : "¡Gracias por unirte a Viajes Dominicana! Usa el siguiente código de verificación de 4 dígitos para completar tu registro y activar tu cuenta de beneficios de viaje:";
   const expiryNotice = isEn
     ? "This verification code will expire in <strong>15 minutes</strong>. If you did not request this code, you can safely ignore this email."
     : "Este código expirará en <strong>15 minutos</strong>. Si no solicitaste este registro, puedes ignorar este correo de forma segura.";
@@ -131,7 +131,7 @@ const sendRegisterOtpEmail = async (email, otp, fullname = "Viajero VIP", lang =
 };
 
 /**
- * Send 6-digit OTP email for password reset
+ * Send 4-digit OTP email for password reset
  */
 const sendPasswordResetOtpEmail = async (email, otp, fullname = "Estimado miembro", lang = "es") => {
   const isEn = typeof lang === "string" && lang.toLowerCase().startsWith("en");
@@ -143,8 +143,8 @@ const sendPasswordResetOtpEmail = async (email, otp, fullname = "Estimado miembr
   const title = isEn ? "Password Reset Request" : "Recuperación de Contraseña";
   const greeting = isEn ? `Hello <strong>${fullname}</strong>,` : `Hola <strong>${fullname}</strong>,`;
   const bodyText = isEn
-    ? "We received a request to reset the password for your Viajes Dominicana account. Use the following 6-digit verification code to set your new password:"
-    : "Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en Viajes Dominicana. Usa el siguiente código de verificación de 6 dígitos para crear tu nueva contraseña:";
+    ? "We received a request to reset the password for your Viajes Dominicana account. Use the following 4-digit verification code to set your new password:"
+    : "Hemos recibido una solicitud para restablecer la contraseña de tu cuenta en Viajes Dominicana. Usa el siguiente código de verificación de 4 dígitos para crear tu nueva contraseña:";
   const expiryNotice = isEn
     ? "This code will expire in <strong>15 minutes</strong>. If you did not request this password reset, your account is secure and you can disregard this email."
     : "Este código expirará en <strong>15 minutos</strong>. Si no solicitaste este cambio, tu cuenta está segura y puedes ignorar este correo.";

@@ -54,12 +54,12 @@ export default function AuthShell({ title, subtitle, children, footer }) {
   }, [activeSlide]);
 
   return (
-    <div className="min-h-screen bg-slate-100/80 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
-      {/* Floating Center Card Container with 10px padding on all sides */}
-      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl border border-slate-200/80 p-[10px] grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch overflow-hidden">
+    <div className="min-h-screen bg-white lg:bg-slate-100/80 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
+      {/* Floating Center Card Container: Completely flat and shadowless on small screens, luxury shadow on lg+ */}
+      <div className="w-full max-w-md sm:max-w-lg lg:max-w-5xl bg-white rounded-3xl shadow-none border-0 lg:shadow-2xl lg:border lg:border-slate-200/80 p-0 sm:p-2 lg:p-[10px] grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch overflow-hidden">
         
-        {/* Left Side: Modern Auto-Scrolling Travel Visual Card */}
-        <div className="lg:col-span-6 relative w-full min-h-[400px] sm:min-h-[480px] lg:min-h-[560px] rounded-2xl sm:rounded-3xl overflow-hidden flex flex-col justify-between p-6 sm:p-8 text-white shadow-md bg-navy-950 select-none">
+        {/* Left Side: Modern Auto-Scrolling Travel Visual Card (Visible only on lg+ screens) */}
+        <div className="hidden lg:flex lg:col-span-6 relative w-full min-h-[560px] rounded-3xl overflow-hidden flex-col justify-between p-8 text-white shadow-md bg-navy-950 select-none">
           
           {/* Background Images with Cross-Fade Loop Transition */}
           {TRAVEL_SLIDES.map((slide, index) => (
@@ -83,7 +83,7 @@ export default function AuthShell({ title, subtitle, children, footer }) {
           {/* Multi-stop gradient for readable overlay text */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/35 z-[1]" />
 
-          {/* Top Branding */}
+          {/* Top Branding (Desktop only inside visual card) */}
           <div className="relative z-10 flex items-center justify-between">
             <Link href="/" className="inline-flex items-center gap-2.5 group">
               <img
@@ -142,9 +142,9 @@ export default function AuthShell({ title, subtitle, children, footer }) {
         </div>
 
         {/* Right Side: Centered Auth Form */}
-        <div className="lg:col-span-6 w-full max-w-md mx-auto flex flex-col justify-center py-2 sm:py-3 px-2 sm:px-4">
-          <div className="text-center sm:text-left mb-6">
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-navy-900 tracking-tight">
+        <div className="lg:col-span-6 w-full max-w-md mx-auto flex flex-col justify-center py-2 sm:py-4 px-2 sm:px-6">
+          <div className="text-center sm:text-left mb-5">
+            <h1 className="font-serif text-[26px] sm:text-[28px] font-bold text-navy-950 tracking-tight leading-tight">
               {title}
             </h1>
             {subtitle && (

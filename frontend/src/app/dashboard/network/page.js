@@ -50,32 +50,18 @@ export default function NetworkPage() {
     }
   };
 
-  if (m.referralLevelsAllowed === 0) {
-    return (
-      <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-navy-950 font-serif">{t('panel.network')}</h1>
-        <EmptyState
-          icon={<Users size={28} />}
-          title={nv.notAvailableTitle || (isEn ? 'Your network is not available yet' : 'Tu red aún no está disponible')}
-          description={nv.notAvailableDesc || (isEn ? 'Referral benefits are enabled when you upgrade to Active Member or higher.' : 'Los beneficios de referidos se habilitan al convertirte en Miembro Activo. Conoce los niveles de membresía.')}
-        />
-        <Link href="/membership">
-          <Button variant="primary">{dash.viewMemberships || (isEn ? 'View Memberships' : 'Ver membresías')}</Button>
-        </Link>
-      </div>
-    );
-  }
-
-  const net = (reduxNetwork.level1 && reduxNetwork.level1.length > 0)
+  const net = (reduxNetwork?.level1 && reduxNetwork?.level1.length > 0)
     ? reduxNetwork
     : getNetwork(currentUser);
-  const twoLevels = m.referralLevelsAllowed >= 2;
+  const twoLevels = (m?.referralLevelsAllowed || 0) >= 2;
+  const isFreeMember = (m?.referralLevelsAllowed || 0) === 0;
+
   const tabs = [
     { id: 'tree', label: nv.tabTree || (isEn ? 'Hierarchy' : 'Jerarquía') },
-    { id: 'l1', label: nv.tabL1 || (isEn ? 'Level 1' : 'Nivel 1'), count: net.level1.length },
-    ...(twoLevels ? [{ id: 'l2', label: nv.tabL2 || (isEn ? 'Level 2' : 'Nivel 2'), count: net.level2.length }] : []),
+    { id: 'l1', label: nv.tabL1 || (isEn ? 'Level 1' : 'Nivel 1'), count: net?.level1?.length || 0 },
+    ...(twoLevels ? [{ id: 'l2', label: nv.tabL2 || (isEn ? 'Level 2' : 'Nivel 2'), count: net?.level2?.length || 0 }] : []),
   ];
-  const flat = tab === 'l1' ? net.level1 : net.level2;
+  const flat = tab === 'l1' ? (net?.level1 || []) : (net?.level2 || []);
 
   return (
     <div className="w-full space-y-5">
@@ -108,7 +94,7 @@ export default function NetworkPage() {
                   {isEn ? 'YOUR REFERRAL CODE' : 'TU CÓDIGO DE REFERIDO'}
                 </p>
                 <p className="font-mono text-lg font-bold text-gold-300 mt-0.5">
-                  {currentUser.referralCode || 'N/A'}
+                  {currentUser?.referralCode || 'N/A'}
                 </p>
               </div>
               <button
@@ -121,10 +107,36 @@ export default function NetworkPage() {
               </button>
             </div>
 
-            <InviteButton link={currentUser.referralLink} variant="primary" size="md" className="rounded-xl font-bold" />
+            <InviteButton link={currentUser?.referralLink} variant="primary" size="md" className="rounded-xl font-bold" />
           </div>
         </div>
       </div>
+
+      {/* Upgrade Banner for Standard Members */}
+      {isFreeMember && (
+        <div className="rounded-2xl bg-white p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gold-50 flex items-center justify-center text-gold-600 shrink-0">
+              <Sparkles size={20} />
+            </div>
+            <div>
+              <p className="font-bold text-sm text-navy-900">
+                {isEn ? 'Unlock Referral Point Rewards' : 'Desbloquea Recompensas de Puntos por Referidos'}
+              </p>
+              <p className="text-xs text-slate-500 mt-0.5">
+                {isEn 
+                  ? 'Upgrade to Active Member to earn 100% points reward commissions from all direct purchases.' 
+                  : 'Actualiza a Miembro Activo para ganar comisiones del 100% en puntos por compras directas.'}
+              </p>
+            </div>
+          </div>
+          <Link href="/membership" className="shrink-0">
+            <Button variant="primary" size="sm" className="rounded-xl">
+              {dash.viewMemberships || (isEn ? 'View Memberships' : 'Ver membresías')}
+            </Button>
+          </Link>
+        </div>
+      )}
 
       {/* Tabs Switcher */}
       <Tabs tabs={tabs} activeTab={tab} onChange={setTab} className="w-fit max-w-full" label={nv.tabsAria || 'Vista de la red'} />
@@ -133,11 +145,14 @@ export default function NetworkPage() {
       <div className="rounded-2xl bg-white p-5 sm:p-6 space-y-4">
         {loading ? (
           <ListSkeleton />
-        ) : net.level1.length === 0 ? (
+        ) : (!net?.level1 || net.level1.length === 0) ? (
           <EmptyState
-            title={dash.noActivityTitle || (isEn ? 'No referral activity yet.' : 'Aún no tienes actividad de referidos.')}
-            description={dash.noActivityDesc || (isEn ? 'Invite friends to join and start building your travel rewards network.' : 'Invita a una persona para comenzar a construir tu red.')}
-            className="border-0 py-10"
+            icon={<Users size={28} />}
+            title={dash.noActivityTitle || (isEn ? 'No referral activity yet' : 'Aún no tienes actividad de referidos')}
+            description={dash.noActivityDesc || (isEn ? 'Share your referral link or code to invite friends and start building your network.' : 'Comparte tu enlace o código de referido para invitar amigos y comenzar a construir tu red.')}
+            actionText={isEn ? 'Copy Referral Link' : 'Copiar Enlace de Referido'}
+            onAction={copyRefLink}
+            className="py-10"
           />
         ) : tab === 'tree' ? (
           <NetworkTree level1={net.level1} level2={net.level2} showLevel2={twoLevels} onSelect={setSelected} />

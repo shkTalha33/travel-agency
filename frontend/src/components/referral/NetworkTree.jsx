@@ -21,7 +21,7 @@ export default function NetworkTree({ level1 = [], level2 = [], showLevel2 = fal
 
   if (level1.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-sand-300 bg-sand-50/50 py-12 text-center">
+      <div className="flex flex-col items-center justify-center rounded-2xl bg-sand-50/70 py-12 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sand-100 text-slate-400">
           <Users size={24} aria-hidden="true" />
         </div>

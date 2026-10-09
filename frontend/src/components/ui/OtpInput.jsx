@@ -3,7 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 
 export default function OtpInput({
-  length = 6,
+  length = 4,
   value = '',
   onChange,
   error = false,
@@ -98,7 +98,7 @@ export default function OtpInput({
   };
 
   return (
-    <div className={`flex items-center justify-center gap-2 sm:gap-3 ${className}`}>
+    <div className={`flex items-center justify-center gap-2 sm:gap-2.5 ${className}`}>
       {Array.from({ length }).map((_, index) => {
         const isFilled = !!digits[index];
         return (
@@ -115,12 +115,12 @@ export default function OtpInput({
             onKeyDown={(e) => handleKeyDown(index, e)}
             onPaste={handlePaste}
             onFocus={(e) => e.target.select()}
-            className={`h-13 w-11 sm:h-15 sm:w-13 text-center text-2xl font-bold rounded-xl border transition-all duration-200 outline-none focus:outline-none focus:ring-0 select-none ${
+            className={`w-11 h-11 sm:w-12 sm:h-12 aspect-square text-center text-lg sm:text-xl font-medium rounded-lg border transition-all duration-200 outline-none focus:outline-none focus:ring-0 select-none bg-white ${
               error
-                ? 'border-rose-500 bg-rose-50/40 text-rose-900 focus:border-rose-600'
+                ? 'border-rose-500 text-rose-900 focus:border-rose-600'
                 : isFilled
-                ? 'border-ocean-600 bg-ocean-50/40 text-navy-950'
-                : 'border-slate-300 bg-white text-navy-900 hover:border-slate-400 focus:border-ocean-600 shadow-xs'
+                ? 'border-ocean-600 text-navy-950'
+                : 'border-slate-300 text-navy-900 hover:border-slate-400 focus:border-ocean-600'
             }`}
           />
         );

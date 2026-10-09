@@ -131,7 +131,7 @@ export default function ProfilePage() {
       <div className="rounded-2xl bg-navy-950 p-5 sm:p-6 text-white">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
-            <div className="relative shrink-0">
+            <div className="relative w-fit shrink-0">
               <Avatar
                 src={avatarUrl || u.avatar}
                 name={u.name}

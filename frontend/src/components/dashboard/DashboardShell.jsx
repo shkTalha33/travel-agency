@@ -103,7 +103,7 @@ export default function DashboardShell({ children }) {
 
         {/* Member User Profile Snippet */}
         <div className="px-6 py-4 border-b border-navy-850/60 bg-navy-950/80 flex items-center gap-3">
-          <div className="relative shrink-0">
+          <div className="relative w-fit shrink-0">
             <Avatar
               src={currentUser?.avatar}
               name={currentUser?.name}
