@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Menu, X, Compass, Sparkles } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import Avatar from '@/components/ui/Avatar';
+import Dropdown from '@/components/ui/Dropdown';
 import MobileNav from './MobileNav';
 import LanguageSwitcher from './LanguageSwitcher';
 import { useAuth } from '@/context/AuthContext';
@@ -16,7 +18,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [hash, setHash] = useState('');
-  const { isAuthenticated } = useAuth();
+  const { currentUser, isAuthenticated, logout } = useAuth();
   const { t } = useLanguage();
 
   useEffect(() => {
@@ -71,12 +73,28 @@ export default function Header() {
         {/* Right Actions */}
         <div className="hidden items-center gap-2.5 lg:flex">
           <LanguageSwitcher />
-          {isAuthenticated ? (
-            <Link href="/dashboard">
-              <Button variant="primary" className="rounded-full px-4 py-2 text-xs font-bold shadow-soft">
-                {t('auth.dashboard')}
-              </Button>
-            </Link>
+          {isAuthenticated && currentUser ? (
+            <Dropdown
+              label={t('auth.userMenu', 'Menú de usuario')}
+              trigger={
+                <div className="flex items-center gap-2 px-1">
+                  <Avatar
+                    src={currentUser.avatar}
+                    name={currentUser.name || currentUser.fullname}
+                    size="sm"
+                    className="ring-2 ring-ocean-500/30"
+                  />
+                  <span className="text-xs font-bold text-navy-950 max-w-[120px] truncate">
+                    {currentUser.name || currentUser.fullname}
+                  </span>
+                </div>
+              }
+              items={[
+                { label: t('auth.dashboard', 'Panel de control'), href: '/dashboard' },
+                { label: t('auth.profile', 'Mi Perfil'), href: '/dashboard/profile' },
+                { label: t('auth.logout', 'Cerrar sesión'), onClick: logout },
+              ]}
+            />
           ) : (
             <>
               <Link href="/login">
@@ -108,7 +126,13 @@ export default function Header() {
           </button>
         </div>
       </div>
-      <MobileNav open={open} isAuthenticated={isAuthenticated} pathname={pathname} />
+      <MobileNav
+        open={open}
+        isAuthenticated={isAuthenticated}
+        currentUser={currentUser}
+        logout={logout}
+        pathname={pathname}
+      />
     </header>
   );
 }

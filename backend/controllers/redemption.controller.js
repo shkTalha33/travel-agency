@@ -149,7 +149,7 @@ const updateRedemptionStatusAdmin = aysncHandler(async (req, res, next) => {
   ) {
     await PointTransaction.create({
       userId: redemption.userId,
-      purchaseDescription: `Reembolso por canje rechazado #${redemption._id}`,
+      purchaseDescription: `Reembolso por canje rechazado`,
       type: TRANSACTION_TYPES.MANUAL_ADJUSTMENT,
       level: null,
       points: redemption.points,

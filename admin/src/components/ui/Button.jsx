@@ -18,11 +18,11 @@ export default function Button({
   const baseStyles = 'inline-flex items-center justify-center font-bold tracking-wide transition-all duration-200 rounded-xl focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed select-none whitespace-nowrap cursor-pointer';
 
   const variants = {
-    primary: 'bg-navy-900 text-white hover:bg-navy-800 shadow-xs active:scale-[0.99]',
-    gold: 'bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 shadow-md active:scale-[0.99]',
+    primary: 'bg-ocean-600 text-white hover:bg-ocean-700 shadow-xs active:scale-[0.99]',
+    gold: 'bg-ocean-600 text-white hover:bg-ocean-700 shadow-xs active:scale-[0.99]',
     ocean: 'bg-ocean-600 text-white hover:bg-ocean-700 shadow-xs active:scale-[0.99]',
     secondary: 'bg-white text-navy-800 border border-sand-200 hover:bg-sand-50 hover:border-sand-300 shadow-xs',
-    outline: 'bg-transparent text-navy-900 border border-sand-300 hover:bg-sand-100 hover:border-sand-400',
+    outline: 'bg-transparent text-ocean-600 border border-ocean-600 hover:bg-ocean-50',
     ghost: 'bg-transparent text-navy-700 hover:text-navy-950 hover:bg-sand-100',
     danger: 'bg-rose-600 text-white hover:bg-rose-700 shadow-xs active:scale-[0.99]',
   };

@@ -41,14 +41,23 @@ export default function NetworkPage() {
 
   if (loading || !currentUser) return <NetworkSkeleton />;
 
+  const copyRefCode = async () => {
+    try {
+      await navigator.clipboard.writeText(currentUser?.referralCode || '');
+      setCopied(true);
+      toast(nv.copyCodeSuccess || (isEn ? 'Referral code copied!' : '¡Código de referido copiado!'));
+      setTimeout(() => setCopied(false), 1800);
+    } catch (_) {
+      toast(nv.copyCodeFail || (isEn ? 'Could not copy code' : 'No se pudo copiar el código'), 'error');
+    }
+  };
+
   const copyRefLink = async () => {
     try {
       await navigator.clipboard.writeText(currentUser?.referralLink || '');
-      setCopied(true);
-      toast(nv.copySuccess || 'Referral link copied!');
-      setTimeout(() => setCopied(false), 1800);
+      toast(nv.copySuccess || (isEn ? 'Referral link copied!' : '¡Enlace de referido copiado!'));
     } catch (_) {
-      toast(nv.copyFail || 'Could not copy link', 'error');
+      toast(nv.copyFail || (isEn ? 'Could not copy link' : 'No se pudo copiar el enlace'), 'error');
     }
   };
 
@@ -76,7 +85,6 @@ export default function NetworkPage() {
               <span className="text-xs font-bold uppercase tracking-widest text-gold-300">
                 {nv.referralNetworkEyebrow || 'REFERRAL NETWORK'}
               </span>
-              <Badge variant={m?.id || 'active'}>{membershipName}</Badge>
             </div>
 
             <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white tracking-tight">
@@ -101,9 +109,9 @@ export default function NetworkPage() {
               </div>
               <button
                 type="button"
-                onClick={copyRefLink}
+                onClick={copyRefCode}
                 className="p-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-white transition-all cursor-pointer border-0 outline-none focus:outline-none focus:ring-0 active:outline-none"
-                title={nv.copyLink || 'Copy Referral Link'}
+                title={nv.copyCode || (isEn ? 'Copy Referral Code' : 'Copiar Código de Referido')}
               >
                 {copied ? <Check size={16} className="text-ocean-400" /> : <Copy size={16} />}
               </button>
@@ -116,10 +124,10 @@ export default function NetworkPage() {
 
       {/* Upgrade Banner for Standard Members */}
       {isFreeMember && (
-        <div className="rounded-2xl bg-white p-5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        <div className="rounded-2xl bg-white px-4 py-3 sm:px-5 sm:py-3.5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gold-50 flex items-center justify-center text-gold-600 shrink-0">
-              <Sparkles size={20} />
+            <div className="w-9 h-9 rounded-xl bg-gold-50 flex items-center justify-center text-gold-600 shrink-0">
+              <Sparkles size={18} />
             </div>
             <div>
               <p className="font-bold text-sm text-navy-900">

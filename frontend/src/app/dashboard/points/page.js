@@ -84,7 +84,6 @@ export default function PointsPage() {
               <span className="text-xs font-bold uppercase tracking-widest text-gold-300">
                 {pv.vipBalance || 'BALANCE VIP ACUMULADO'}
               </span>
-              <Badge variant={m?.id || 'active'}>{membershipName}</Badge>
             </div>
 
             <div className="flex items-baseline gap-2.5">

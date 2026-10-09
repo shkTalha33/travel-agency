@@ -131,7 +131,7 @@ const DEFAULT_TIERS = [
  * List all membership tiers
  */
 const getAllTiers = aysncHandler(async (req, res) => {
-  const tiers = await MembershipTier.find({}).sort({ order: 1, createdAt: 1 }).lean();
+  const tiers = await MembershipTier.find({ isActive: { $ne: false } }).sort({ order: 1, createdAt: 1 }).lean();
 
   return res.status(200).json(
     onSuccess("Niveles de membresía obtenidos exitosamente", tiers || [])
@@ -142,7 +142,7 @@ const getAllTiers = aysncHandler(async (req, res) => {
  * Get available categories that have not yet been created
  */
 const getAvailableCategories = aysncHandler(async (req, res) => {
-  const existingTiers = await MembershipTier.find({}, "category").lean();
+  const existingTiers = await MembershipTier.find({ isActive: { $ne: false } }, "category").lean();
   const existingCategories = existingTiers.map((t) => t.category);
   const availableCategories = ALLOWED_CATEGORIES.filter(
     (cat) => !existingCategories.includes(cat)
@@ -311,14 +311,14 @@ const updateTier = aysncHandler(async (req, res, next) => {
  */
 const deleteTier = aysncHandler(async (req, res, next) => {
   const { id } = req.params;
-  const deleted = await MembershipTier.findByIdAndDelete(id);
+  const tier = await MembershipTier.findByIdAndUpdate(id, { isActive: false }, { new: true });
 
-  if (!deleted) {
+  if (!tier) {
     return next(new NotFoundException("Nivel de membresía no encontrado"));
   }
 
   return res.status(200).json(
-    onSuccess("Nivel de membresía eliminado exitosamente", { id, category: deleted.category })
+    onSuccess("Nivel de membresía eliminado exitosamente", { id, category: tier.category })
   );
 });
 

@@ -114,7 +114,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center gap-2.5">
           <Link
             href="/points"
-            className="flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 rounded-2xl font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
+            className="flex items-center gap-2 px-4 py-2.5 bg-ocean-600 hover:bg-ocean-700 text-white rounded-2xl font-bold text-xs uppercase tracking-wider shadow-md hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98]"
           >
             <Coins className="w-4 h-4" />
             <span>{t('dashboard.assignPointsBtn', 'Asignar Puntos de Venta')}</span>
@@ -343,10 +343,10 @@ export default function AdminDashboardPage() {
 
           <Link
             href="/memberships"
-            className="inline-flex items-center gap-2 text-xs font-bold text-navy-900 bg-sand-100 hover:bg-gold-50 hover:text-gold-900 hover:border-gold-300 border border-sand-300 px-4 py-2.5 rounded-2xl transition-all shadow-xs self-start sm:self-auto group"
+            className="inline-flex items-center gap-2 text-xs font-bold text-white bg-ocean-600 hover:bg-ocean-700 px-4 py-2.5 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] self-start sm:self-auto group"
           >
             <span>{t('dashboard.viewCommissionRules', 'Ver Configuración de Comisiones')}</span>
-            <ArrowRight className="w-3.5 h-3.5 text-gold-600 group-hover:translate-x-1 transition-transform" />
+            <ArrowRight className="w-3.5 h-3.5 text-white group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
@@ -535,30 +535,40 @@ export default function AdminDashboardPage() {
 
             <div className="divide-y divide-slate-100">
               {stats?.recentTransactions?.length > 0 ? (
-                stats.recentTransactions.map((tx) => (
-                  <div key={tx._id} className="py-3 flex items-center justify-between hover:bg-slate-50/70 px-2 rounded-xl transition-colors">
-                    <div>
-                      <p className="text-xs font-bold text-navy-950 line-clamp-1">
-                        {tx.purchaseDescription || (isEn ? 'Points Transaction' : 'Transacción de Puntos')}
-                      </p>
-                      <p className="text-[11px] text-slate-500 mt-0.5">
-                        {isEn ? 'Beneficiary' : 'Beneficiario'}: <strong className="text-navy-900">{tx.userId?.fullname || 'Usuario'}</strong> • <span className="uppercase font-semibold">{tx.type}</span>
-                      </p>
+                stats.recentTransactions.map((tx) => {
+                  let cleanDesc = tx.purchaseDescription || (isEn ? 'Points Transaction' : 'Transacción de Puntos');
+                  cleanDesc = cleanDesc.replace(/#?[0-9a-fA-F]{24}/gi, '').replace(/#[a-zA-Z0-9_-]{8,}/gi, '').trim();
+                  if (!cleanDesc) {
+                    cleanDesc = tx.type === 'redemption'
+                      ? (isEn ? 'Points Redemption' : 'Canje de puntos')
+                      : (isEn ? 'Points Transaction' : 'Transacción de Puntos');
+                  }
+
+                  return (
+                    <div key={tx._id} className="py-3 flex items-center justify-between hover:bg-slate-50/70 px-2 rounded-xl transition-colors">
+                      <div>
+                        <p className="text-xs font-bold text-navy-950 line-clamp-1">
+                          {cleanDesc}
+                        </p>
+                        <p className="text-[11px] text-slate-500 mt-0.5">
+                          {isEn ? 'Beneficiary' : 'Beneficiario'}: <strong className="text-navy-900">{tx.userId?.fullname || 'Usuario'}</strong> • <span className="uppercase font-semibold">{tx.type}</span>
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <span className={`text-xs font-bold px-2 py-0.5 rounded-lg ${
+                          tx.points >= 0
+                            ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
+                            : 'bg-rose-50 text-rose-800 border border-rose-200'
+                        }`}>
+                          {tx.points >= 0 ? `+${tx.points}` : tx.points} PTS
+                        </span>
+                        <p className="text-[10px] text-slate-400 mt-1">
+                          {new Date(tx.createdAt).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <div className="text-right shrink-0">
-                      <span className={`text-xs font-bold px-2 py-0.5 rounded-lg ${
-                        tx.points >= 0
-                          ? 'bg-emerald-50 text-emerald-800 border border-emerald-200'
-                          : 'bg-rose-50 text-rose-800 border border-rose-200'
-                      }`}>
-                        {tx.points >= 0 ? `+${tx.points}` : tx.points} PTS
-                      </span>
-                      <p className="text-[10px] text-slate-400 mt-1">
-                        {new Date(tx.createdAt).toLocaleDateString()}
-                      </p>
-                    </div>
-                  </div>
-                ))
+                  );
+                })
               ) : (
                 <p className="text-xs text-slate-500 py-6 text-center">{isEn ? 'No recent transactions' : 'No hay transacciones recientes'}</p>
               )}

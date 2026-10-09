@@ -196,7 +196,6 @@ export default function RedeemPage() {
               <span className="text-xs font-bold uppercase tracking-widest text-gold-300">
                 {rv.balanceTitle || (isEn ? 'REDEEMABLE BALANCE' : 'BALANCE REDIMIBLE')}
               </span>
-              {m?.id && <Badge variant={m.id}>{membershipName}</Badge>}
             </div>
 
             <div className="flex items-baseline gap-2.5">

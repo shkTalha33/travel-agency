@@ -26,7 +26,7 @@ export default function OfferCard({ offer, basePath }) {
   return (
     <Link
       href={offerTarget}
-      className="lift group block rounded-3xl border border-slate-200/90 bg-white p-3.5 sm:p-4 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
+      className="group block rounded-2xl bg-white p-3.5 sm:p-4 hover:bg-white/95 transition-all duration-200"
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-sand-200">
         <SafeImage
@@ -38,14 +38,14 @@ export default function OfferCard({ offer, basePath }) {
 
         {o.badge && (
           <div className="absolute left-3.5 top-3.5">
-            <span className="inline-flex items-center rounded-full bg-navy-900/85 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-gold-300 backdrop-blur-md shadow-sm border border-gold-400/30">
+            <span className="inline-flex items-center rounded-full bg-navy-900/85 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-gold-300 backdrop-blur-md">
               {o.badge}
             </span>
           </div>
         )}
 
         <div className="absolute bottom-3 left-3.5 right-3.5 flex items-center justify-between gap-2">
-          <span className="flex items-center gap-1.5 rounded-full bg-navy-950/70 px-3 py-1 text-xs font-medium text-white backdrop-blur-md border border-white/10 truncate">
+          <span className="flex items-center gap-1.5 rounded-full bg-navy-950/70 px-3 py-1 text-xs font-medium text-white backdrop-blur-md truncate">
             <span className="text-sm leading-none shrink-0" role="img" aria-label={o.country}>
               {getCountryFlag(o.country)}
             </span>
@@ -78,7 +78,7 @@ export default function OfferCard({ offer, basePath }) {
           </div>
 
           <div className="flex flex-col items-end gap-1.5">
-            <div className="inline-flex items-center gap-1 rounded-full border border-ocean-200 bg-ocean-50 px-2.5 py-0.5 text-xs font-bold text-ocean-800 shadow-xs">
+            <div className="inline-flex items-center gap-1 rounded-full bg-ocean-50 px-2.5 py-0.5 text-xs font-bold text-ocean-800">
               <Sparkles size={11} className="text-ocean-600" aria-hidden="true" />
               <span>+{o.pointsReward} {t('common.points')}</span>
             </div>

@@ -31,14 +31,14 @@ export default function OffersExplorer({ offers }) {
   return (
     <div>
       {/* Category Pills & Dropdown */}
-      <div className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-sand-200/80 bg-white/80 p-4 shadow-soft backdrop-blur-sm sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => { setCountry('todos'); setPage(1); }}
-            className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all ${
+            className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all cursor-pointer ${
               country === 'todos'
-                ? 'bg-navy-900 text-gold-300 shadow-sm'
+                ? 'bg-navy-900 text-gold-300'
                 : 'bg-sand-100 text-slate-600 hover:bg-sand-200 hover:text-navy-900'
             }`}
           >
@@ -49,9 +49,9 @@ export default function OffersExplorer({ offers }) {
               key={opt.value}
               type="button"
               onClick={() => { setCountry(opt.value); setPage(1); }}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all inline-flex items-center gap-1.5 ${
+              className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer ${
                 country === opt.value
-                  ? 'bg-navy-900 text-gold-300 shadow-sm'
+                  ? 'bg-navy-900 text-gold-300'
                   : 'bg-sand-100 text-slate-600 hover:bg-sand-200 hover:text-navy-900'
               }`}
             >

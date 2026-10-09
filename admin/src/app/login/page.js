@@ -14,7 +14,6 @@ import {
   ShieldCheck,
   Eye,
   EyeOff,
-  KeyRound,
 } from 'lucide-react';
 
 export default function AdminLoginPage() {
@@ -89,12 +88,6 @@ export default function AdminLoginPage() {
     if (!result.success) {
       setError(result.error || (isEn ? 'Invalid administrative credentials.' : 'Credenciales administrativas inválidas o sin permisos.'));
     }
-  };
-
-  const handleUseSeedCredentials = () => {
-    setEmail('admin@gmail.com');
-    setPassword('Admin@12345');
-    setError('');
   };
 
   return (
@@ -296,10 +289,10 @@ export default function AdminLoginPage() {
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 bg-gradient-to-r from-gold-600 via-gold-500 to-gold-400 hover:from-gold-500 hover:to-gold-300 text-navy-950 font-bold text-xs uppercase tracking-wider shadow-md transition-all transform active:scale-[0.99] disabled:opacity-50 cursor-pointer mt-2"
+              className="w-full flex items-center justify-center gap-2 rounded-2xl py-3.5 bg-ocean-600 hover:bg-ocean-700 text-white font-bold text-xs uppercase tracking-wider shadow-md transition-all transform active:scale-[0.99] disabled:opacity-50 cursor-pointer mt-2"
             >
               {isLoading ? (
-                <div className="w-5 h-5 border-2 border-navy-950 border-t-transparent rounded-full animate-spin" />
+                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
               ) : (
                 <>
                   <span>{isEn ? 'Access Control Panel' : 'Ingresar al Panel de Control'}</span>
@@ -308,34 +301,6 @@ export default function AdminLoginPage() {
               )}
             </button>
           </form>
-
-          {/* Seed Admin Credentials Fast-Access Card */}
-          <div className="mt-6 rounded-3xl border border-sand-200/90 bg-sand-50/80 p-4 sm:p-5">
-            <div className="flex items-center justify-between mb-1.5">
-              <div className="flex items-center gap-1.5">
-                <Sparkles size={14} className="text-gold-600" aria-hidden="true" />
-                <p className="text-xs font-bold uppercase tracking-wider text-navy-900">
-                  {isEn ? 'Pre-configured Seed Credentials' : 'Credenciales Pre-configuradas (Seed)'}
-                </p>
-              </div>
-              <span className="rounded-full bg-sand-200 px-2 py-0.5 text-[10px] font-semibold text-slate-700">
-                {isEn ? '1 Click' : '1 Clic'}
-              </span>
-            </div>
-            <p className="text-xs text-slate-500 mb-3 leading-relaxed">
-              {isEn
-                ? 'Autofill form with the Super Admin credentials:'
-                : 'Autocompleta el formulario con la cuenta de Administrador General:'}
-            </p>
-            <button
-              type="button"
-              onClick={handleUseSeedCredentials}
-              className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl border border-gold-400/50 bg-white hover:bg-gold-50/40 text-gold-800 text-xs font-bold shadow-xs hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer"
-            >
-              <KeyRound size={14} className="text-gold-600" />
-              <span>{isEn ? 'Autofill: admin@gmail.com' : 'Autocompletar: admin@gmail.com'}</span>
-            </button>
-          </div>
 
           {/* Footer note */}
           <div className="mt-6 border-t border-slate-100 pt-4 text-center text-xs text-slate-500">

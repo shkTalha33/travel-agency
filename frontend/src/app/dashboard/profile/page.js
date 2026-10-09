@@ -53,6 +53,7 @@ export default function ProfilePage() {
   });
   const [saving, setSaving] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [copiedLink, setCopiedLink] = useState(false);
   const [contact, setContact] = useState('whatsapp');
   const [notify, setNotify] = useState(true);
 
@@ -104,14 +105,25 @@ export default function ProfilePage() {
     }
   };
 
+  const copyRefCode = async () => {
+    try {
+      await navigator.clipboard.writeText(u?.referralCode || '');
+      setCopied(true);
+      toast(pv.copyCodeSuccessToast || (isEn ? 'Referral code copied.' : 'Código de referido copiado.'));
+      setTimeout(() => setCopied(false), 1800);
+    } catch (_) {
+      toast(pv.copyCodeFailToast || (isEn ? 'Could not copy code.' : 'No se pudo copiar el código.'), 'error');
+    }
+  };
+
   const copyRefLink = async () => {
     try {
       await navigator.clipboard.writeText(u?.referralLink || '');
-      setCopied(true);
-      toast(pv.copySuccessToast);
-      setTimeout(() => setCopied(false), 1800);
+      setCopiedLink(true);
+      toast(pv.copySuccessToast || (isEn ? 'Referral link copied.' : 'Enlace de referido copiado.'));
+      setTimeout(() => setCopiedLink(false), 1800);
     } catch (_) {
-      toast(pv.copyFailToast, 'error');
+      toast(pv.copyFailToast || (isEn ? 'Could not copy link.' : 'No se pudo copiar el enlace.'), 'error');
     }
   };
 
@@ -181,7 +193,6 @@ export default function ProfilePage() {
                 <h1 className="font-serif text-2xl sm:text-3xl font-bold text-white tracking-wide">
                   {u.name || (isEn ? 'Member' : 'Miembro')}
                 </h1>
-                <Badge variant={m?.id || 'active'}>{membershipName}</Badge>
               </div>
 
               <p className="text-xs sm:text-sm text-sand-300 flex items-center gap-2">
@@ -211,9 +222,9 @@ export default function ProfilePage() {
             </div>
             <button
               type="button"
-              onClick={copyRefLink}
+              onClick={copyRefCode}
               className="p-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-white transition-all cursor-pointer border-0 outline-none focus:outline-none focus:ring-0 active:outline-none"
-              title={pv.copy}
+              title={pv.copyCode || (isEn ? 'Copy Referral Code' : 'Copiar Código de Referido')}
             >
               {copied ? <Check size={16} className="text-ocean-400" /> : <Copy size={16} />}
             </button>
@@ -385,7 +396,7 @@ export default function ProfilePage() {
                 </span>
                 <button
                   type="button"
-                  onClick={copyRefLink}
+                  onClick={copyRefCode}
                   className="text-xs font-bold text-ocean-600 hover:text-ocean-800 flex items-center gap-1 cursor-pointer"
                 >
                   {copied ? <Check size={14} className="text-ocean-600" /> : <Copy size={14} />}
@@ -411,7 +422,7 @@ export default function ProfilePage() {
                   onClick={copyRefLink}
                   className="rounded-xl px-3 shrink-0"
                 >
-                  {copied ? <Check size={14} className="text-ocean-600" /> : <Copy size={14} />}
+                  {copiedLink ? <Check size={14} className="text-ocean-600" /> : <Copy size={14} />}
                 </Button>
               </div>
             </div>

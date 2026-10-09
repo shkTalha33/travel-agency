@@ -144,7 +144,6 @@ export default function AdminRedemptionsPage() {
                     <Badge variant={badgeVariant} size="xs">
                       {STATUS_BADGES[r.status]?.label || r.status}
                     </Badge>
-                    <span className="text-[10px] text-navy-400">ID: {r._id.slice(-8)}</span>
                     <span className="text-[11px] text-navy-500">• {new Date(r.createdAt).toLocaleString()}</span>
                   </div>
 
@@ -193,7 +192,7 @@ export default function AdminRedemptionsPage() {
                   </div>
 
                   <Button
-                    variant="navy"
+                    variant="ocean"
                     size="sm"
                     onClick={() => handleOpenAction(r)}
                   >

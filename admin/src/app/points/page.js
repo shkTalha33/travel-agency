@@ -302,6 +302,14 @@ export default function AdminPointsPage() {
                 </tr>
               ) : (
                 transactions.map((tItem) => {
+                  let cleanDesc = tItem.purchaseDescription || (isEn ? 'Points Transaction' : 'Transacción');
+                  cleanDesc = cleanDesc.replace(/#?[0-9a-fA-F]{24}/gi, '').replace(/#[a-zA-Z0-9_-]{8,}/gi, '').trim();
+                  if (!cleanDesc) {
+                    cleanDesc = tItem.type === 'redemption'
+                      ? (isEn ? 'Points Redemption' : 'Canje de puntos')
+                      : (isEn ? 'Points Transaction' : 'Transacción');
+                  }
+
                   return (
                     <tr
                       key={tItem._id}
@@ -309,7 +317,7 @@ export default function AdminPointsPage() {
                     >
                       {/* Description */}
                       <td className="px-5 py-4">
-                        <p className="font-bold text-navy-950 text-sm">{tItem.purchaseDescription || 'Transacción'}</p>
+                        <p className="font-bold text-navy-950 text-sm">{cleanDesc}</p>
                         <p className="text-[11px] text-navy-400 font-mono mt-0.5">TX: {tItem._id.slice(-8)}</p>
                       </td>
 
@@ -408,7 +416,7 @@ export default function AdminPointsPage() {
         footer={
           resultData ? (
             <Button
-              variant="navy"
+              variant="ocean"
               size="sm"
               onClick={() => {
                 setResultData(null);

@@ -48,7 +48,7 @@ export default function AdminShell({ children, title, subtitle, actionButton }) 
     { name: t('nav.memberships', 'Niveles de Membresía'), href: '/memberships', icon: Award },
     { name: t('nav.points', 'Asignar Puntos / Ventas'), href: '/points', icon: Coins },
     { name: t('nav.redemptions', 'Redención de Puntos'), href: '/redemptions', icon: Gift },
-    { name: t('nav.contacts', 'Bandeja de Contactos'), href: '/contacts', icon: Mail },
+    // { name: t('nav.contacts', 'Bandeja de Contactos'), href: '/contacts', icon: Mail },
   ];
 
   // Fetch live notifications
@@ -73,7 +73,7 @@ export default function AdminShell({ children, title, subtitle, actionButton }) 
             });
           }
 
-          if (stats.counts?.newContacts > 0) {
+          /* if (stats.counts?.newContacts > 0) {
             items.push({
               id: 'contacts',
               title: isEn ? 'New Contact Messages' : 'Nuevas Consultas de Contacto',
@@ -84,7 +84,7 @@ export default function AdminShell({ children, title, subtitle, actionButton }) 
               type: 'info',
               time: isEn ? 'New' : 'Nuevo',
             });
-          }
+          } */
 
           if (stats.recentUsers && stats.recentUsers.length > 0) {
             items.push({

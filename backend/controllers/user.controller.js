@@ -10,7 +10,7 @@ const PointTransaction = require("../models/pointTransaction.model");
 const { onSuccess } = require("../libs/responseWrapper");
 const errorMessages = require("../libs/errorMessages");
 const successMessages = require("../libs/successMessages");
-const { MEMBERSHIP_CONFIG } = require("../constants");
+const { MEMBERSHIP_CONFIG, USER_STATUS } = require("../constants");
 
 const getProfile = aysncHandler(async (req, res, next) => {
   const user = await User.findById(req.user._id).select(
@@ -321,6 +321,8 @@ const getAllUsersAdmin = aysncHandler(async (req, res) => {
 
   if (status) {
     query.status = status;
+  } else {
+    query.status = { $ne: USER_STATUS.DELETED };
   }
 
   const pageNum = Math.max(1, parseInt(page, 10) || 1);
@@ -409,10 +411,12 @@ const deleteUserAdmin = aysncHandler(async (req, res, next) => {
     return next(new BadRequestException("No puede eliminar su propia cuenta de administrador"));
   }
 
-  await User.findByIdAndDelete(id);
+  await User.findByIdAndUpdate(id, {
+    status: USER_STATUS.DELETED,
+  });
 
   return res.status(200).json(
-    onSuccess("Usuario eliminado permanentemente", {})
+    onSuccess("Usuario eliminado exitosamente", {})
   );
 });
 
@@ -442,7 +446,7 @@ const getAdminDashboardStats = aysncHandler(async (req, res) => {
     User.countDocuments({ membershipId: "active_member", status: "active" }),
     User.countDocuments({ membershipId: "ambassador", status: "active" }),
     User.countDocuments({ membershipId: "elite_ambassador", status: "active" }),
-    Offer.countDocuments({ isFeatured: true }),
+    Offer.countDocuments({ isActive: true }),
     Redemption.countDocuments({ status: "pending" }),
     Contact.countDocuments({ status: "new" }),
     PointTransaction.aggregate([

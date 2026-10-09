@@ -136,24 +136,15 @@ export function DashboardSkeleton() {
 
 export function OfferDetailSkeleton() {
   return (
-    <div role="status" aria-label="Cargando detalles de la oferta" className="w-full space-y-8 animate-in fade-in duration-300">
-      {/* Breadcrumb Skeleton */}
-      <div className="flex items-center gap-2">
-        <Skeleton className="h-4 w-16 rounded" />
-        <span className="text-slate-300">/</span>
-        <Skeleton className="h-4 w-20 rounded" />
-        <span className="text-slate-300">/</span>
-        <Skeleton className="h-4 w-36 rounded" />
-      </div>
-
+    <div role="status" aria-label="Cargando detalles de la oferta" className="mx-auto max-w-7xl px-2 sm:px-4 py-2 space-y-8 animate-in fade-in duration-300">
       {/* Main Content & Aside Grid */}
-      <div className="grid gap-8 lg:grid-cols-3 items-start">
-        {/* Left Column (Image Carousel, Overview, Highlights, Inclusions, Itinerary) */}
-        <div className="space-y-10 lg:col-span-2">
-          {/* Main Image Carousel Skeleton */}
-          <div className="space-y-4">
+      <div className="grid gap-6 lg:grid-cols-3 items-start">
+        {/* Left Column (Image Gallery, Header, Highlights, Inclusions, Itinerary) */}
+        <div className="space-y-6 lg:col-span-2">
+          {/* Main Image Gallery Skeleton */}
+          <div className="space-y-3">
             <Skeleton className="h-72 sm:h-96 md:h-[28rem] w-full rounded-3xl" />
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2.5 overflow-hidden">
               <Skeleton className="aspect-[4/3] w-20 sm:w-24 md:w-28 rounded-2xl shrink-0" />
               <Skeleton className="aspect-[4/3] w-20 sm:w-24 md:w-28 rounded-2xl shrink-0" />
               <Skeleton className="aspect-[4/3] w-20 sm:w-24 md:w-28 rounded-2xl shrink-0" />
@@ -161,11 +152,15 @@ export function OfferDetailSkeleton() {
           </div>
           {/* Header */}
           <div className="space-y-3">
-            <Skeleton className="h-6 w-36 rounded-full" />
-            <Skeleton className="h-10 sm:h-12 w-4/5 rounded-xl" />
-            <div className="flex flex-wrap gap-3 pt-1">
-              <Skeleton className="h-7 w-28 rounded-lg" />
-              <Skeleton className="h-7 w-36 rounded-lg" />
+            <div className="flex items-center gap-2">
+              <Skeleton className="h-6 w-28 rounded-full" />
+              <Skeleton className="h-6 w-36 rounded-full" />
+            </div>
+            <Skeleton className="h-9 sm:h-12 w-4/5 rounded-xl mt-3" />
+            <Skeleton className="h-0.5 w-16 rounded my-4" />
+            <div className="flex flex-wrap gap-3">
+              <Skeleton className="h-6 w-24 rounded-lg" />
+              <Skeleton className="h-6 w-28 rounded-lg" />
             </div>
             <div className="space-y-2 pt-2">
               <Skeleton variant="text" className="w-full h-4" />
@@ -175,7 +170,7 @@ export function OfferDetailSkeleton() {
           </div>
 
           {/* Highlights Card */}
-          <div className="rounded-3xl border border-slate-200/90 bg-white p-7 space-y-4">
+          <div className="rounded-3xl bg-white p-6 sm:p-7 space-y-4">
             <Skeleton className="h-7 w-44 rounded-lg" />
             <div className="grid gap-3 sm:grid-cols-2">
               <div className="flex items-center gap-2.5">
@@ -199,7 +194,7 @@ export function OfferDetailSkeleton() {
 
           {/* Inclusions / Exclusions */}
           <div className="grid gap-6 sm:grid-cols-2">
-            <div className="rounded-3xl border border-slate-200/90 bg-white p-6 space-y-3">
+            <div className="rounded-3xl bg-white p-6 space-y-3">
               <Skeleton className="h-6 w-36 rounded-lg" />
               <div className="space-y-2">
                 <Skeleton variant="text" className="w-full" />
@@ -207,7 +202,7 @@ export function OfferDetailSkeleton() {
                 <Skeleton variant="text" className="w-3/4" />
               </div>
             </div>
-            <div className="rounded-3xl border border-slate-200/90 bg-white p-6 space-y-3">
+            <div className="rounded-3xl bg-white p-6 space-y-3">
               <Skeleton className="h-6 w-36 rounded-lg" />
               <div className="space-y-2">
                 <Skeleton variant="text" className="w-full" />
@@ -217,9 +212,9 @@ export function OfferDetailSkeleton() {
           </div>
 
           {/* Itinerary Timeline */}
-          <div className="rounded-3xl border border-slate-200/90 bg-white p-7 space-y-6">
+          <div className="rounded-3xl bg-white p-6 sm:p-7 space-y-6">
             <Skeleton className="h-7 w-48 rounded-lg" />
-            <div className="space-y-5 border-l-2 border-slate-200 pl-6 ml-3">
+            <div className="space-y-6 border-l-2 border-slate-200 pl-6 sm:pl-8 ml-3">
               <div className="space-y-2">
                 <Skeleton className="h-5 w-40 rounded" />
                 <Skeleton variant="text" className="w-full" />
@@ -237,16 +232,26 @@ export function OfferDetailSkeleton() {
         </div>
 
         {/* Right Sticky Aside Booking Box */}
-        <div>
-          <div className="rounded-3xl border border-slate-200/90 bg-white p-7 space-y-4">
-            <Skeleton className="h-3.5 w-28 rounded" />
+        <aside className="space-y-6">
+          <div className="rounded-3xl bg-white p-6 sm:p-7 space-y-4">
+            <Skeleton className="h-3 w-28 rounded" />
             <Skeleton className="h-10 w-36 rounded-xl" />
-            <Skeleton className="h-3.5 w-24 rounded" />
-            <Skeleton className="h-14 w-full rounded-2xl" />
+            <Skeleton className="h-3.5 w-32 rounded" />
             <Skeleton className="h-12 w-full rounded-2xl" />
-            <Skeleton className="h-11 w-full rounded-2xl" />
+            <Skeleton className="h-12 w-full rounded-2xl" />
+            <Skeleton className="h-3 w-48 mx-auto rounded" />
             <Skeleton className="h-8 w-full rounded" />
           </div>
+        </aside>
+      </div>
+
+      {/* Related Offers Section Skeleton */}
+      <div className="mt-14 border-t border-sand-200/80 pt-10 space-y-6">
+        <Skeleton className="h-8 w-64 rounded-xl" />
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <OfferCardSkeleton />
+          <OfferCardSkeleton />
+          <OfferCardSkeleton />
         </div>
       </div>
     </div>

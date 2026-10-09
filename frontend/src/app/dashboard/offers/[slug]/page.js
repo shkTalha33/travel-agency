@@ -18,6 +18,7 @@ import {
 import OfferCard from '@/components/offers/OfferCard';
 import OfferImageGallery from '@/components/offers/OfferImageGallery';
 import { OfferDetailSkeleton } from '@/components/common/Skeletons';
+import useMockLoading from '@/hooks/useMockLoading';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import { AccentRule } from '@/components/common/Linework';
@@ -72,6 +73,7 @@ export default function DashboardOfferDetailPage({ params }) {
   const rawSlug = routeParams?.slug || params?.slug || '';
   const slug = typeof rawSlug === 'string' ? decodeURIComponent(rawSlug) : '';
 
+  const pageLoading = useMockLoading(300);
   const [rawOffer, setRawOffer] = useState(() => findLocalOffer(slug));
   const [relatedOffers, setRelatedOffers] = useState([]);
   const [loading, setLoading] = useState(!rawOffer);
@@ -120,7 +122,7 @@ export default function DashboardOfferDetailPage({ params }) {
 
   const d = copy?.offerDetail || {};
 
-  if (loading) {
+  if (pageLoading || loading) {
     return (
       <div className="w-full">
         <OfferDetailSkeleton />
@@ -182,12 +184,12 @@ export default function DashboardOfferDetailPage({ params }) {
           <header>
             <div className="flex items-center gap-2">
               {offer.badge && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-navy-900 px-3 py-1 text-xs font-bold text-gold-300 shadow-sm border border-gold-400/30">
+                <span className="inline-flex items-center gap-1 rounded-full bg-navy-900 px-3 py-1 text-xs font-bold text-gold-300">
                   <Sparkles size={11} className="text-gold-400" />
                   {offer.badge}
                 </span>
               )}
-              <span className="flex items-center gap-1.5 text-xs font-semibold text-ocean-700 bg-ocean-50/80 px-2.5 py-1 rounded-full border border-ocean-200/60">
+              <span className="flex items-center gap-1.5 text-xs font-semibold text-ocean-700 bg-ocean-50/80 px-2.5 py-1 rounded-full">
                 <span className="text-sm leading-none" role="img" aria-label={offer.country}>
                   {getCountryFlag(offer.country)}
                 </span>
@@ -294,7 +296,7 @@ export default function DashboardOfferDetailPage({ params }) {
                 {offer.itinerary.map((dItem, idx) => (
                   <li key={dItem.day || idx} className="relative">
                     <span
-                      className="absolute -left-[2.15rem] sm:-left-[2.65rem] top-0 flex h-7 w-7 items-center justify-center rounded-xl bg-navy-900 text-xs font-bold text-gold-300 shadow-sm border border-gold-400/40"
+                      className="absolute -left-[2.15rem] sm:-left-[2.65rem] top-0 flex h-7 w-7 items-center justify-center rounded-xl bg-navy-900 text-xs font-bold text-gold-300"
                       aria-hidden="true"
                     >
                       {String(dItem.day || idx + 1).padStart(2, '0')}
@@ -315,7 +317,7 @@ export default function DashboardOfferDetailPage({ params }) {
 
         {/* Aside Booking / Points Redemption Card */}
         <aside className="lg:sticky lg:top-20 space-y-6">
-          <div className="rounded-3xl bg-white p-6 sm:p-7 transition-all">
+          <div className="rounded-2xl bg-white p-6 sm:p-7 transition-all">
             <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
               {d.specialPriceFrom}
             </p>
@@ -326,7 +328,7 @@ export default function DashboardOfferDetailPage({ params }) {
               {d.perPerson} {offer.duration ? `· ${offer.duration}` : ''}
             </p>
 
-            <div className="mt-5 rounded-2xl border border-ocean-200 bg-ocean-50 p-3.5 flex items-center justify-between">
+            <div className="mt-5 rounded-2xl bg-ocean-50 p-3.5 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles size={16} className="text-ocean-600" />
                 <span className="text-xs font-bold text-ocean-900">
@@ -341,7 +343,7 @@ export default function DashboardOfferDetailPage({ params }) {
             {/* Direct Action Area */}
             <div className="mt-6 space-y-3">
               <Link href={`/dashboard/redeem?offer=${encodeURIComponent(offer.title)}`} className="block">
-                <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold shadow-md hover:shadow-lg transition-all text-white">
+                <Button variant="primary" size="lg" className="w-full rounded-2xl py-3.5 font-bold text-white">
                   <Gift size={16} className="mr-2 text-gold-300 shrink-0" aria-hidden="true" />
                   <span>{d.redeemTripBtn}</span>
                 </Button>

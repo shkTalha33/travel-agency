@@ -110,19 +110,23 @@ export default function DashboardShell({ children }) {
       <div>
         {/* Brand Header */}
         <div className="h-20 px-6 flex items-center justify-between border-b border-navy-850/80 bg-navy-900/50">
-          <div className="flex items-center gap-3">
+          <Link
+            href="/"
+            className="flex items-center gap-3 group transition-transform hover:opacity-95"
+            title="Ir al sitio web / Go to website"
+          >
             <img
               src="/logo.jpg"
               alt="Círculo Wingding Logo"
-              className="w-10 h-10 rounded-xl object-cover shadow-lg border border-ocean-500/30"
+              className="w-10 h-10 rounded-xl object-cover shadow-lg border border-ocean-500/30 group-hover:scale-105 transition-transform"
             />
             <div>
               <span className="text-xs font-bold tracking-[0.2em] text-ocean-300 uppercase block">
                 {copy.shell?.memberPortal}
               </span>
-              <h1 className="text-sm font-serif font-bold text-white tracking-wide">{copy.brand}</h1>
+              <h1 className="text-sm font-serif font-bold text-white tracking-wide group-hover:text-ocean-200 transition-colors">{copy.brand}</h1>
             </div>
-          </div>
+          </Link>
           <button
             type="button"
             onClick={() => setMobileMenuOpen(false)}
