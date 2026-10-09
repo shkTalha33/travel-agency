@@ -69,9 +69,6 @@ export default function PointsPage() {
           title={pv.notYetTitle || 'You do not earn points yet'}
           description={pv.notYetDesc || 'Points accumulate from purchases and your referral network activity.'}
         />
-        <Link href="/membership">
-          <Button variant="primary">{dash.viewMemberships || 'View Memberships'}</Button>
-        </Link>
       </div>
     );
   }

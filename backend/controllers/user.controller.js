@@ -53,13 +53,13 @@ const updateProfile = aysncHandler(async (req, res, next) => {
 
 const updateAvatar = aysncHandler(async (req, res, next) => {
   const { avatar } = req.body;
-  if (!avatar) {
+  if (avatar === undefined) {
     return next(new BadRequestException(errorMessages.USER_AVATAR_MISSING));
   }
 
   const user = await User.findByIdAndUpdate(
     req.user._id,
-    { $set: { avatar } },
+    { $set: { avatar: avatar || "" } },
     { new: true }
   ).select("-password -refreshToken");
 

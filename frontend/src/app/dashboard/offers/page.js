@@ -32,7 +32,6 @@ export default function DashboardOffersPage() {
 
   return (
     <div className="space-y-5">
-      <SectionHeading eyebrow={p.eyebrow} title={p.title} description={p.desc} />
       <OffersExplorer offers={offers} />
     </div>
   );

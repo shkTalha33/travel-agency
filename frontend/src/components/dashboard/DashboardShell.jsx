@@ -26,7 +26,7 @@ import NotificationDropdown from '@/components/dashboard/NotificationDropdown';
 export default function DashboardShell({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, currentMembership, isAuthenticated, ready, logout, refreshUser } = useAuth();
+  const { currentUser, currentMembership, isAuthenticated, ready, logout } = useAuth();
   const { t, copy, isEn } = useLanguage();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -35,21 +35,6 @@ export default function DashboardShell({ children }) {
       router.replace('/login'); 
     }
   }, [ready, isAuthenticated, router]);
-
-  // Run backend authentication verification once per route transition
-  const lastCheckedPath = useRef('');
-  useEffect(() => {
-    if (ready && isAuthenticated && typeof refreshUser === 'function') {
-      if (lastCheckedPath.current !== pathname) {
-        lastCheckedPath.current = pathname;
-        refreshUser().then((user) => {
-          if (!user) {
-            router.replace('/login');
-          }
-        });
-      }
-    }
-  }, [pathname, ready, isAuthenticated, refreshUser, router]);
 
   useEffect(() => setMobileMenuOpen(false), [pathname]);
 
@@ -181,10 +166,10 @@ export default function DashboardShell({ children }) {
                 key={item.href}
                 href={item.href}
                 onClick={() => setMobileMenuOpen(false)}
-                className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all ${
+                className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-colors ${
                   isActive
                     ? 'bg-gradient-to-r from-ocean-600/30 to-ocean-600/10 text-white font-bold border border-ocean-500/40 shadow-sm'
-                    : 'text-sand-300 hover:text-white hover:bg-navy-900/60'
+                    : 'text-sand-300 hover:text-white hover:bg-navy-900/60 border border-transparent'
                 }`}
               >
                 <div className="flex items-center gap-3">
@@ -195,7 +180,7 @@ export default function DashboardShell({ children }) {
                   />
                   <span>{item.name}</span>
                 </div>
-                {isActive && <ChevronRight className="w-4 h-4 text-ocean-300 animate-pulse" />}
+                {isActive && <ChevronRight className="w-4 h-4 text-ocean-300" />}
               </Link>
             );
           })}

@@ -328,3 +328,28 @@ export const uploadApi = {
 export const membershipApi = {
   getAll: () => apiClient('/membership-tiers'),
 };
+
+export const notificationsApi = {
+  getAll: () => apiClient('/notifications'),
+  create: (data) =>
+    apiClient('/notifications', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+  markAsRead: (id) =>
+    apiClient(`/notifications/${id}/read`, {
+      method: 'PUT',
+    }),
+  markAllAsRead: () =>
+    apiClient('/notifications/read-all', {
+      method: 'PUT',
+    }),
+  deleteNotification: (id) =>
+    apiClient(`/notifications/${id}`, {
+      method: 'DELETE',
+    }),
+  clearAll: () =>
+    apiClient('/notifications/clear-all', {
+      method: 'DELETE',
+    }),
+};

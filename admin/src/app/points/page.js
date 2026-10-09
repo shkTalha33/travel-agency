@@ -184,11 +184,11 @@ export default function AdminPointsPage() {
               {t('points.rulesDesc', 'Al registrar una compra: el patrocinador directo (Nivel 1) recibe el 100% de los puntos y el patrocinador superior (Nivel 2) recibe el 50%, sujeto al nivel de membresía.')}
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            <Badge variant="gold" size="xs">
+          <div className="flex items-center gap-2 shrink-0">
+            <Badge variant="gold" size="xs" className="!bg-amber-100 !text-amber-950 !border-amber-300 font-bold">
               N1: 100%
             </Badge>
-            <Badge variant="ocean" size="xs">
+            <Badge variant="ocean" size="xs" className="!bg-rose-100 !text-rose-950 !border-rose-300 font-bold">
               N2: 50%
             </Badge>
           </div>

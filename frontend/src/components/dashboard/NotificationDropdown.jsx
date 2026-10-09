@@ -84,6 +84,7 @@ export default function NotificationDropdown() {
     unreadCount,
     markAsRead,
     markAllAsRead,
+    removeNotification,
     clearAll,
   } = useNotifications();
 
@@ -265,10 +266,23 @@ export default function NotificationDropdown() {
                       </div>
                     </div>
 
-                    {/* Unread Dot on Item */}
-                    {!n.read && (
-                      <span className="shrink-0 w-2 h-2 rounded-full bg-ocean-600 mt-1.5 shadow-xs" />
-                    )}
+                    {/* Unread Dot & Delete button on Hover */}
+                    <div className="shrink-0 flex items-center gap-1.5 pt-1">
+                      {!n.read && (
+                        <span className="w-2 h-2 rounded-full bg-ocean-600 shadow-xs" />
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          removeNotification(n.id);
+                        }}
+                        className="opacity-0 group-hover:opacity-100 p-1 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all cursor-pointer"
+                        title={isEn ? "Delete notification" : "Eliminar notificación"}
+                      >
+                        <Trash2 size={12} />
+                      </button>
+                    </div>
                   </div>
                 );
               })

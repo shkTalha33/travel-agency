@@ -43,6 +43,7 @@ export default function RedeemPage() {
   const searchParams = useSearchParams();
 
   const rv = copy.redeemView || {};
+  const membershipName = copy.levels?.[m?.id]?.name || (isEn ? (m?.id === 'ambassador' ? 'Ambassador' : m?.id === 'elite_ambassador' ? 'Elite Ambassador' : 'Member') : (m?.name || 'Miembro'));
 
   const reduxSummary = useSelector((state) => state.points?.summary || {});
   const redemptionsState = useSelector((state) => state.redemptions || {});
@@ -171,6 +172,19 @@ export default function RedeemPage() {
     },
   ];
 
+  const formatRewardType = (type) => {
+    switch (type) {
+      case 'travel_credit':
+        return rv.optTravelCredit || (isEn ? 'Travel Credit / Package Discount' : 'Crédito de Viaje / Descuento en Paquete');
+      case 'hotel_upgrade':
+        return rv.optHotelUpgrade || (isEn ? 'Hotel Room Upgrade' : 'Mejora de Habitación de Hotel');
+      case 'gift_card':
+        return rv.optGiftCard || (isEn ? 'VIP Experience / Activity' : 'Experiencia VIP / Excursión');
+      default:
+        return type ? type.replace(/_/g, ' ') : (isEn ? 'Travel Credit' : 'Crédito de Viaje');
+    }
+  };
+
   return (
     <div className="w-full space-y-5">
       {/* Top Banner: Solid Obsidian, Flat, Borderless, Shadowless */}
@@ -182,7 +196,7 @@ export default function RedeemPage() {
               <span className="text-xs font-bold uppercase tracking-widest text-gold-300">
                 {rv.balanceTitle || (isEn ? 'REDEEMABLE BALANCE' : 'BALANCE REDIMIBLE')}
               </span>
-              {m?.id && <Badge variant={m.id}>{m?.name || (isEn ? 'Member' : 'Miembro')}</Badge>}
+              {m?.id && <Badge variant={m.id}>{membershipName}</Badge>}
             </div>
 
             <div className="flex items-baseline gap-2.5">
@@ -351,7 +365,7 @@ export default function RedeemPage() {
             <div className="border-b border-sand-100 pb-2.5">
               <h3 className="font-serif text-base font-bold text-navy-950 flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-ocean-600" />
-                <span>{rv.perksTitle || 'Redemption Perks'}</span>
+                <span>{rv.perksTitle || (isEn ? 'Redemption Perks' : 'Beneficios de Canje')}</span>
               </h3>
             </div>
 
@@ -361,8 +375,8 @@ export default function RedeemPage() {
                   1
                 </span>
                 <span>
-                  <strong className="text-navy-950 block">{rv.perk1Title || 'Real Travel Savings'}</strong>
-                  {rv.perk1Desc || 'Apply points directly toward hotels, tours, or full vacation packages.'}
+                  <strong className="text-navy-950 block">{rv.perk1Title || (isEn ? 'Real Travel Savings' : 'Ahorro Real en Viajes')}</strong>
+                  {rv.perk1Desc || (isEn ? 'Apply points directly toward hotels, tours, or full vacation packages.' : 'Aplica tus puntos en hoteles, tours o paquetes vacacionales completos.')}
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
@@ -370,8 +384,8 @@ export default function RedeemPage() {
                   2
                 </span>
                 <span>
-                  <strong className="text-navy-950 block">{rv.perk2Title || 'Concierge Assistance'}</strong>
-                  {rv.perk2Desc || 'Our booking specialists handle your reservations smoothly and quickly.'}
+                  <strong className="text-navy-950 block">{rv.perk2Title || (isEn ? 'Concierge Assistance' : 'Asistencia de Concierge')}</strong>
+                  {rv.perk2Desc || (isEn ? 'Our booking specialists handle your reservations smoothly and quickly.' : 'Nuestros especialistas se encargan de tus reservas de forma rápida y personalizada.')}
                 </span>
               </li>
               <li className="flex items-start gap-2.5">
@@ -379,8 +393,8 @@ export default function RedeemPage() {
                   3
                 </span>
                 <span>
-                  <strong className="text-navy-950 block">{rv.perk3Title || 'No Hidden Fees'}</strong>
-                  {rv.perk3Desc || 'Clear point-to-dollar valuation with transparent redemption history.'}
+                  <strong className="text-navy-950 block">{rv.perk3Title || (isEn ? 'No Hidden Fees' : 'Sin Cargos Ocultos')}</strong>
+                  {rv.perk3Desc || (isEn ? 'Clear point-to-dollar valuation with transparent redemption history.' : 'Valoración clara de puntos a dólares con historial transparente.')}
                 </span>
               </li>
             </ul>
@@ -425,7 +439,7 @@ export default function RedeemPage() {
                   <div className="flex flex-wrap items-center gap-2.5">
                     {getStatusBadge(item.status)}
                     <span className="text-xs font-bold text-navy-950 capitalize">
-                      {item.rewardType?.replace(/_/g, ' ') || (isEn ? 'Travel Credit' : 'Crédito de Viaje')}
+                      {formatRewardType(item.rewardType)}
                     </span>
                   </div>
                   {item.paymentDetails && (

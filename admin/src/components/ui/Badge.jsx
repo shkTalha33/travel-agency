@@ -12,16 +12,16 @@ export default function Badge({
   const variants = {
     default: 'bg-sand-100 text-navy-700 border-sand-300',
     primary: 'bg-navy-900 text-white border-navy-900',
-    gold: 'bg-gold-50 text-gold-900 border-gold-300 font-bold',
+    gold: 'bg-amber-50 text-amber-950 border-amber-300 font-bold',
     ocean: 'bg-ocean-50 text-ocean-800 border-ocean-200',
     success: 'bg-emerald-50 text-emerald-800 border-emerald-300 font-semibold',
-    warning: 'bg-amber-50 text-amber-800 border-amber-300 font-semibold',
+    warning: 'bg-amber-50 text-amber-900 border-amber-300 font-semibold',
     danger: 'bg-rose-50 text-rose-800 border-rose-300 font-semibold',
     // Club Membership Tiers
     member: 'bg-slate-100 text-slate-700 border-slate-300 font-medium',
     active_member: 'bg-emerald-50 text-emerald-800 border-emerald-300 font-bold',
     ambassador: 'bg-ocean-50 text-ocean-800 border-ocean-300 font-bold',
-    elite_ambassador: 'bg-gold-50 text-gold-900 border-gold-400 font-extrabold shadow-xs',
+    elite_ambassador: 'bg-amber-50 text-amber-950 border-amber-400 font-extrabold shadow-xs',
   };
 
   const sizes = {

@@ -8,6 +8,7 @@ const faqRoutes = require("./faq.route");
 const contactRoutes = require("./contact.route");
 const uploadRoutes = require("./upload.route");
 const membershipTierRoutes = require("./membershipTier.route");
+const notificationRoutes = require("./notification.route");
 
 const router = Router();
 
@@ -20,5 +21,6 @@ router.use("/faqs", faqRoutes);
 router.use("/contact", contactRoutes);
 router.use("/upload", uploadRoutes);
 router.use("/membership-tiers", membershipTierRoutes);
+router.use("/notifications", notificationRoutes);
 
 module.exports = router;

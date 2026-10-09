@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import { ChevronDown, CornerDownRight, Network, Users } from 'lucide-react';
 import MemberRow from './MemberRow';
+import Badge from '@/components/ui/Badge';
 import AnimatedTooltip from '@/components/ui/AnimatedTooltip';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -33,30 +34,34 @@ export default function NetworkTree({ level1 = [], level2 = [], showLevel2 = fal
 
   return (
     <div className="space-y-3">
-      {/* Network Overview Bar with Aceternity Animated Tooltip */}
+      {/* Network Overview Bar with count badge beside title and leaders tooltip at right end */}
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-sand-100/70 p-3 text-xs text-slate-600 sm:px-4">
-        <span className="flex items-center gap-1.5 font-bold text-navy-900">
-          <Network size={15} className="text-ocean-600" aria-hidden="true" />
-          {nv.treeActiveTitle || 'Árbol de Referidos Activo'}
-        </span>
+        <div className="flex flex-wrap items-center gap-2.5">
+          <span className="flex items-center gap-1.5 font-bold text-navy-900">
+            <Network size={16} className="text-ocean-600" aria-hidden="true" />
+            <span>{nv.treeActiveTitle || 'Árbol de Referidos Activo'}</span>
+          </span>
+
+          <div className="flex items-center gap-1.5">
+            <Badge variant="default" size="sm" className="bg-white border-sand-200 text-navy-900 font-bold shadow-xs">
+              <strong>{level1.length}</strong>&nbsp;{nv.directLabel || 'Directos'}
+            </Badge>
+            {showLevel2 && (
+              <Badge variant="ocean" size="sm" className="bg-white border-sand-200 text-ocean-700 font-bold shadow-xs">
+                <strong>{level2.length}</strong>&nbsp;{nv.subNetworkLabel || 'Sub-red'}
+              </Badge>
+            )}
+          </div>
+        </div>
 
         {avatarPreview.length > 0 && (
-          <div className="flex items-center gap-2">
-            <span className="text-[11px] text-slate-500 hidden sm:inline">{nv.leadersLabel || 'Líderes de tu red:'}</span>
+          <div className="flex items-center gap-2.5 shrink-0 sm:ml-auto">
+            <span className="text-[11px] text-slate-500 font-medium hidden sm:inline">
+              {nv.leadersLabel || 'Líderes de tu red:'}
+            </span>
             <AnimatedTooltip items={avatarPreview} />
           </div>
         )}
-
-        <div className="flex items-center gap-3 font-semibold">
-          <span className="rounded-lg bg-white px-2 py-0.5 border border-sand-200 text-navy-900">
-            <strong>{level1.length}</strong> {nv.directLabel || 'Directos'}
-          </span>
-          {showLevel2 && (
-            <span className="rounded-lg bg-white px-2 py-0.5 border border-sand-200 text-ocean-700">
-              <strong>{level2.length}</strong> {nv.subNetworkLabel || 'Sub-red'}
-            </span>
-          )}
-        </div>
       </div>
 
       <ul className="space-y-2">

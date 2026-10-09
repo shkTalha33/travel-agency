@@ -168,6 +168,28 @@ const successMessagesDict = {
     es: "Pregunta frecuente eliminada exitosamente.",
     en: "FAQ deleted successfully.",
   },
+
+  // Notifications
+  FETCH_NOTIFICATIONS: {
+    es: "Notificaciones obtenidas exitosamente.",
+    en: "Notifications retrieved successfully.",
+  },
+  NOTIFICATION_CREATED: {
+    es: "Notificación creada exitosamente.",
+    en: "Notification created successfully.",
+  },
+  NOTIFICATIONS_MARKED_READ: {
+    es: "Notificaciones marcadas como leídas.",
+    en: "Notifications marked as read.",
+  },
+  NOTIFICATION_DELETED: {
+    es: "Notificación eliminada exitosamente.",
+    en: "Notification deleted successfully.",
+  },
+  NOTIFICATIONS_CLEARED: {
+    es: "Todas las notificaciones han sido eliminadas.",
+    en: "All notifications have been cleared.",
+  },
 };
 
 function translateSuccessMessage(msg, lang = 'es') {

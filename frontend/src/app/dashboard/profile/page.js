@@ -46,7 +46,7 @@ export default function ProfilePage() {
 
   const [avatarUrl, setAvatarUrl] = useState(u?.avatar || '');
   const [formData, setFormData] = useState({
-    name: u?.name || '',
+    name: u?.name || u?.fullname || '',
     email: u?.email || '',
     phone: u?.phone || '',
     city: u?.city || '',
@@ -55,6 +55,19 @@ export default function ProfilePage() {
   const [copied, setCopied] = useState(false);
   const [contact, setContact] = useState('whatsapp');
   const [notify, setNotify] = useState(true);
+
+  // Sync user state changes if currentUser updates
+  React.useEffect(() => {
+    if (u) {
+      setAvatarUrl(u.avatar || '');
+      setFormData({
+        name: u.name || u.fullname || '',
+        email: u.email || '',
+        phone: u.phone || '',
+        city: u.city || '',
+      });
+    }
+  }, [u?.avatar, u?.name, u?.fullname, u?.email, u?.phone, u?.city]);
 
   // Password state
   const [pw, setPw] = useState({ cur: '', next: '', conf: '' });
@@ -67,8 +80,8 @@ export default function ProfilePage() {
     e.preventDefault();
     setSaving(true);
     try {
-      if (avatarUrl && avatarUrl !== u.avatar) {
-        await userApi.updateAvatar(avatarUrl);
+      if (avatarUrl !== (u?.avatar || '')) {
+        await userApi.updateAvatar(avatarUrl || '');
       }
       await userApi.updateProfile(formData);
       if (typeof refreshUser === 'function') {
@@ -156,7 +169,7 @@ export default function ProfilePage() {
           <div className="flex flex-col sm:flex-row sm:items-center gap-4">
             <div className="relative w-fit shrink-0">
               <Avatar
-                src={avatarUrl || u.avatar}
+                src={avatarUrl}
                 name={u.name}
                 className="w-18 h-18 sm:w-20 sm:h-20 rounded-full ring-2 ring-ocean-500/50 object-cover"
               />

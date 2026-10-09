@@ -38,6 +38,7 @@ module.exports = {
           600: '#B87B0B',
           700: '#8E5806',
           800: '#673D03',
+          900: '#482A02',
         },
         sand: {
           50: '#FAFAFB', // Crisp clean luxury pearl
