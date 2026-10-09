@@ -31,6 +31,7 @@ import useMockLoading from '@/hooks/useMockLoading';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useNotifications } from '@/context/NotificationContext';
 import { userApi } from '@/lib/apiClient';
 
 export default function ProfilePage() {
@@ -38,6 +39,7 @@ export default function ProfilePage() {
   const { currentUser: u, currentMembership: m, refreshUser } = useAuth();
   const { t, copy, isEn } = useLanguage();
   const { toast } = useToast();
+  const { addNotification } = useNotifications();
 
   const pv = copy.profileView || {};
   const membershipName = copy.levels?.[m?.id]?.name || m?.name || (isEn ? 'Member' : 'Miembro');
@@ -73,6 +75,15 @@ export default function ProfilePage() {
         await refreshUser();
       }
       toast(pv.savedToast);
+
+      const nLoc = copy.notifications || {};
+      addNotification({
+        type: 'security',
+        title: nLoc.profileUpdatedTitle || (isEn ? 'Profile Updated' : 'Perfil Actualizado'),
+        message: nLoc.profileUpdatedMsg || (isEn ? 'Your account details have been saved successfully.' : 'Tus datos de cuenta se guardaron correctamente.'),
+        link: '/dashboard/profile',
+        read: false,
+      });
     } catch (err) {
       toast(err?.message || pv.savedToast, 'error');
     } finally {
@@ -117,6 +128,15 @@ export default function ProfilePage() {
       setPw({ cur: '', next: '', conf: '' });
       setPwErrors({});
       toast(pv.pwSuccessToast);
+
+      const nLoc = copy.notifications || {};
+      addNotification({
+        type: 'security',
+        title: nLoc.passwordChangedTitle || (isEn ? 'Password Changed' : 'Contraseña Actualizada'),
+        message: nLoc.passwordChangedMsg || (isEn ? 'Your password was successfully updated.' : 'Tu contraseña se actualizó correctamente.'),
+        link: '/dashboard/profile',
+        read: false,
+      });
     } catch (apiErr) {
       const msg = apiErr?.data?.message || apiErr?.message || pv.pwCurrentIncorrect;
       setPwErrors({ cur: msg });

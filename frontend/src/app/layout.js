@@ -2,6 +2,7 @@ import './globals.css';
 import { AppStoreProvider } from '@/store';
 import { AuthProvider } from '@/context/AuthContext';
 import { LanguageProvider } from '@/context/LanguageContext';
+import { NotificationProvider } from '@/context/NotificationContext';
 import { ToastProvider } from '@/components/ui/Toast';
 import SkipLink from '@/components/layout/SkipLink';
 
@@ -19,7 +20,9 @@ export default function RootLayout({ children }) {
           <LanguageProvider>
             <SkipLink />
             <AuthProvider>
-              <ToastProvider>{children}</ToastProvider>
+              <NotificationProvider>
+                <ToastProvider>{children}</ToastProvider>
+              </NotificationProvider>
             </AuthProvider>
           </LanguageProvider>
         </AppStoreProvider>

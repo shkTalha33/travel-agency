@@ -28,6 +28,7 @@ import useMockLoading from '@/hooks/useMockLoading';
 import { useToast } from '@/components/ui/Toast';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
+import { useNotifications } from '@/context/NotificationContext';
 import { useSelector, useDispatch } from '@/store';
 import { fetchPointsSummary } from '@/store/slices/pointsSlice';
 import { fetchMyRedemptions, requestRedemption } from '@/store/slices/redemptionsSlice';
@@ -37,6 +38,7 @@ export default function RedeemPage() {
   const { currentUser, currentMembership: m } = useAuth();
   const { t, copy, isEn } = useLanguage();
   const { toast } = useToast();
+  const { addNotification } = useNotifications();
   const dispatch = useDispatch();
   const searchParams = useSearchParams();
 
@@ -117,6 +119,18 @@ export default function RedeemPage() {
       setPaymentDetails('');
       setNotes('');
       toast(rv.successToast || (isEn ? 'Redemption request submitted successfully!' : '¡Solicitud de redención enviada con éxito!'));
+      
+      const nLoc = copy.notifications || {};
+      addNotification({
+        type: 'redeem',
+        title: nLoc.redemptionSubmittedTitle || (isEn ? 'Redemption Request Submitted' : 'Solicitud de Canje Enviada'),
+        message: typeof nLoc.redemptionSubmittedMsg === 'function'
+          ? nLoc.redemptionSubmittedMsg(n)
+          : (isEn ? `Your request to redeem ${n} PTS is under review.` : `Tu solicitud de canje de ${n} PTS está en revisión.`),
+        link: '/dashboard/redeem',
+        read: false,
+      });
+
       dispatch(fetchPointsSummary(true));
       dispatch(fetchMyRedemptions(true));
     } catch (err) {

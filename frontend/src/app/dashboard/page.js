@@ -44,7 +44,7 @@ import { fetchMyRedemptions } from '@/store/slices/redemptionsSlice';
 export default function DashboardHome() {
   const loading = useMockLoading();
   const { currentUser, currentMembership: m } = useAuth();
-  const { t, copy, isEn } = useLanguage();
+  const { t, copy, isEn, locale } = useLanguage();
   const { toast } = useToast();
   const dispatch = useDispatch();
 
@@ -101,7 +101,7 @@ export default function DashboardHome() {
   const hasPoints = s.availablePoints > 0 || s.totalEarnedPoints > 0;
   const showStats = true;
 
-  const formattedJoinedDate = currentUser?.joinedDate || (currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString(locale === 'es' ? 'es-ES' : 'en-US', { month: 'short', year: 'numeric' }) : '');
+  const formattedJoinedDate = currentUser?.joinedDate || (currentUser?.createdAt ? new Date(currentUser.createdAt).toLocaleDateString(isEn ? 'en-US' : 'es-ES', { month: 'short', year: 'numeric' }) : '');
 
   const getStatusBadge = (status) => {
     switch (status) {

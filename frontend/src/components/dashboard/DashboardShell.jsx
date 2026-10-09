@@ -21,6 +21,7 @@ import Dropdown from '@/components/ui/Dropdown';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
+import NotificationDropdown from '@/components/dashboard/NotificationDropdown';
 
 export default function DashboardShell({ children }) {
   const pathname = usePathname();
@@ -271,7 +272,8 @@ export default function DashboardShell({ children }) {
           </div>
 
           {/* Right Header Controls */}
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <NotificationDropdown />
             <LanguageSwitcher />
             <Dropdown
               label={t('auth.userMenu')}

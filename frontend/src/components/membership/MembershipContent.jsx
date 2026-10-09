@@ -106,7 +106,7 @@ export default function MembershipContent() {
                       <th className="pb-4 pt-2 font-semibold text-center">{m.colNetwork}</th>
                       <th className="pb-4 pt-2 font-semibold text-center">{m.colL1}</th>
                       <th className="pb-4 pt-2 font-semibold text-center">{m.colL2}</th>
-                      <th className="pb-4 pt-2 font-semibold text-center">Status</th>
+                      <th className="pb-4 pt-2 font-semibold text-center">{m.colStatus || 'Status'}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-sand-100">

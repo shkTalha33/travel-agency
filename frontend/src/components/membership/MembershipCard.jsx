@@ -162,7 +162,7 @@ export default function MembershipCard({ level, current = false }) {
               <Zap className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${dark ? 'text-gold-400' : 'text-[#AA303E]'}`} />
               <div>
                 <strong className={`capitalize ${dark ? 'text-gold-300' : 'text-navy-950'} mr-1`}>
-                  {isEn ? 'Qualification:' : 'Calificación:'}
+                  {m.qualificationLabel || (isEn ? 'Qualification:' : 'Calificación:')}
                 </strong>
                 <span className="text-[11px] leading-relaxed opacity-90">{level.qualification}</span>
               </div>
