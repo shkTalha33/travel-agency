@@ -23,6 +23,7 @@ import Badge from '@/components/ui/Badge';
 import Input from '@/components/ui/Input';
 import EmptyState from '@/components/ui/EmptyState';
 import ImageUpload from '@/components/ui/ImageUpload';
+import MultiImageUpload from '@/components/ui/MultiImageUpload';
 import Checkbox from '@/components/ui/Checkbox';
 import CountrySelect from '@/components/ui/CountrySelect';
 import TagInput from '@/components/ui/TagInput';
@@ -46,6 +47,7 @@ const INITIAL_OFFER_FORM = {
   badge: '',
   badgeEn: '',
   image: '',
+  gallery: [],
   summary: '',
   summaryEn: '',
   description: '',
@@ -119,7 +121,8 @@ export default function AdminOffersPage() {
       hotelCategoryEn: offer.hotelCategoryEn || offer.en?.hotelCategory || '',
       badge: offer.badge || '',
       badgeEn: offer.badgeEn || offer.en?.badge || '',
-      image: offer.image || '',
+      image: offer.image || (Array.isArray(offer.gallery) ? offer.gallery[0] : '') || '',
+      gallery: Array.isArray(offer.gallery) && offer.gallery.length > 0 ? offer.gallery : [offer.image].filter(Boolean),
       summary: offer.summary || '',
       summaryEn: offer.summaryEn || offer.en?.summary || '',
       description: offer.description || '',
@@ -166,8 +169,12 @@ export default function AdminOffersPage() {
     if (!formData.duration || !formData.duration.trim()) {
       newErrors.duration = isEn ? 'Trip duration is required (e.g. 5 days / 4 nights).' : 'La duración es obligatoria (ej: 5 días / 4 noches).';
     }
-    if (!formData.image || !formData.image.trim()) {
-      newErrors.image = isEn ? 'Primary image URL is required.' : 'La URL de la imagen principal es requerida.';
+    const galleryList = Array.isArray(formData.gallery) && formData.gallery.length > 0
+      ? formData.gallery.filter(Boolean)
+      : [formData.image].filter(Boolean);
+
+    if (galleryList.length === 0) {
+      newErrors.image = isEn ? 'At least one offer image is required.' : 'La imagen de la oferta es requerida.';
     }
     if (!formData.summary || !formData.summary.trim()) {
       newErrors.summary = isEn ? 'Short summary is required.' : 'El resumen corto es obligatorio.';
@@ -221,6 +228,8 @@ export default function AdminOffersPage() {
 
     const payload = {
       ...formData,
+      image: galleryList[0] || '',
+      gallery: galleryList,
       title: formData.title.trim(),
       titleEn: formData.titleEn?.trim() || formData.title.trim(),
       destination: formData.destination.trim(),
@@ -725,16 +734,21 @@ export default function AdminOffersPage() {
             </div>
           </div>
 
-          <ImageUpload
-            label={t('offers.imageURL', 'Imagen Principal')}
+          <MultiImageUpload
+            label={isEn ? 'Offer Images (Gallery & Cover)' : 'Imágenes de la Oferta (Galería y Portada)'}
             required
-            value={formData.image}
-            onChange={(url) => {
-              setFormData({ ...formData, image: url });
+            images={formData.gallery && formData.gallery.length > 0 ? formData.gallery : (formData.image ? [formData.image] : [])}
+            onChange={(newGallery) => {
+              setFormData({
+                ...formData,
+                gallery: newGallery,
+                image: newGallery[0] || '',
+              });
               if (errors.image) setErrors((prev) => ({ ...prev, image: '' }));
             }}
             folder="offers"
             error={errors.image}
+            helperText={isEn ? 'The first image is used as the primary card cover. You can upload multiple photos and delete individual ones.' : 'La primera imagen se usa como portada principal. Puedes subir varias fotos y eliminar las que desees.'}
           />
 
           {/* Summaries */}

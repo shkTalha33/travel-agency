@@ -190,7 +190,7 @@ UserSchema.methods.generateAccessToken = function () {
   );
 };
 
-// Generate Refresh Token (Longer-lived, e.g. 7d)
+// Generate Refresh Token (Longer-lived, e.g. 30d)
 UserSchema.methods.generateRefreshToken = function () {
   return jwt.sign(
     {
@@ -199,8 +199,8 @@ UserSchema.methods.generateRefreshToken = function () {
       email: this.email,
       role: this.role,
     },
-    process.env.REFRESH_TOKEN_SECRET,
-    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "7d" }
+    process.env.REFRESH_TOKEN_SECRET || "travel_agency_refresh_token_secret_ultra_secure_key_2026_refresh!",
+    { expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "30d" }
   );
 };
 

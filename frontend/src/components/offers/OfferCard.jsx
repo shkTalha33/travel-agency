@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { ArrowRight, Clock, MapPin, Sparkles } from 'lucide-react';
 import Badge from '@/components/ui/Badge';
 import SafeImage from '@/components/common/SafeImage';
@@ -10,7 +11,8 @@ import { localizeOffer } from '@/data/offers';
 import { getCountryFlag } from '@/data/countries';
 
 /** Presentational: receives a single `offer` object via props (backend-ready). */
-export default function OfferCard({ offer }) {
+export default function OfferCard({ offer, basePath }) {
+  const pathname = usePathname();
   const { t, locale } = useLanguage();
   const o = localizeOffer(offer, locale);
 
@@ -18,9 +20,12 @@ export default function OfferCard({ offer }) {
     ? `${o.destination}, ${o.country}`
     : o.destination || o.country || '';
 
+  const prefix = basePath || (pathname?.startsWith('/dashboard') ? '/dashboard/offers' : '/offers');
+  const offerTarget = `${prefix}/${encodeURIComponent(o.slug || o._id || o.id || '')}`;
+
   return (
     <Link
-      href={`/offers/${encodeURIComponent(o.slug || o._id || o.id || '')}`}
+      href={offerTarget}
       className="lift group block rounded-3xl border border-slate-200/90 bg-white p-3.5 sm:p-4 shadow-sm hover:shadow-md hover:border-slate-300 transition-all duration-200"
     >
       <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-sand-200">

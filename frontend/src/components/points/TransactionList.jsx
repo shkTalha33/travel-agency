@@ -20,7 +20,7 @@ export default function TransactionList({ transactions = [], compact = false }) 
     <List>
       {transactions.map((t) => {
         // Format readable date without 'undefined'
-        const txDate = t.date || (t.createdAt ? new Date(t.createdAt).toLocaleDateString() : t.iso) || '';
+        const txDate = t.date || (t.createdAt ? new Date(t.createdAt).toLocaleDateString(isEn ? 'en-US' : 'es-ES') : t.iso) || '';
         
         // Clean any raw mongo ids from description
         let desc = t.purchaseDescription || (isEn ? 'Points Transaction' : 'Transacción de puntos');

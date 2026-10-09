@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { Users } from 'lucide-react';
-import Card from '@/components/ui/Card';
-import CardSpotlight from '@/components/ui/CardSpotlight';
+import { Users, Share2, Sparkles, Copy, Check } from 'lucide-react';
 import Tabs from '@/components/ui/Tabs';
 import EmptyState from '@/components/ui/EmptyState';
 import NetworkTree from '@/components/referral/NetworkTree';
@@ -13,6 +11,8 @@ import MemberDetailModal from '@/components/referral/MemberDetailModal';
 import InviteButton from '@/components/referral/InviteButton';
 import { ListSkeleton } from '@/components/common/Skeletons';
 import Button from '@/components/ui/Button';
+import Badge from '@/components/ui/Badge';
+import { useToast } from '@/components/ui/Toast';
 import useMockLoading from '@/hooks/useMockLoading';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
@@ -23,29 +23,45 @@ import { getNetwork } from '@/lib/memberData';
 export default function NetworkPage() {
   const loading = useMockLoading();
   const { currentUser, currentMembership: m } = useAuth();
-  const { t, copy } = useLanguage();
+  const { t, copy, isEn } = useLanguage();
+  const { toast } = useToast();
   const dispatch = useDispatch();
   const [tab, setTab] = useState('tree');
   const [selected, setSelected] = useState(null);
+  const [copied, setCopied] = useState(false);
 
   const reduxNetwork = useSelector((state) => state.network.network);
   const nv = copy.networkView || {};
   const dash = copy.dashboard || {};
+  const membershipName = copy.levels?.[m?.id]?.name || m?.name || (isEn ? 'Member' : 'Miembro');
 
   useEffect(() => {
     dispatch(fetchNetworkData());
   }, [dispatch]);
 
+  const copyRefLink = async () => {
+    try {
+      await navigator.clipboard.writeText(currentUser?.referralLink || '');
+      setCopied(true);
+      toast(isEn ? 'Referral link copied!' : '¡Enlace de referido copiado!');
+      setTimeout(() => setCopied(false), 1800);
+    } catch (_) {
+      toast(isEn ? 'Could not copy link' : 'No se pudo copiar el enlace', 'error');
+    }
+  };
+
   if (m.referralLevelsAllowed === 0) {
     return (
       <div className="space-y-6">
-        <h1 className="text-3xl font-bold text-navy-900">{t('panel.network')}</h1>
+        <h1 className="text-3xl font-bold text-navy-950 font-serif">{t('panel.network')}</h1>
         <EmptyState
           icon={<Users size={28} />}
-          title={nv.notAvailableTitle || 'Tu red aún no está disponible'}
-          description={nv.notAvailableDesc || 'Los beneficios de referidos se habilitan al convertirte en Miembro Activo. Conoce los niveles de membresía.'}
+          title={nv.notAvailableTitle || (isEn ? 'Your network is not available yet' : 'Tu red aún no está disponible')}
+          description={nv.notAvailableDesc || (isEn ? 'Referral benefits are enabled when you upgrade to Active Member or higher.' : 'Los beneficios de referidos se habilitan al convertirte en Miembro Activo. Conoce los niveles de membresía.')}
         />
-        <Link href="/membership"><Button>{dash.viewMemberships || 'Ver membresías'}</Button></Link>
+        <Link href="/membership">
+          <Button variant="primary">{dash.viewMemberships || (isEn ? 'View Memberships' : 'Ver membresías')}</Button>
+        </Link>
       </div>
     );
   }
@@ -55,65 +71,90 @@ export default function NetworkPage() {
     : getNetwork(currentUser);
   const twoLevels = m.referralLevelsAllowed >= 2;
   const tabs = [
-    { id: 'tree', label: nv.tabTree || 'Jerarquía' },
-    { id: 'l1', label: nv.tabL1 || 'Nivel 1', count: net.level1.length },
-    ...(twoLevels ? [{ id: 'l2', label: nv.tabL2 || 'Nivel 2', count: net.level2.length }] : []),
+    { id: 'tree', label: nv.tabTree || (isEn ? 'Hierarchy' : 'Jerarquía') },
+    { id: 'l1', label: nv.tabL1 || (isEn ? 'Level 1' : 'Nivel 1'), count: net.level1.length },
+    ...(twoLevels ? [{ id: 'l2', label: nv.tabL2 || (isEn ? 'Level 2' : 'Nivel 2'), count: net.level2.length }] : []),
   ];
   const flat = tab === 'l1' ? net.level1 : net.level2;
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-navy-900">{t('panel.network')}</h1>
-        <p className="mt-1 text-sm text-slate-600">
-          {nv.descL1 || 'Nivel 1: tus referidos directos.'}
-          {twoLevels && (nv.descL2 || ' Nivel 2: los referidos de tus referidos.')}
-        </p>
-      </div>
+    <div className="w-full space-y-5">
+      {/* Top Banner: Solid Obsidian, Flat, Borderless */}
+      <div className="rounded-2xl bg-navy-950 p-5 sm:p-6 text-white">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-gold-400" />
+              <span className="text-xs font-bold uppercase tracking-widest text-gold-300">
+                {isEn ? 'REFERRAL NETWORK' : 'RED DE AFILIADOS'}
+              </span>
+              <Badge variant={m?.id || 'active'}>{membershipName}</Badge>
+            </div>
 
-      <CardSpotlight className="rounded-3xl border border-slate-200/80 bg-gradient-to-br from-white via-ocean-50/20 to-white p-6 shadow-sm">
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-          <div>
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-ocean-100 px-3 py-0.5 text-xs font-bold text-ocean-700">
-              {nv.inviteCardPill || 'Tu enlace exclusivo de invitación'}
-            </span>
-            <p className="mt-2 text-sm text-slate-600">
-              {(nv.inviteCardDesc || 'Comparte tu enlace o tu código')} <strong className="font-bold text-navy-900 text-base">{currentUser.referralCode}</strong> {(nv.inviteCardDescSuffix || 'para ganar puntos cuando viajen.')}
+            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-white tracking-tight">
+              {t('panel.network')}
+            </h1>
+
+            <p className="text-xs sm:text-sm text-sand-300 max-w-xl">
+              {nv.descL1 || (isEn ? 'Level 1: your direct referrals.' : 'Nivel 1: tus referidos directos.')}
+              {twoLevels && (nv.descL2 || (isEn ? ' Level 2: referrals made by your network members.' : ' Nivel 2: los referidos de tus referidos.'))}
             </p>
           </div>
-          <div className="flex items-center gap-3">
-            <InviteButton link={currentUser.referralLink} variant="primary" size="md" className="shadow-sm" />
+
+          <div className="shrink-0 flex flex-col sm:flex-row md:flex-col items-start sm:items-center md:items-end gap-3 pt-2 md:pt-0 border-t border-white/10 md:border-0">
+            <div className="rounded-2xl bg-navy-900 p-4 flex items-center gap-3">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  {isEn ? 'YOUR REFERRAL CODE' : 'TU CÓDIGO DE REFERIDO'}
+                </p>
+                <p className="font-mono text-lg font-bold text-gold-300 mt-0.5">
+                  {currentUser.referralCode || 'N/A'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={copyRefLink}
+                className="p-2 rounded-xl bg-navy-800 hover:bg-navy-700 text-white transition-all cursor-pointer border-0 outline-none focus:outline-none focus:ring-0 active:outline-none"
+                title={isEn ? 'Copy Referral Link' : 'Copiar Enlace'}
+              >
+                {copied ? <Check size={16} className="text-ocean-400" /> : <Copy size={16} />}
+              </button>
+            </div>
+
+            <InviteButton link={currentUser.referralLink} variant="primary" size="md" className="rounded-xl font-bold" />
           </div>
         </div>
-      </CardSpotlight>
+      </div>
 
+      {/* Tabs Switcher */}
       <Tabs tabs={tabs} activeTab={tab} onChange={setTab} className="w-fit max-w-full" label={nv.tabsAria || 'Vista de la red'} />
 
-      <Card className="rounded-3xl border-slate-200/80 shadow-soft">
+      {/* Network Tree / Table Container: Flat, Borderless */}
+      <div className="rounded-2xl bg-white p-5 sm:p-6 space-y-4">
         {loading ? (
           <ListSkeleton />
         ) : net.level1.length === 0 ? (
           <EmptyState
-            title={dash.noActivityTitle || 'Aún no tienes actividad de referidos.'}
-            description={dash.noActivityDesc || 'Invita a una persona para comenzar a construir tu red.'}
-            className="border-0"
+            title={dash.noActivityTitle || (isEn ? 'No referral activity yet.' : 'Aún no tienes actividad de referidos.')}
+            description={dash.noActivityDesc || (isEn ? 'Invite friends to join and start building your travel rewards network.' : 'Invita a una persona para comenzar a construir tu red.')}
+            className="border-0 py-10"
           />
         ) : tab === 'tree' ? (
           <NetworkTree level1={net.level1} level2={net.level2} showLevel2={twoLevels} onSelect={setSelected} />
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-sand-100">
             {flat.map((p) => (
               <li key={p.id}>
                 <MemberRow
                   person={p}
                   onSelect={setSelected}
-                  subtitle={tab === 'l1' ? `${nv.joinedOn || 'Se unió el'} ${p.joinedDate}` : `${nv.referredBy || 'Referido por'} ${p.sponsorName}`}
+                  subtitle={tab === 'l1' ? `${nv.joinedOn || (isEn ? 'Joined on' : 'Se unió el')} ${p.joinedDate}` : `${nv.referredBy || (isEn ? 'Referred by' : 'Referido por')} ${p.sponsorName}`}
                 />
               </li>
             ))}
           </ul>
         )}
-      </Card>
+      </div>
 
       <MemberDetailModal person={selected} onClose={() => setSelected(null)} />
     </div>

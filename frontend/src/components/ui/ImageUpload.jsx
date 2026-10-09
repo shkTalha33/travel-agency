@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useRef } from 'react';
-import { UploadCloud, Image as ImageIcon, X, Check, Loader2, RefreshCw, FileImage } from 'lucide-react';
+import { UploadCloud, Image as ImageIcon, X, Check, Loader2, RefreshCw, FileImage, Camera, User } from 'lucide-react';
 import { uploadApi } from '@/lib/apiClient';
 import { useLanguage } from '@/context/LanguageContext';
 
@@ -14,6 +14,7 @@ export default function ImageUpload({
   error,
   className = '',
   helperText,
+  variant, // 'avatar' | 'card' | 'banner'
 }) {
   const { isEn } = useLanguage();
   const [isDragging, setIsDragging] = useState(false);
@@ -21,6 +22,8 @@ export default function ImageUpload({
   const [uploadError, setUploadError] = useState('');
   const [imgLoadError, setImgLoadError] = useState(false);
   const fileInputRef = useRef(null);
+
+  const isAvatar = variant === 'avatar' || folder === 'avatars';
 
   const handleFile = async (file) => {
     if (!file) return;
@@ -129,132 +132,216 @@ export default function ImageUpload({
           id={`file-upload-fe-${folder}-${Math.random().toString(36).substring(7)}`}
         />
 
-        {value ? (
-          /* Premium Uploaded Preview State */
-          <div className="relative group overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-all duration-300">
-            <div className="relative h-44 sm:h-52 w-full bg-slate-900 overflow-hidden flex items-center justify-center">
-              {!imgLoadError ? (
-                <img
-                  src={getPreviewSrc()}
-                  alt="Uploaded preview"
-                  className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
-                  onError={(e) => {
-                    if (value.includes('travel_agency/')) {
-                      const pathSuffix = value.substring(value.indexOf('travel_agency/'));
-                      const localFallback = `http://localhost:5000/uploads/${pathSuffix}`;
-                      if (e.currentTarget.src !== localFallback) {
-                        e.currentTarget.src = localFallback;
-                        return;
+        {isAvatar ? (
+          /* ========================================================= */
+          /* AVATAR / PROFILE CIRCULAR EQUAL WIDTH/HEIGHT UI */
+          /* ========================================================= */
+          <div className="flex flex-col items-start justify-start py-1">
+            {value ? (
+              <div className="relative group w-28 h-28 sm:w-32 sm:h-32 rounded-full overflow-hidden ring-4 ring-slate-100 shadow-md bg-slate-900 flex items-center justify-center transition-all duration-300">
+                {!imgLoadError ? (
+                  <img
+                    src={getPreviewSrc()}
+                    alt="Avatar preview"
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    onError={(e) => {
+                      if (value.includes('travel_agency/')) {
+                        const pathSuffix = value.substring(value.indexOf('travel_agency/'));
+                        const localFallback = `http://localhost:5000/uploads/${pathSuffix}`;
+                        if (e.currentTarget.src !== localFallback) {
+                          e.currentTarget.src = localFallback;
+                          return;
+                        }
                       }
-                    }
-                    setImgLoadError(true);
-                  }}
-                />
-              ) : (
-                <div className="flex flex-col items-center justify-center text-slate-400 p-4 text-center">
-                  <FileImage size={36} className="text-slate-500 mb-2" />
-                  <p className="text-xs font-semibold text-slate-300">{isEn ? 'Image Preview' : 'Vista Previa'}</p>
-                  <p className="text-[10px] text-slate-400 mt-0.5 truncate max-w-xs">{value}</p>
-                </div>
-              )}
-
-              {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
-
-              {/* Top Floating Action Buttons */}
-              <div className="absolute top-3 right-3 flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="px-3 py-1.5 rounded-xl bg-white/95 hover:bg-white text-navy-950 text-xs font-bold inline-flex items-center gap-1.5 shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                  title={isEn ? 'Replace Image' : 'Reemplazar Imagen'}
-                >
-                  <RefreshCw size={13} className={isUploading ? 'animate-spin text-[#AA303E]' : 'text-slate-700'} />
-                  <span>{isEn ? 'Change' : 'Cambiar'}</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={handleClear}
-                  className="p-1.5 rounded-xl bg-rose-500/90 hover:bg-rose-600 text-white shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
-                  title={isEn ? 'Remove Image' : 'Eliminar Imagen'}
-                >
-                  <X size={15} strokeWidth={2.5} />
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          /* Attractive Drag & Drop Zone */
-          <div
-            onDragOver={onDragOver}
-            onDragLeave={onDragLeave}
-            onDrop={onDrop}
-            onClick={() => fileInputRef.current?.click()}
-            className={`relative group overflow-hidden rounded-2xl border-2 border-dashed p-7 text-center transition-all duration-200 cursor-pointer ${
-              isDragging
-                ? 'border-[#AA303E] bg-[#AA303E]/5 scale-[1.01] shadow-md ring-4 ring-[#AA303E]/10'
-                : error || uploadError
-                ? 'border-rose-300 bg-rose-50/30 hover:border-rose-400'
-                : 'border-slate-200 bg-slate-50/60 hover:border-[#AA303E] hover:bg-[#AA303E]/5 hover:shadow-sm'
-            }`}
-          >
-            {isUploading ? (
-              <div className="flex flex-col items-center justify-center py-4 space-y-3">
-                <div className="relative flex items-center justify-center">
-                  <div className="w-12 h-12 rounded-2xl bg-[#AA303E]/10 flex items-center justify-center text-[#AA303E] animate-pulse">
-                    <Loader2 size={24} className="animate-spin" />
+                      setImgLoadError(true);
+                    }}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-400 text-center p-2">
+                    <User size={32} className="text-slate-400" />
                   </div>
-                </div>
-                <div>
-                  <p className="text-xs font-bold text-navy-950">
-                    {isEn ? 'Uploading image...' : 'Subiendo imagen...'}
-                  </p>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
-                    {isEn ? 'Optimizing for ultra-fast loading' : 'Optimizando para carga rápida'}
-                  </p>
+                )}
+
+                {/* Hover overlay with action buttons */}
+                <div className="absolute inset-0 bg-navy-950/75 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="p-2 rounded-full bg-white text-navy-950 hover:bg-slate-100 shadow-md transition-all hover:scale-110 cursor-pointer"
+                    title={isEn ? 'Change avatar' : 'Cambiar foto'}
+                  >
+                    <RefreshCw size={14} className={isUploading ? 'animate-spin text-[#AA303E]' : 'text-slate-800'} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="p-2 rounded-full bg-rose-500 hover:bg-rose-600 text-white shadow-md transition-all hover:scale-110 cursor-pointer"
+                    title={isEn ? 'Remove avatar' : 'Eliminar foto'}
+                  >
+                    <X size={14} strokeWidth={2.5} />
+                  </button>
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center space-y-3">
-                <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-slate-200 flex items-center justify-center text-slate-600 group-hover:text-[#AA303E] group-hover:border-[#AA303E]/30 group-hover:scale-110 transition-all duration-300">
-                  <UploadCloud size={24} strokeWidth={2} />
-                </div>
-
-                <div className="space-y-1">
-                  <p className="text-xs font-bold text-navy-950">
-                    <span className="text-[#AA303E] group-hover:underline">
-                      {isEn ? 'Click to upload' : 'Haz clic para subir'}
-                    </span>{' '}
-                    <span className="text-slate-600 font-medium">
-                      {isEn ? 'or drag and drop' : 'o arrastra y suelta aquí'}
+              <div
+                onDragOver={onDragOver}
+                onDragLeave={onDragLeave}
+                onDrop={onDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`relative group w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-dashed flex flex-col items-center justify-center text-center cursor-pointer transition-all duration-200 ${
+                  isDragging
+                    ? 'border-[#AA303E] bg-[#AA303E]/10 scale-105 shadow-md'
+                    : error || uploadError
+                    ? 'border-rose-300 bg-rose-50/50'
+                    : 'border-slate-300 bg-slate-50 hover:border-[#AA303E] hover:bg-[#AA303E]/5 hover:shadow-sm'
+                }`}
+              >
+                {isUploading ? (
+                  <div className="flex flex-col items-center justify-center space-y-1">
+                    <Loader2 size={22} className="animate-spin text-[#AA303E]" />
+                    <span className="text-[10px] font-bold text-navy-950">{isEn ? 'Uploading' : 'Subiendo'}</span>
+                  </div>
+                ) : (
+                  <div className="flex flex-col items-center justify-center space-y-1 text-slate-500 group-hover:text-[#AA303E]">
+                    <div className="w-8 h-8 rounded-full bg-white shadow-xs border border-slate-200 flex items-center justify-center group-hover:scale-110 transition-transform">
+                      <Camera size={16} strokeWidth={2} />
+                    </div>
+                    <span className="text-[11px] font-bold text-navy-900 group-hover:text-[#AA303E]">
+                      {isEn ? 'Upload Photo' : 'Subir Foto'}
                     </span>
-                  </p>
-                  <p className="text-[11px] text-slate-400">
-                    JPG, PNG, WebP {isEn ? '(up to 10MB)' : '(hasta 10MB)'}
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-1.5 pt-1">
-                  <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-semibold text-slate-500">
-                    High Quality
-                  </span>
-                  <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-semibold text-slate-500">
-                    Auto-Optimized
-                  </span>
-                </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
+        ) : (
+          /* ========================================================= */
+          /* STANDARD BANNER / RECTANGLE PREVIEW UI */
+          /* ========================================================= */
+          value ? (
+            <div className="relative group overflow-hidden rounded-2xl border border-slate-200/90 bg-white shadow-sm hover:shadow-md transition-all duration-300">
+              <div className="relative h-44 sm:h-52 w-full bg-slate-900 overflow-hidden flex items-center justify-center">
+                {!imgLoadError ? (
+                  <img
+                    src={getPreviewSrc()}
+                    alt="Uploaded preview"
+                    className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    onError={(e) => {
+                      if (value.includes('travel_agency/')) {
+                        const pathSuffix = value.substring(value.indexOf('travel_agency/'));
+                        const localFallback = `http://localhost:5000/uploads/${pathSuffix}`;
+                        if (e.currentTarget.src !== localFallback) {
+                          e.currentTarget.src = localFallback;
+                          return;
+                        }
+                      }
+                      setImgLoadError(true);
+                    }}
+                  />
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-slate-400 p-4 text-center">
+                    <FileImage size={36} className="text-slate-500 mb-2" />
+                    <p className="text-xs font-semibold text-slate-300">{isEn ? 'Image Preview' : 'Vista Previa'}</p>
+                    <p className="text-[10px] text-slate-400 mt-0.5 truncate max-w-xs">{value}</p>
+                  </div>
+                )}
+
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent pointer-events-none" />
+
+                <div className="absolute top-3 right-3 flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="px-3 py-1.5 rounded-xl bg-white/95 hover:bg-white text-navy-950 text-xs font-bold inline-flex items-center gap-1.5 shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    title={isEn ? 'Replace Image' : 'Reemplazar Imagen'}
+                  >
+                    <RefreshCw size={13} className={isUploading ? 'animate-spin text-[#AA303E]' : 'text-slate-700'} />
+                    <span>{isEn ? 'Change' : 'Cambiar'}</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleClear}
+                    className="p-1.5 rounded-xl bg-rose-500/90 hover:bg-rose-600 text-white shadow-md backdrop-blur-md transition-all hover:scale-105 active:scale-95 cursor-pointer"
+                    title={isEn ? 'Remove Image' : 'Eliminar Imagen'}
+                  >
+                    <X size={15} strokeWidth={2.5} />
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div
+              onDragOver={onDragOver}
+              onDragLeave={onDragLeave}
+              onDrop={onDrop}
+              onClick={() => fileInputRef.current?.click()}
+              className={`relative group overflow-hidden rounded-2xl border-2 border-dashed p-7 text-center transition-all duration-200 cursor-pointer ${
+                isDragging
+                  ? 'border-[#AA303E] bg-[#AA303E]/5 scale-[1.01] shadow-md ring-4 ring-[#AA303E]/10'
+                  : error || uploadError
+                  ? 'border-rose-300 bg-rose-50/30 hover:border-rose-400'
+                  : 'border-slate-200 bg-slate-50/60 hover:border-[#AA303E] hover:bg-[#AA303E]/5 hover:shadow-sm'
+              }`}
+            >
+              {isUploading ? (
+                <div className="flex flex-col items-center justify-center py-4 space-y-3">
+                  <div className="relative flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-2xl bg-[#AA303E]/10 flex items-center justify-center text-[#AA303E] animate-pulse">
+                      <Loader2 size={24} className="animate-spin" />
+                    </div>
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-navy-950">
+                      {isEn ? 'Uploading image...' : 'Subiendo imagen...'}
+                    </p>
+                    <p className="text-[11px] text-slate-400 mt-0.5">
+                      {isEn ? 'Optimizing for ultra-fast loading' : 'Optimizando para carga rápida'}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center space-y-3">
+                  <div className="w-12 h-12 rounded-2xl bg-white shadow-xs border border-slate-200 flex items-center justify-center text-slate-600 group-hover:text-[#AA303E] group-hover:border-[#AA303E]/30 group-hover:scale-110 transition-all duration-300">
+                    <UploadCloud size={24} strokeWidth={2} />
+                  </div>
+
+                  <div className="space-y-1">
+                    <p className="text-xs font-bold text-navy-950">
+                      <span className="text-[#AA303E] group-hover:underline">
+                        {isEn ? 'Click to upload' : 'Haz clic para subir'}
+                      </span>{' '}
+                      <span className="text-slate-600 font-medium">
+                        {isEn ? 'or drag and drop' : 'o arrastra y suelta aquí'}
+                      </span>
+                    </p>
+                    <p className="text-[11px] text-slate-400">
+                      JPG, PNG, WebP {isEn ? '(up to 10MB)' : '(hasta 10MB)'}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 pt-1">
+                    <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-semibold text-slate-500">
+                      High Quality
+                    </span>
+                    <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[10px] font-semibold text-slate-500">
+                      Auto-Optimized
+                    </span>
+                  </div>
+                </div>
+              )}
+            </div>
+          )
         )}
       </div>
 
       {helperText && !error && !uploadError && (
-        <p className="text-[11px] text-slate-400 font-medium pl-0.5">{helperText}</p>
+        <p className="text-[11px] text-slate-400 font-medium text-left pl-0.5">{helperText}</p>
       )}
 
       {(error || uploadError) && (
-        <p className="text-[11px] font-semibold text-rose-500 animate-fade-in pl-0.5">
+        <p className="text-[11px] font-semibold text-rose-500 animate-fade-in text-left pl-0.5">
           {error || uploadError}
         </p>
       )}

@@ -6,7 +6,7 @@ import { useParams } from 'next/navigation';
 import { Check, X, Clock, MapPin, Sparkles, ShieldCheck, Loader2, ArrowLeft, Gift } from 'lucide-react';
 import PublicShell from '@/components/layout/PublicShell';
 import OfferCard from '@/components/offers/OfferCard';
-import SafeImage from '@/components/common/SafeImage';
+import OfferImageGallery from '@/components/offers/OfferImageGallery';
 import Breadcrumb from '@/components/ui/Breadcrumb';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
@@ -179,36 +179,9 @@ export default function OfferDetailPage({ params }) {
           ]}
         />
 
-        {/* Luxury Photo Display: Single Hero or Asymmetrical Grid */}
-        <div className="mt-6 rounded-3xl border border-slate-200/90 bg-white p-2.5 sm:p-3 shadow-sm">
-          {galleryImages.length <= 1 ? (
-            <div className="relative h-72 sm:h-96 md:h-[28rem] w-full overflow-hidden rounded-2xl group bg-sand-200">
-              <SafeImage
-                src={galleryImages[0] || offer.image}
-                alt={offer.destination || offer.title}
-                className="h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            </div>
-          ) : (
-            <div className="grid gap-3 overflow-hidden rounded-2xl md:h-[28rem] md:grid-cols-4 md:grid-rows-2">
-              {galleryImages.slice(0, 4).map((src, i) => (
-                <div
-                  key={i}
-                  className={`relative overflow-hidden rounded-xl group bg-sand-200 ${
-                    i === 0 ? 'md:col-span-2 md:row-span-2' : ''
-                  }`}
-                >
-                  <SafeImage
-                    src={src}
-                    alt={`${offer.destination || offer.title}, ${i + 1}`}
-                    className="h-full min-h-40 w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                </div>
-              ))}
-            </div>
-          )}
+        {/* Luxury Interactive Photo Carousel & Thumbnails */}
+        <div className="mt-6">
+          <OfferImageGallery images={galleryImages} title={offer.destination || offer.title} />
         </div>
 
         <div className="mt-12 grid gap-10 lg:grid-cols-3">

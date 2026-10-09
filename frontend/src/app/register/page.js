@@ -1,8 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 import { KeyRound, Lock, Mail, RefreshCw, Sparkles, Ticket, User } from 'lucide-react';
 import AuthShell from '@/components/auth/AuthShell';
 import Input from '@/components/ui/Input';
@@ -15,8 +15,9 @@ import { authApi } from '@/lib/apiClient';
 
 import OtpInput from '@/components/ui/OtpInput';
 
-export default function RegisterPage() {
+function RegisterForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { register, verifyOtpAndRegister } = useAuth();
   const { copy, locale } = useLanguage();
   const { toast } = useToast();
@@ -24,12 +25,27 @@ export default function RegisterPage() {
   const isEn = locale === 'en';
 
   const [step, setStep] = useState('form'); // 'form' | 'otp'
-  const [f, setF] = useState({ name: '', email: '', password: '', confirm: '', referralCode: '', terms: false });
+  const [f, setF] = useState({ 
+    name: '', 
+    email: '', 
+    password: '', 
+    confirm: '', 
+    referralCode: '', 
+    terms: false 
+  });
   const [otp, setOtp] = useState('');
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false);
   const [countdown, setCountdown] = useState(0);
+
+  // Auto-populate referral code from URL query param (e.g., ?ref=MUHAM-1611)
+  useEffect(() => {
+    const ref = searchParams?.get('ref') || searchParams?.get('referral') || searchParams?.get('referralCode');
+    if (ref && typeof ref === 'string') {
+      setF((prev) => ({ ...prev, referralCode: ref.trim() }));
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     let timer;
@@ -240,12 +256,12 @@ export default function RegisterPage() {
         />
         <Input
           id="referral"
-          label={av.referralCodeLabel || 'Código de patrocinador / referido (opcional)'}
+          label={av.referralCodeLabel || (isEn ? 'Referral code (optional)' : 'Código de referido (opcional)')}
           placeholder="SOFIA-VIAJES"
           value={f.referralCode}
           onChange={set('referralCode')}
           icon={<Ticket size={16} />}
-          helperText={av.referralCodeHint || 'Si un amigo te invitó, ingresa su código para vincularte a su red.'}
+          helperText={av.referralCodeHint || (isEn ? 'If a friend invited you, enter their code to join their network.' : 'Si un amigo te invitó, ingresa su código para vincularte a su red.')}
         />
         <Checkbox
           id="terms"
@@ -265,3 +281,12 @@ export default function RegisterPage() {
     </AuthShell>
   );
 }
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={null}>
+      <RegisterForm />
+    </Suspense>
+  );
+}
+

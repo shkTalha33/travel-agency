@@ -1,27 +1,34 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, Network, Coins, Gift, User, Compass, LogOut, Menu, X, Plane } from 'lucide-react';
+import {
+  LayoutDashboard,
+  Palmtree,
+  Users,
+  Coins,
+  Gift,
+  User,
+  LogOut,
+  Menu,
+  X,
+  ChevronRight,
+  ShieldCheck,
+} from 'lucide-react';
 import Badge from '@/components/ui/Badge';
 import Avatar from '@/components/ui/Avatar';
 import Dropdown from '@/components/ui/Dropdown';
 import { useAuth } from '@/context/AuthContext';
 import { useLanguage } from '@/context/LanguageContext';
 import LanguageSwitcher from '@/components/layout/LanguageSwitcher';
-import { PANEL_NAV } from '@/data/navigation';
-
-const ICONS = { dashboard: LayoutDashboard, offers: Plane, network: Network, points: Coins, redeem: Gift, profile: User };
-
-const DEMO_IDS = ['member', 'active_member', 'ambassador', 'elite_ambassador'];
 
 export default function DashboardShell({ children }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { currentUser, currentMembership, isAuthenticated, ready, logout, refreshUser, switchDemoAccount } = useAuth();
-  const { t, copy } = useLanguage();
-  const [open, setOpen] = useState(false);
+  const { currentUser, currentMembership, isAuthenticated, ready, logout, refreshUser } = useAuth();
+  const { t, copy, isEn } = useLanguage();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => { 
     if (ready && !isAuthenticated) {
@@ -29,8 +36,8 @@ export default function DashboardShell({ children }) {
     }
   }, [ready, isAuthenticated, router]);
 
-  // Run backend authentication verification on every page change
-  const lastCheckedPath = React.useRef('');
+  // Run backend authentication verification once per route transition
+  const lastCheckedPath = useRef('');
   useEffect(() => {
     if (ready && isAuthenticated && typeof refreshUser === 'function') {
       if (lastCheckedPath.current !== pathname) {
@@ -44,67 +51,182 @@ export default function DashboardShell({ children }) {
     }
   }, [pathname, ready, isAuthenticated, refreshUser, router]);
 
-  useEffect(() => setOpen(false), [pathname]);
+  useEffect(() => setMobileMenuOpen(false), [pathname]);
 
   if (!ready || !isAuthenticated || !currentUser) return null;
 
-  const doLogout = () => { logout(); router.push('/login'); };
+  const doLogout = () => { 
+    logout(); 
+    router.push('/login'); 
+  };
 
-  const sidebar = (
-    <div className="flex h-full flex-col">
-      <Link href="/" className="flex h-16 items-center gap-2.5 border-b border-white/10 px-5 font-serif text-lg font-bold text-white">
-        <img
-          src="/logo.jpg"
-          alt="Círculo Wingding Logo"
-          className="h-8 w-8 rounded-lg object-cover shadow-sm border border-white/20"
-        />
-        {t('brand', 'Círculo Wingding')}
-      </Link>
-      <nav className="flex-1 space-y-1 p-3" aria-label={t('panel.memberNav')}>
-        {PANEL_NAV.map(({ key, href, icon }) => {
-          const Icon = ICONS[icon];
-          const active = pathname === href;
-          return (
-            <Link key={href} href={href} aria-current={active ? 'page' : undefined} className={`flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-medium transition-colors ${active ? 'bg-ocean-600 text-white font-bold shadow-sm' : 'text-slate-300 hover:bg-white/5 hover:text-white'}`}>
-              <Icon size={18} aria-hidden="true" />{t(`panel.${key}`)}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="border-t border-white/10 p-3">
-        <p className="mb-2 px-3 text-[11px] uppercase tracking-wider text-slate-400">{t('panel.demo')}</p>
-        <div className="mb-3 grid grid-cols-2 gap-1.5">
-          {DEMO_IDS.map((k) => (
-            <button key={k} onClick={() => switchDemoAccount(k)} aria-pressed={currentUser.membershipId === k} className={`rounded-lg border px-2 py-1.5 text-[11px] transition-colors ${currentUser.membershipId === k ? 'border-ocean-500 bg-ocean-500/20 text-ocean-300 font-bold' : 'border-white/10 text-slate-300 hover:text-white'}`}>{copy.levels[k].name}</button>
-          ))}
+  const membershipLabel = copy.levels?.[currentMembership?.id]?.name || currentMembership?.name || (isEn ? 'Member' : 'Miembro');
+
+  const NAV_ITEMS = [
+    { name: isEn ? 'Dashboard' : 'Panel General', href: '/dashboard', icon: LayoutDashboard },
+    { name: isEn ? 'Travel Offers' : 'Ofertas de Viaje', href: '/dashboard/offers', icon: Palmtree },
+    { name: isEn ? 'My Referral Network' : 'Mi Red de Referidos', href: '/dashboard/network', icon: Users },
+    { name: isEn ? 'My Points Ledger' : 'Historial de Puntos', href: '/dashboard/points', icon: Coins },
+    { name: isEn ? 'Redeem Points' : 'Redimir Puntos', href: '/dashboard/redeem', icon: Gift },
+    { name: isEn ? 'My Profile & Settings' : 'Mi Perfil & Ajustes', href: '/dashboard/profile', icon: User },
+  ];
+
+  const currentNav = NAV_ITEMS.find((item) => pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href)));
+  const pageTitle = currentNav?.name || (pathname.startsWith('/dashboard/offers') ? (isEn ? 'Travel Offers' : 'Ofertas de Viaje') : (isEn ? 'Dashboard' : 'Panel'));
+
+  const sidebarContent = (
+    <div className="flex h-full flex-col justify-between bg-navy-950 text-white">
+      <div>
+        {/* Brand Header */}
+        <div className="h-20 px-6 flex items-center justify-between border-b border-navy-850/80 bg-navy-900/50">
+          <div className="flex items-center gap-3">
+            <img
+              src="/logo.jpg"
+              alt="Círculo Wingding Logo"
+              className="w-10 h-10 rounded-xl object-cover shadow-lg border border-ocean-500/30"
+            />
+            <div>
+              <span className="text-xs font-bold tracking-[0.2em] text-ocean-300 uppercase block">
+                {isEn ? 'MEMBER PORTAL' : 'PORTAL MIEMBROS'}
+              </span>
+              <h1 className="text-sm font-serif font-bold text-white tracking-wide">Círculo Wingding</h1>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={() => setMobileMenuOpen(false)}
+            className="lg:hidden text-sand-300 hover:text-white p-1"
+          >
+            <X className="w-6 h-6" />
+          </button>
         </div>
-        <button onClick={doLogout} className="flex w-full items-center gap-3 rounded-xl px-3 py-3 text-sm text-slate-300 hover:bg-white/5">
-          <LogOut size={18} aria-hidden="true" />{t('auth.logout')}
+
+        {/* Member User Profile Snippet */}
+        <div className="px-6 py-4 border-b border-navy-850/60 bg-navy-950/80 flex items-center gap-3">
+          <div className="relative shrink-0">
+            <Avatar
+              src={currentUser?.avatar}
+              name={currentUser?.name}
+              className="w-10 h-10 rounded-full object-cover ring-2 ring-ocean-500/50"
+            />
+            <span className="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-emerald-500 ring-2 ring-navy-950"></span>
+          </div>
+          <div className="overflow-hidden">
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-bold text-white truncate max-w-[130px]">{currentUser?.name}</p>
+              <ShieldCheck className="w-3.5 h-3.5 text-ocean-400 shrink-0" />
+            </div>
+            <p className="text-[11px] text-ocean-300 tracking-wider uppercase font-semibold">
+              {membershipLabel}
+            </p>
+          </div>
+        </div>
+
+        {/* Nav Links */}
+        <nav className="overflow-y-auto px-4 py-4 space-y-1.5">
+          <p className="px-3 text-[10px] font-bold uppercase tracking-widest text-sand-400/60 mb-2">
+            {isEn ? 'MAIN MODULES' : 'MÓDULOS PRINCIPALES'}
+          </p>
+          {NAV_ITEMS.map((item) => {
+            const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
+            const Icon = item.icon;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setMobileMenuOpen(false)}
+                className={`group flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-semibold tracking-wide transition-all ${
+                  isActive
+                    ? 'bg-gradient-to-r from-ocean-600/30 to-ocean-600/10 text-white font-bold border border-ocean-500/40 shadow-sm'
+                    : 'text-sand-300 hover:text-white hover:bg-navy-900/60'
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon
+                    className={`w-4 h-4 transition-colors ${
+                      isActive ? 'text-ocean-300' : 'text-sand-400 group-hover:text-ocean-300'
+                    }`}
+                  />
+                  <span>{item.name}</span>
+                </div>
+                {isActive && <ChevronRight className="w-4 h-4 text-ocean-300 animate-pulse" />}
+              </Link>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Sidebar Footer */}
+      <div className="p-4 border-t border-navy-850/80 bg-navy-900/40">
+        <button
+          type="button"
+          onClick={doLogout}
+          className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold text-rose-400 hover:text-white hover:bg-rose-950/50 border border-rose-900/40 transition-all cursor-pointer"
+        >
+          <LogOut className="w-4 h-4" />
+          <span>{isEn ? 'Sign Out' : 'Cerrar Sesión'}</span>
         </button>
       </div>
     </div>
   );
 
   return (
-    <div className="min-h-screen bg-sand-50 lg:flex">
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 bg-navy-900 lg:block">{sidebar}</aside>
+    <div className="min-h-screen flex bg-sand-50 text-navy-950 font-sans">
+      {/* Mobile Backdrop */}
+      {mobileMenuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-navy-950/70 backdrop-blur-sm lg:hidden transition-opacity"
+          onClick={() => setMobileMenuOpen(false)}
+        />
+      )}
 
-      {open && <div className="fixed inset-0 z-40 bg-navy-950/60 animate-fade-in lg:hidden" onClick={() => setOpen(false)} aria-hidden="true" />}
-      <aside id="panel-drawer" aria-hidden={!open} className={`fixed inset-y-0 left-0 z-50 w-72 bg-navy-900 transition-transform duration-300 lg:hidden ${open ? 'translate-x-0' : '-translate-x-full'}`}>{open && sidebar}</aside>
+      {/* Sidebar Navigation */}
+      <aside
+        className={`fixed top-0 bottom-0 left-0 z-50 w-72 bg-navy-950 text-white flex flex-col transition-transform duration-300 ease-in-out border-r border-navy-850 shadow-2xl lg:translate-x-0 ${
+          mobileMenuOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}
+      >
+        {sidebarContent}
+      </aside>
 
-      <div className="min-w-0 flex-1">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-sand-200 bg-sand-50/90 px-4 backdrop-blur sm:px-8">
-          <button className="-ml-2 rounded-lg p-2 hover:bg-slate-100 lg:hidden" onClick={() => setOpen(!open)} aria-label={open ? t('auth.closeMenu') : t('auth.openMenu')} aria-expanded={open} aria-controls="panel-drawer">
-            {open ? <X size={22} /> : <Menu size={22} />}
-          </button>
-          <p className="hidden text-sm text-slate-500 lg:block">{t('auth.hello')} <strong className="text-navy-900">{currentUser.name}</strong></p>
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 lg:pl-72">
+        {/* Top Bar Header */}
+        <header className="sticky top-0 z-20 h-16 bg-white/95 backdrop-blur-md border-b border-sand-200 px-6 flex items-center justify-between shadow-xs">
+          <div className="flex items-center gap-4">
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="lg:hidden p-2 rounded-lg text-navy-900 hover:bg-sand-100"
+            >
+              <Menu className="w-6 h-6" />
+            </button>
+            <div className="flex items-center gap-2 text-xs text-navy-600 font-medium">
+              <span className="text-navy-950 font-bold">{isEn ? 'Member Portal' : 'Portal Miembros'}</span>
+              <ChevronRight className="w-3 h-3 text-navy-400" />
+              <span className="text-ocean-700 font-semibold">{pageTitle}</span>
+            </div>
+          </div>
+
+          {/* Right Header Controls */}
           <div className="flex items-center gap-3">
             <LanguageSwitcher />
-            <Badge variant={currentMembership.id}>{copy.levels[currentMembership.id]?.name || currentMembership.name}</Badge>
-            <Dropdown label={t('auth.userMenu')} trigger={<Avatar src={currentUser.avatar} name={currentUser.name} size="sm" />} items={[{ label: t('auth.profile'), href: '/dashboard/profile' }, { label: t('auth.publicSite'), href: '/' }, { label: t('auth.logout'), onClick: doLogout }]} />
+            <Badge variant={currentMembership.id}>{membershipLabel}</Badge>
+            <Dropdown
+              label={t('auth.userMenu')}
+              trigger={<Avatar src={currentUser.avatar} name={currentUser.name} size="sm" />}
+              items={[
+                { label: isEn ? 'My Profile' : 'Mi Perfil', href: '/dashboard/profile' },
+                { label: isEn ? 'Sign Out' : 'Cerrar Sesión', onClick: doLogout },
+              ]}
+            />
           </div>
         </header>
-        <main id="contenido" tabIndex={-1} className="max-w-6xl p-4 sm:p-8">{children}</main>
+
+        {/* Page Main Content */}
+        <main id="contenido" tabIndex={-1} className="max-w-7xl w-full mx-auto p-4 sm:p-8 flex-1">
+          {children}
+        </main>
       </div>
     </div>
   );

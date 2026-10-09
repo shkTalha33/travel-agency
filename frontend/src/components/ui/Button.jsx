@@ -15,17 +15,18 @@ export default function Button({
   onClick,
   ...props
 }) {
-  const baseStyles = 'inline-flex items-center justify-center font-medium transition-colors duration-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed select-none whitespace-nowrap';
+  const baseStyles = 'inline-flex items-center justify-center font-medium transition-colors duration-200 rounded-lg focus:outline-none focus:ring-0 disabled:opacity-50 disabled:cursor-not-allowed select-none whitespace-nowrap';
 
   const variants = {
-    primary: 'bg-ocean-600 text-white font-bold hover:bg-ocean-700 hover:shadow-md focus:ring-ocean-500 border border-ocean-600 shadow-soft transition-all duration-200',
-    gold: 'bg-ocean-600 text-white font-bold hover:bg-ocean-700 hover:shadow-md focus:ring-ocean-500 border border-ocean-600 shadow-soft transition-all duration-200',
-    navy: 'bg-navy-900 text-white hover:bg-navy-800 focus:ring-navy-900 shadow-soft',
-    ocean: 'bg-ocean-600 text-white hover:bg-ocean-700 focus:ring-ocean-500 shadow-soft',
-    secondary: 'bg-white text-navy-900 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 focus:ring-navy-900',
-    outline: 'bg-transparent text-ocean-600 border border-ocean-600/60 hover:border-ocean-600 hover:bg-ocean-50 focus:ring-ocean-500',
-    ghost: 'bg-transparent text-slate-700 hover:text-navy-900 hover:bg-slate-100/80 focus:ring-slate-300',
-    danger: 'bg-rose-600 text-white hover:bg-rose-700 focus:ring-rose-500 shadow-soft',
+    primary: 'bg-ocean-600 text-white font-bold hover:bg-ocean-700 hover:shadow-md border-0 shadow-soft transition-all duration-200',
+    gold: 'bg-ocean-600 text-white font-bold hover:bg-ocean-700 hover:shadow-md border-0 shadow-soft transition-all duration-200',
+    navy: 'bg-navy-900 text-white hover:bg-navy-800 border-0 shadow-soft',
+    ocean: 'bg-ocean-600 text-white hover:bg-ocean-700 border-0 shadow-soft',
+    secondary: 'bg-sand-100 text-navy-900 hover:bg-sand-200 border-0',
+    success: 'bg-emerald-600 text-white font-bold hover:bg-emerald-700 border-0 shadow-soft',
+    outline: 'bg-transparent text-ocean-600 border border-ocean-600/60 hover:border-ocean-600 hover:bg-ocean-50',
+    ghost: 'bg-transparent text-slate-700 hover:text-navy-900 hover:bg-slate-100/80 border-0',
+    danger: 'bg-rose-600 text-white hover:bg-rose-700 border-0 shadow-soft',
   };
 
   const sizes = {
