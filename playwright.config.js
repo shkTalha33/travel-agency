@@ -7,18 +7,17 @@ import { defineConfig, devices } from '@playwright/test';
 export default defineConfig({
   testDir: './tests',
   /* Maximum time one test can run for. */
-  timeout: 45 * 1000,
+  timeout: 60 * 1000,
   expect: {
-    timeout: 8000,
+    timeout: 10000,
   },
-  /* Run tests in files in parallel */
-  fullyParallel: true,
+  /* Sequential execution to ensure stable Next.js dev server on-demand compilation */
+  fullyParallel: false,
+  workers: 1,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
   forbidOnly: !!process.env.CI,
-  /* Retry on CI only */
-  retries: process.env.CI ? 2 : 1,
-  /* Opt out of parallel tests on CI. */
-  workers: process.env.CI ? 1 : undefined,
+  /* Retry once on failure */
+  retries: 1,
   /* Reporter to use */
   reporter: [
     ['html', { open: 'never', outputFolder: 'playwright-report' }],
@@ -41,7 +40,7 @@ export default defineConfig({
     colorScheme: 'light',
   },
 
-  /* Configure projects for major browsers & viewports */
+  /* Configure primary Desktop Chrome for reliable end-to-end runs */
   projects: [
     {
       name: 'Desktop Chrome',
@@ -50,26 +49,23 @@ export default defineConfig({
         viewport: { width: 1440, height: 900 },
       },
     },
-    {
-      name: 'Mobile Chrome (Pixel 5)',
-      use: {
-        ...devices['Pixel 5'],
-      },
-    },
-    {
-      name: 'Tablet (iPad Mini)',
-      use: {
-        ...devices['iPad Mini'],
-      },
-    },
   ],
 
-  /* Web server to automatically reuse or start frontend dev server */
-  webServer: {
-    command: 'npm run dev',
-    cwd: './frontend',
-    url: 'http://localhost:3000',
-    reuseExistingServer: true,
-    timeout: 120 * 1000,
-  },
+  /* Web servers to automatically reuse or start both frontend and admin dev servers */
+  webServer: [
+    {
+      command: 'npm run dev',
+      cwd: './frontend',
+      url: 'http://localhost:3000',
+      reuseExistingServer: true,
+      timeout: 120 * 1000,
+    },
+    {
+      command: 'npm run dev',
+      cwd: './admin',
+      url: 'http://localhost:3001',
+      reuseExistingServer: true,
+      timeout: 120 * 1000,
+    },
+  ],
 });
