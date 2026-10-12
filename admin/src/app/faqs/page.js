@@ -219,7 +219,37 @@ export default function AdminFaqsPage() {
       {/* FAQs List */}
       <div className="space-y-4">
         {loading ? (
-          <div className="py-12 text-center text-xs text-navy-500">{t('faqs.loadingFaqs', 'Cargando preguntas frecuentes...')}</div>
+          <div className="space-y-4">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white p-5 rounded-2xl border border-sand-200 shadow-sm flex flex-col md:flex-row md:items-start justify-between gap-4 animate-pulse"
+              >
+                {/* Left: text content */}
+                <div className="space-y-2 flex-1 max-w-3xl">
+                  {/* Category badge + order */}
+                  <div className="flex items-center gap-2">
+                    <div className="h-5 w-20 rounded-full bg-sand-200" />
+                    <div className="h-3 w-14 rounded-full bg-sand-100" />
+                  </div>
+                  {/* Question title */}
+                  <div className="h-4 w-3/4 rounded-full bg-sand-300" />
+                  {/* Answer lines */}
+                  <div className="space-y-1.5 pt-1">
+                    <div className="h-3 w-full rounded-full bg-sand-100" />
+                    <div className="h-3 w-5/6 rounded-full bg-sand-100" />
+                    <div className="h-3 w-4/6 rounded-full bg-sand-100" />
+                  </div>
+                </div>
+
+                {/* Right: action buttons */}
+                <div className="flex items-center gap-2 shrink-0 self-end md:self-start pt-2 md:pt-0">
+                  <div className="w-8 h-8 rounded-lg bg-sand-200" />
+                  <div className="w-8 h-8 rounded-lg bg-sand-200" />
+                </div>
+              </div>
+            ))}
+          </div>
         ) : filteredFaqs.length === 0 ? (
           <EmptyState
             icon={<HelpCircle className="w-8 h-8 text-sand-400" />}

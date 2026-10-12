@@ -124,7 +124,55 @@ export default function AdminRedemptionsPage() {
       {/* Redemptions List */}
       <div className="space-y-4">
         {loading ? (
-          <div className="py-12 text-center text-xs text-navy-500">{t('redemptions.loadingRedemptions', 'Cargando solicitudes de redención...')}</div>
+          <>
+            {[...Array(4)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white p-6 rounded-2xl border border-sand-200 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-6 animate-pulse"
+              >
+                {/* Left content */}
+                <div className="space-y-3 flex-1">
+                  {/* Status badge + date */}
+                  <div className="flex flex-wrap items-center gap-2">
+                    <div className="h-5 w-20 rounded-full bg-sand-200" />
+                    <div className="h-3 w-32 rounded-full bg-sand-100" />
+                  </div>
+
+                  {/* Avatar + user info */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-sand-300 shrink-0" />
+                    <div className="space-y-1.5">
+                      <div className="h-3.5 w-32 rounded-full bg-sand-200" />
+                      <div className="h-3 w-48 rounded-full bg-sand-100" />
+                    </div>
+                  </div>
+
+                  {/* Two detail panels */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                    <div className="p-3 bg-sand-50 rounded-xl border border-sand-200 space-y-1.5">
+                      <div className="h-2.5 w-20 rounded-full bg-sand-200" />
+                      <div className="h-3.5 w-28 rounded-full bg-sand-300" />
+                      <div className="h-3 w-36 rounded-full bg-sand-100" />
+                    </div>
+                    <div className="p-3 bg-sand-50 rounded-xl border border-sand-200 space-y-1.5">
+                      <div className="h-2.5 w-24 rounded-full bg-sand-200" />
+                      <div className="h-3 w-full rounded-full bg-sand-100" />
+                      <div className="h-3 w-4/5 rounded-full bg-sand-100" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Right: points + button */}
+                <div className="flex md:flex-col items-center md:items-end justify-between border-t md:border-t-0 pt-4 md:pt-0 border-sand-200 gap-3 shrink-0">
+                  <div className="space-y-1 text-right">
+                    <div className="h-2.5 w-24 rounded-full bg-sand-200" />
+                    <div className="h-7 w-28 rounded-full bg-sand-300" />
+                  </div>
+                  <div className="h-9 w-32 rounded-xl bg-sand-200" />
+                </div>
+              </div>
+            ))}
+          </>
         ) : redemptions.length === 0 ? (
           <EmptyState
             icon={<Gift className="w-8 h-8 text-sand-400" />}

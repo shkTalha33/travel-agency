@@ -22,7 +22,6 @@ import {
   X,
   AlertCircle,
   AlertTriangle,
-  Loader2,
   Shield,
   Star,
   Check,
@@ -385,11 +384,60 @@ export default function AdminMembershipsPage() {
 
       {/* Loading Spinner */}
       {loading ? (
-        <div className="py-20 flex flex-col items-center justify-center space-y-3">
-          <Loader2 className="w-8 h-8 animate-spin text-[#AA303E]" />
-          <p className="text-xs font-bold text-slate-500">
-            {isEn ? 'Loading membership tiers...' : 'Cargando niveles de membresía...'}
-          </p>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 pt-2">
+          {[...Array(4)].map((_, i) => (
+            <div
+              key={i}
+              className="relative rounded-3xl p-6 bg-white border-2 border-slate-200/90 shadow-xs flex flex-col justify-between overflow-hidden animate-pulse"
+            >
+              {/* Top: icon + tag + action buttons */}
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <div className="w-10 h-10 rounded-2xl bg-sand-300 shrink-0" />
+                <div className="flex items-center gap-1.5">
+                  <div className="h-6 w-20 rounded-full bg-sand-200" />
+                  <div className="w-6 h-6 rounded-xl bg-sand-100" />
+                  <div className="w-6 h-6 rounded-xl bg-sand-100" />
+                </div>
+              </div>
+
+              {/* Title + subtitle */}
+              <div className="h-5 w-3/4 rounded-full bg-sand-300 mb-2" />
+              <div className="h-3 w-full rounded-full bg-sand-100 mb-1" />
+              <div className="h-3 w-2/3 rounded-full bg-sand-100 mb-5" />
+
+              {/* Commission rate rows */}
+              <div className="space-y-2 mb-5">
+                {[...Array(3)].map((_, j) => (
+                  <div key={j} className="flex justify-between items-center py-1 border-b border-slate-100">
+                    <div className="h-3 w-28 rounded-full bg-sand-100" />
+                    <div className="h-3 w-10 rounded-full bg-sand-200" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Perks list */}
+              <div className="space-y-2 mb-5">
+                <div className="h-3 w-20 rounded-full bg-sand-200" />
+                {[...Array(3)].map((_, k) => (
+                  <div key={k} className="flex items-start gap-2">
+                    <div className="w-3.5 h-3.5 rounded-full bg-sand-200 shrink-0 mt-0.5" />
+                    <div className="h-3 w-full rounded-full bg-sand-100" />
+                  </div>
+                ))}
+              </div>
+
+              {/* Qualification footer */}
+              <div className="mt-4 pt-4 border-t border-slate-200/80">
+                <div className="flex items-start gap-1.5">
+                  <div className="w-3.5 h-3.5 rounded-full bg-sand-200 shrink-0 mt-0.5" />
+                  <div className="space-y-1 flex-1">
+                    <div className="h-3 w-full rounded-full bg-sand-100" />
+                    <div className="h-3 w-4/5 rounded-full bg-sand-100" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : tiers.length === 0 ? (
         <div className="py-16 text-center bg-white rounded-3xl border border-sand-200 shadow-sm">

@@ -19,7 +19,6 @@ import {
   Waves,
   Crown,
   Activity,
-  ArrowRight,
   Flame,
 } from 'lucide-react';
 
@@ -324,7 +323,7 @@ export default function AdminDashboardPage() {
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-gold-600 via-gold-500 to-amber-400 text-navy-950 flex items-center justify-center shadow-lg shadow-gold-500/25 ring-4 ring-amber-50">
+            <div className="w-11 h-11 rounded-2xl bg-gradient-to-tr from-ocean-700 via-ocean-600 to-ocean-500 text-white flex items-center justify-center shadow-lg shadow-ocean-600/25 ring-4 ring-ocean-50">
               <Award className="w-6 h-6" />
             </div>
             <div>
@@ -342,7 +341,6 @@ export default function AdminDashboardPage() {
             className="inline-flex items-center gap-2 text-xs font-bold text-white bg-ocean-600 hover:bg-ocean-700 px-4 py-2.5 rounded-2xl transition-all shadow-md hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] self-start sm:self-auto group"
           >
             <span>{t('dashboard.viewCommissionRules', 'Ver Configuración de Comisiones')}</span>
-            <ArrowRight className="w-3.5 h-3.5 text-white group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 

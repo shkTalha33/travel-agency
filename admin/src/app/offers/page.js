@@ -345,9 +345,62 @@ export default function AdminOffersPage() {
       {/* Offers Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {loading ? (
-          <div className="col-span-full py-12 text-center text-xs text-navy-500">
-            {t('offers.loadingOffers', 'Cargando catálogo de ofertas...')}
-          </div>
+          <>
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-white rounded-2xl border border-sand-200 overflow-hidden shadow-sm flex flex-col justify-between"
+              >
+                {/* Image skeleton */}
+                <div className="relative h-48 w-full bg-sand-100 overflow-hidden">
+                  <div className="absolute inset-0 bg-gradient-to-r from-sand-100 via-sand-200 to-sand-100 animate-[shimmer_1.5s_infinite] bg-[length:200%_100%]" />
+                  {/* Badge strip skeleton */}
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                    <div className="w-16 h-5 rounded-md bg-sand-300/60 animate-pulse" />
+                  </div>
+                  {/* PTS chip skeleton */}
+                  <div className="absolute bottom-3 right-3 w-16 h-6 rounded-lg bg-navy-950/30 animate-pulse" />
+                </div>
+
+                {/* Content skeleton */}
+                <div className="p-5 flex-1">
+                  {/* Destination line */}
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-4 h-4 rounded-full bg-sand-200 animate-pulse" />
+                    <div className="h-3 w-28 rounded-full bg-sand-200 animate-pulse" />
+                  </div>
+                  {/* Title */}
+                  <div className="h-4 w-3/4 rounded-full bg-sand-300 animate-pulse mb-3" />
+                  {/* Summary lines */}
+                  <div className="space-y-2 mt-2">
+                    <div className="h-3 w-full rounded-full bg-sand-200 animate-pulse" />
+                    <div className="h-3 w-5/6 rounded-full bg-sand-200 animate-pulse" />
+                  </div>
+
+                  {/* Price / Duration row */}
+                  <div className="mt-4 pt-3 border-t border-sand-100 flex items-center justify-between">
+                    <div className="space-y-1">
+                      <div className="h-2.5 w-8 rounded-full bg-sand-200 animate-pulse" />
+                      <div className="h-4 w-20 rounded-full bg-sand-300 animate-pulse" />
+                    </div>
+                    <div className="space-y-1 items-end flex flex-col">
+                      <div className="h-2.5 w-12 rounded-full bg-sand-200 animate-pulse" />
+                      <div className="h-3.5 w-16 rounded-full bg-sand-200 animate-pulse" />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Action bar skeleton */}
+                <div className="px-5 py-3 bg-sand-50 border-t border-sand-200 flex items-center justify-between">
+                  <div className="h-3 w-14 rounded-full bg-sand-200 animate-pulse" />
+                  <div className="flex items-center gap-1">
+                    <div className="w-7 h-7 rounded-lg bg-sand-200 animate-pulse" />
+                    <div className="w-7 h-7 rounded-lg bg-sand-200 animate-pulse" />
+                  </div>
+                </div>
+              </div>
+            ))}
+          </>
         ) : filteredOffers.length === 0 ? (
           <div className="col-span-full">
             <EmptyState
