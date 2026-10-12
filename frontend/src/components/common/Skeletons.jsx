@@ -3,14 +3,108 @@ import Skeleton from '@/components/ui/Skeleton';
 
 export function OfferCardSkeleton() {
   return (
-    <div className="overflow-hidden rounded-2xl bg-white" aria-hidden="true">
-      <Skeleton className="aspect-[4/3] w-full rounded-none" />
-      <div className="space-y-3 p-5">
-        <Skeleton variant="text" className="w-1/3" />
-        <Skeleton variant="text" className="h-6 w-4/5" />
-        <Skeleton variant="text" className="w-full" />
-        <Skeleton variant="text" className="w-2/3" />
+    <div className="block rounded-2xl bg-white p-3.5 sm:p-4 border border-sand-200/80 shadow-xs" aria-hidden="true">
+      <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-sand-200">
+        <Skeleton className="h-full w-full rounded-2xl" />
+        <div className="absolute left-3.5 top-3.5">
+          <Skeleton className="h-5 w-24 rounded-full bg-navy-900/30" />
+        </div>
+        <div className="absolute bottom-3 left-3.5 right-3.5 flex items-center justify-between gap-2">
+          <Skeleton className="h-6 w-32 rounded-full bg-navy-950/30" />
+          <Skeleton className="h-6 w-16 rounded-full bg-black/25" />
+        </div>
       </div>
+      <div className="px-1.5 pt-4 pb-1 space-y-2.5">
+        <Skeleton className="h-6 w-4/5 rounded-lg" />
+        <Skeleton className="h-3.5 w-full rounded" />
+        <Skeleton className="h-3.5 w-2/3 rounded" />
+        <div className="mt-4 flex items-end justify-between border-t border-sand-100 pt-3.5">
+          <div className="space-y-1">
+            <Skeleton className="h-2.5 w-10 rounded" />
+            <Skeleton className="h-6 w-24 rounded-lg" />
+          </div>
+          <div className="flex flex-col items-end gap-1.5">
+            <Skeleton className="h-5 w-24 rounded-full" />
+            <Skeleton className="h-3.5 w-20 rounded" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+export function MembershipCardSkeleton({ dark = false }) {
+  return (
+    <div
+      className={`flex h-full flex-col rounded-3xl border p-6 sm:p-7 shadow-xs ${
+        dark
+          ? 'border-amber-400/30 bg-gradient-to-b from-[#1C1009] to-[#0A0503]'
+          : 'border-slate-200/90 bg-white'
+      }`}
+      aria-hidden="true"
+    >
+      <div className="flex items-center justify-between gap-2">
+        <Skeleton className={`h-11 w-11 rounded-2xl ${dark ? 'bg-gold-500/20' : 'bg-slate-100'}`} />
+        <Skeleton className={`h-5 w-20 rounded-full ${dark ? 'bg-gold-500/20' : 'bg-slate-100'}`} />
+      </div>
+
+      <Skeleton className={`mt-5 h-7 w-3/5 rounded-lg ${dark ? 'bg-gold-500/20' : ''}`} />
+      <Skeleton className={`mt-2 h-3.5 w-4/5 rounded ${dark ? 'bg-white/10' : ''}`} />
+
+      {/* Rates box */}
+      <div
+        className={`mt-5 grid grid-cols-2 gap-3 rounded-2xl p-3.5 ${
+          dark
+            ? 'bg-white/5 border border-gold-500/20'
+            : 'bg-slate-50/90 border border-slate-200/80'
+        }`}
+      >
+        <div className="text-center space-y-1.5">
+          <Skeleton className={`mx-auto h-2.5 w-16 rounded ${dark ? 'bg-white/10' : ''}`} />
+          <Skeleton className={`mx-auto h-6 w-12 rounded ${dark ? 'bg-gold-500/20' : ''}`} />
+        </div>
+        <div
+          className={`border-l text-center space-y-1.5 ${
+            dark ? 'border-gold-500/20' : 'border-slate-200'
+          }`}
+        >
+          <Skeleton className={`mx-auto h-2.5 w-16 rounded ${dark ? 'bg-white/10' : ''}`} />
+          <Skeleton className={`mx-auto h-6 w-12 rounded ${dark ? 'bg-gold-500/20' : ''}`} />
+        </div>
+      </div>
+
+      {/* Feature checklist */}
+      <div className="mt-6 flex-1 space-y-3">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex items-center gap-2.5">
+            <Skeleton variant="circular" className={`h-4 w-4 shrink-0 ${dark ? 'bg-gold-500/20' : 'bg-slate-100'}`} />
+            <Skeleton className={`h-3.5 w-4/5 rounded ${dark ? 'bg-white/10' : ''}`} />
+          </div>
+        ))}
+      </div>
+
+      {/* Qualification */}
+      <div
+        className={`mt-6 pt-4 border-t flex items-center gap-2 ${
+          dark ? 'border-gold-500/20' : 'border-slate-200/80'
+        }`}
+      >
+        <Skeleton variant="circular" className={`h-3.5 w-3.5 shrink-0 ${dark ? 'bg-gold-500/20' : 'bg-slate-100'}`} />
+        <Skeleton className={`h-3 w-3/4 rounded ${dark ? 'bg-white/10' : ''}`} />
+      </div>
+    </div>
+  );
+}
+
+export function AccordionSkeleton({ rows = 4 }) {
+  return (
+    <div className="space-y-3" aria-hidden="true">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="rounded-2xl border border-sand-200 bg-white p-4 sm:p-5 flex items-center justify-between">
+          <Skeleton className="h-5 w-3/4 rounded-lg" />
+          <Skeleton variant="circular" className="h-6 w-6 shrink-0" />
+        </div>
+      ))}
     </div>
   );
 }

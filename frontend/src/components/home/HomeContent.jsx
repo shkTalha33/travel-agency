@@ -21,6 +21,7 @@ import {
 import SectionHeading from "@/components/common/SectionHeading";
 import OfferCard from "@/components/offers/OfferCard";
 import MembershipCard from "@/components/membership/MembershipCard";
+import { OfferCardSkeleton, MembershipCardSkeleton, AccordionSkeleton } from "@/components/common/Skeletons";
 import Reveal from "@/components/common/Reveal";
 import Button from "@/components/ui/Button";
 import Accordion from "@/components/ui/Accordion";
@@ -157,9 +158,16 @@ const TESTIMONIALS = {
 export default function HomeContent() {
   const { t, copy, faqs, locale, isEn } = useLanguage();
   const dispatch = useDispatch();
+  const offersStatus = useSelector((state) => state.offers?.status || 'idle');
+  const offersLoading = offersStatus === 'loading' || offersStatus === 'idle';
   const dynamicOffers = useSelector((state) => state.offers?.items || []);
+
+  const faqsStatus = useSelector((state) => state.faqs?.status || 'idle');
+  const faqsLoading = faqsStatus === 'loading' || faqsStatus === 'idle';
   const dynamicFaqs = useSelector((state) => state.faqs?.items || []);
+
   const [dynamicTiers, setDynamicTiers] = React.useState([]);
+  const [tiersLoading, setTiersLoading] = React.useState(true);
 
   React.useEffect(() => {
     dispatch(fetchOffers());
@@ -173,6 +181,9 @@ export default function HomeContent() {
       })
       .catch((err) => {
         console.warn('Could not load membership tiers:', err);
+      })
+      .finally(() => {
+        setTiersLoading(false);
       });
   }, [dispatch]);
 
@@ -460,7 +471,15 @@ export default function HomeContent() {
               </Link>
             </div>
           </Reveal>
-          {featuredOffers.length > 0 ? (
+          {offersLoading ? (
+            <div className="mt-10 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+              {Array.from({ length: 3 }).map((_, i) => (
+                <Reveal key={i} delay={i * 100}>
+                  <OfferCardSkeleton />
+                </Reveal>
+              ))}
+            </div>
+          ) : featuredOffers.length > 0 ? (
             <>
               <div className="mt-10 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
                 {featuredOffers.map((o, i) => (
@@ -516,7 +535,15 @@ export default function HomeContent() {
               <AccentRule className="mx-auto mt-4 mb-10" />
             </div>
           </Reveal>
-          {displayMemberships.length > 0 ? (
+          {tiersLoading ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Reveal key={i} delay={i * 80} className="h-full">
+                  <MembershipCardSkeleton dark={i === 3} />
+                </Reveal>
+              ))}
+            </div>
+          ) : displayMemberships.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
               {displayMemberships.map((l, i) => (
                 <Reveal key={l.id} delay={i * 80} className="h-full">
@@ -910,7 +937,11 @@ export default function HomeContent() {
               <AccentRule className="mx-auto mt-4 mb-10" />
             </div>
           </Reveal>
-          {faqItems.length > 0 ? (
+          {faqsLoading ? (
+            <Reveal delay={100}>
+              <AccordionSkeleton rows={4} />
+            </Reveal>
+          ) : faqItems.length > 0 ? (
             <>
               <Reveal delay={100}>
                 <Accordion items={faqItems} />

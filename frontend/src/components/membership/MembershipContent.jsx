@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import MembershipCard from '@/components/membership/MembershipCard';
+import { MembershipCardSkeleton } from '@/components/common/Skeletons';
 import Reveal from '@/components/common/Reveal';
 import Badge from '@/components/ui/Badge';
 import LampContainer from '@/components/ui/LampContainer';
@@ -76,7 +77,15 @@ export default function MembershipContent() {
 
       <section className="relative pb-20 lg:pb-28 pt-4 sm:pt-6 overflow-visible">
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          {displayLevels.length > 0 ? (
+          {loading ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
+              {Array.from({ length: 4 }).map((_, i) => (
+                <Reveal key={i} delay={i * 70} className="h-full">
+                  <MembershipCardSkeleton dark={i === 3} />
+                </Reveal>
+              ))}
+            </div>
+          ) : displayLevels.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
               {displayLevels.map((l, i) => (
                 <Reveal key={l.id} delay={i * 70} className="h-full">
@@ -84,7 +93,7 @@ export default function MembershipContent() {
                 </Reveal>
               ))}
             </div>
-          ) : !loading ? (
+          ) : (
             <div className="text-center py-16 rounded-3xl bg-white border border-sand-200 p-8 shadow-xs max-w-xl mx-auto">
               <Sparkles className="w-10 h-10 mx-auto text-gold-400 mb-3" />
               <p className="text-base font-semibold text-navy-900">
@@ -94,7 +103,7 @@ export default function MembershipContent() {
                 {isEn ? 'Tiers are configured directly from the administration portal.' : 'Los niveles son administrados directamente desde el portal administrativo.'}
               </p>
             </div>
-          ) : null}
+          )}
 
           {/* Detailed Comparison Matrix */}
           {displayLevels.length > 0 && (

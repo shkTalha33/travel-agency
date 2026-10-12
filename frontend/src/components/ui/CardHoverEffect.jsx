@@ -14,17 +14,9 @@ export function HoverEffect({ items, className }) {
   return (
     <div className={cn('grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6', className)}>
       {items.map((item, idx) => {
-        const Wrapper = item.link ? Link : 'div';
-        const wrapperProps = item.link ? { href: item.link } : {};
-
-        return (
-          <Wrapper
-            {...wrapperProps}
-            key={item?.title || idx}
-            className="relative group block p-2 h-full w-full"
-            onMouseEnter={() => setHoveredIndex(idx)}
-            onMouseLeave={() => setHoveredIndex(null)}
-          >
+        const itemKey = item?.title ? `${item.title}-${idx}` : `hover-card-${idx}`;
+        const content = (
+          <div className="relative h-full w-full">
             {/* Aceternity subtle gliding background */}
             <span
               className={cn(
@@ -62,7 +54,32 @@ export function HoverEffect({ items, className }) {
                 </div>
               )}
             </div>
-          </Wrapper>
+          </div>
+        );
+
+        if (item.link) {
+          return (
+            <Link
+              key={itemKey}
+              href={item.link}
+              className="relative group block p-2 h-full w-full"
+              onMouseEnter={() => setHoveredIndex(idx)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            >
+              {content}
+            </Link>
+          );
+        }
+
+        return (
+          <div
+            key={itemKey}
+            className="relative group block p-2 h-full w-full"
+            onMouseEnter={() => setHoveredIndex(idx)}
+            onMouseLeave={() => setHoveredIndex(null)}
+          >
+            {content}
+          </div>
         );
       })}
     </div>

@@ -22,6 +22,7 @@ import SafeImage from "@/components/common/SafeImage";
 import { AccentRule } from "@/components/common/Linework";
 import BackgroundBeams from "@/components/ui/BackgroundBeams";
 import OfferCard from "@/components/offers/OfferCard";
+import { OfferCardSkeleton } from "@/components/common/Skeletons";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSelector, useDispatch } from "@/store";
 import { fetchOffers } from "@/store/slices/offersSlice";
@@ -41,6 +42,8 @@ export default function AboutContent() {
   const dispatch = useDispatch();
 
   // Load real offers from Redux store / API
+  const offersStatus = useSelector((state) => state.offers?.status || 'idle');
+  const offersLoading = offersStatus === 'loading' || offersStatus === 'idle';
   const reduxOffers = useSelector((state) => state.offers?.items || []);
 
   React.useEffect(() => {
@@ -569,7 +572,15 @@ export default function AboutContent() {
             </div>
           </Reveal>
 
-          {displayOffers.length > 0 ? (
+          {offersLoading ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <Reveal key={idx} delay={idx * 80}>
+                  <OfferCardSkeleton />
+                </Reveal>
+              ))}
+            </div>
+          ) : displayOffers.length > 0 ? (
             <>
               {/* Real Travel Offers Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
