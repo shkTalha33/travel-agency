@@ -130,6 +130,11 @@ export const adminApi = {
     apiRequest(`/faqs/${id}`, {
       method: 'DELETE',
     }),
+  reorderFaqs: (orders) =>
+    apiRequest('/faqs/reorder', {
+      method: 'PUT',
+      body: JSON.stringify({ orders }),
+    }),
 
   // Points & Purchases
   assignPurchasePoints: (payload) =>

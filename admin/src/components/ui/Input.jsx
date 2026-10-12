@@ -31,7 +31,7 @@ export default function Input({
   return (
     <div className={`w-full ${className}`}>
       {label && (
-        <label htmlFor={fid} className="mb-1.5 block text-xs font-bold text-navy-800">
+        <label htmlFor={fid} className="mb-1 block text-xs font-semibold capitalize text-navy-800">
           {label}
           {required && <span className="ml-1 text-rose-500" aria-hidden="true">*</span>}
         </label>
@@ -52,7 +52,7 @@ export default function Input({
           required={required}
           aria-invalid={!!error}
           aria-describedby={describedBy}
-          className={`w-full rounded-xl border bg-white px-3.5 py-2.5 text-xs font-medium text-navy-950 transition-colors placeholder:text-navy-400/60 outline-none focus:outline-none focus:ring-0 disabled:bg-sand-100 disabled:text-navy-400 disabled:cursor-not-allowed ${
+          className={`w-full rounded-xl border bg-white px-3 py-2 text-sm text-navy-950 transition-colors placeholder:text-navy-400/60 outline-none focus:outline-none focus:ring-0 disabled:bg-sand-100 disabled:text-navy-400 disabled:cursor-not-allowed ${
             icon ? 'pl-10' : ''
           } ${isPassword || rightIcon ? 'pr-10' : ''} ${
             error

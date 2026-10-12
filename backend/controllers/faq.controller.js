@@ -47,9 +47,34 @@ const deleteFaq = aysncHandler(async (req, res, next) => {
   return res.status(200).json(onSuccess(successMessages.FAQ_DELETED, {}));
 });
 
+const reorderFaqs = aysncHandler(async (req, res, next) => {
+  const { orders } = req.body;
+  if (!Array.isArray(orders) || orders.length === 0) {
+    return next(new BadRequestException("Se requiere un arreglo de órdenes"));
+  }
+
+  const bulkOps = orders.map(({ id, order }) => ({
+    updateOne: {
+      filter: { _id: id },
+      update: { $set: { order } },
+    },
+  }));
+
+  await Faq.bulkWrite(bulkOps);
+
+  const faqs = await Faq.find({ isActive: true })
+    .sort({ order: 1, createdAt: 1 })
+    .lean();
+
+  return res
+    .status(200)
+    .json(onSuccess(successMessages.FAQ_UPDATED, faqs));
+});
+
 module.exports = {
   getAllFaqs,
   createFaq,
   updateFaq,
   deleteFaq,
+  reorderFaqs,
 };

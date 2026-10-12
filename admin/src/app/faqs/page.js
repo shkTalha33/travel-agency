@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import AdminShell from '@/components/layout/AdminShell';
 import { useLanguage } from '@/context/LanguageContext';
 import { adminApi } from '@/lib/apiClient';
@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   AlertCircle,
   Loader2,
+  GripVertical,
 } from 'lucide-react';
 import CustomSelect from '@/components/ui/Select';
 import Modal from '@/components/ui/Modal';
@@ -48,6 +49,15 @@ export default function AdminFaqsPage() {
   const [submitting, setSubmitting] = useState(false);
   const [deleteConfirmId, setDeleteConfirmId] = useState(null);
   const [deleting, setDeleting] = useState(false);
+
+  // Drag-and-drop state
+  const dragIndex = useRef(null);
+  const dragOverIndex = useRef(null);
+  const [dragging, setDragging] = useState(false);
+  const [dragOverId, setDragOverId] = useState(null);
+  const autoScrollTimer = useRef(null);
+  const SCROLL_ZONE = 80; // px from edge to trigger auto-scroll
+  const SCROLL_SPEED = 8; // px per frame
 
   const CATEGORIES = [
     { id: 'all', label: t('faqs.allCategories', 'Todas las Categorías') },
@@ -177,6 +187,108 @@ export default function AdminFaqsPage() {
     return matchesSearch && matchesCategory;
   });
 
+  // ── Drag-and-drop reorder ─────────────────────────────────────────────────
+  const handleDragStart = (e, index) => {
+    dragIndex.current = index;
+    setDragging(true);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragEnter = (id) => setDragOverId(id);
+
+  const handleDragOver = (e, index) => {
+    e.preventDefault();
+    dragOverIndex.current = index;
+
+    // Auto-scroll when dragging near page edges
+    const y = e.clientY;
+    const viewportHeight = window.innerHeight;
+
+    if (autoScrollTimer.current) {
+      cancelAnimationFrame(autoScrollTimer.current);
+      autoScrollTimer.current = null;
+    }
+
+    if (y < SCROLL_ZONE) {
+      // Near top edge — scroll up
+      const intensity = 1 - y / SCROLL_ZONE;
+      const step = () => {
+        window.scrollBy(0, -SCROLL_SPEED * intensity);
+        autoScrollTimer.current = requestAnimationFrame(step);
+      };
+      autoScrollTimer.current = requestAnimationFrame(step);
+    } else if (y > viewportHeight - SCROLL_ZONE) {
+      // Near bottom edge — scroll down
+      const intensity = 1 - (viewportHeight - y) / SCROLL_ZONE;
+      const step = () => {
+        window.scrollBy(0, SCROLL_SPEED * intensity);
+        autoScrollTimer.current = requestAnimationFrame(step);
+      };
+      autoScrollTimer.current = requestAnimationFrame(step);
+    }
+  };
+
+  const handleDrop = useCallback(async (e) => {
+    e.preventDefault();
+    // Stop auto-scroll
+    if (autoScrollTimer.current) {
+      cancelAnimationFrame(autoScrollTimer.current);
+      autoScrollTimer.current = null;
+    }
+
+    const from = dragIndex.current;
+    const to = dragOverIndex.current;
+    if (from === null || to === null || from === to) {
+      setDragging(false);
+      setDragOverId(null);
+      return;
+    }
+
+    // Build a map of old orders keyed by _id before reordering
+    const originalOrderMap = Object.fromEntries(faqs.map(f => [f._id, f.order]));
+
+    // Reorder on filteredFaqs level by working on the full faqs array
+    const reordered = [...faqs];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+
+    // Assign new order values
+    const updated = reordered.map((f, i) => ({ ...f, order: i + 1 }));
+    setFaqs(updated); // optimistic update
+    setDragging(false);
+    setDragOverId(null);
+
+    // Find FAQs whose order actually changed (compare by _id, not array index)
+    const changedOrders = updated
+      .filter(f => f.order !== originalOrderMap[f._id])
+      .map(f => ({ id: f._id, order: f.order }));
+
+    if (changedOrders.length === 0) return;
+
+    // Persist via bulk reorder endpoint
+    try {
+      await adminApi.reorderFaqs(changedOrders);
+      toast(isEn ? 'Order updated successfully' : 'Orden actualizado correctamente', 'success');
+    } catch (err) {
+      console.error('Error saving FAQ order:', err);
+      toast(isEn ? 'Error updating order' : 'Error al actualizar el orden', 'error');
+      // Rollback on failure
+      loadFaqs();
+    }
+  }, [faqs, toast, isEn]);
+
+  const handleDragEnd = () => {
+    setDragging(false);
+    setDragOverId(null);
+    dragIndex.current = null;
+    dragOverIndex.current = null;
+    // Stop auto-scroll
+    if (autoScrollTimer.current) {
+      cancelAnimationFrame(autoScrollTimer.current);
+      autoScrollTimer.current = null;
+    }
+  };
+
   return (
     <AdminShell
       title={t('faqs.title', 'Gestión de Preguntas Frecuentes (FAQs)')}
@@ -193,7 +305,7 @@ export default function AdminFaqsPage() {
       }
     >
       {/* Filter and Category Tabs */}
-      <div className="bg-white p-4 rounded-2xl border border-sand-200 shadow-sm space-y-4">
+      <div className="bg-white p-4 rounded-2xl space-y-4">
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="w-full sm:w-80">
             <Input
@@ -223,7 +335,7 @@ export default function AdminFaqsPage() {
             {[...Array(5)].map((_, i) => (
               <div
                 key={i}
-                className="bg-white p-5 rounded-2xl border border-sand-200 shadow-sm flex flex-col md:flex-row md:items-start justify-between gap-4 animate-pulse"
+                className="bg-white p-5 rounded-2xl flex flex-col md:flex-row md:items-start justify-between gap-4 animate-pulse"
               >
                 {/* Left: text content */}
                 <div className="space-y-2 flex-1 max-w-3xl">
@@ -263,27 +375,48 @@ export default function AdminFaqsPage() {
           filteredFaqs.map((faq, index) => {
             const catObj = CATEGORIES.find((c) => c.id === faq.category);
             const catLabel = catObj ? catObj.label : (faq.category || 'General');
+            const isDragOver = dragOverId === faq._id;
 
             return (
               <div
                 key={faq._id}
-                className="bg-white p-5 rounded-2xl border border-sand-200 shadow-sm hover:shadow-md transition-all flex flex-col md:flex-row md:items-start justify-between gap-4 group"
+                draggable
+                onDragStart={(e) => handleDragStart(e, index)}
+                onDragEnter={() => handleDragEnter(faq._id)}
+                onDragOver={(e) => handleDragOver(e, index)}
+                onDrop={handleDrop}
+                onDragEnd={handleDragEnd}
+                className={`bg-white p-5 rounded-2xl flex flex-col md:flex-row md:items-start justify-between gap-4 group transition-all duration-200 ${
+                  isDragOver
+                    ? 'ring-2 ring-ocean-400 shadow-lg shadow-ocean-100 scale-[1.01]'
+                    : 'hover:shadow-md'
+                } ${dragging && dragOverId !== faq._id ? 'opacity-60' : 'opacity-100'}`}
               >
-                <div className="space-y-2 max-w-3xl">
-                  <div className="flex items-center gap-2">
-                    <Badge variant="ocean" size="xs">
-                      {catLabel}
-                    </Badge>
-                    <span className="text-[10px] text-navy-400 font-medium">
-                      {t('faqs.orderLabel', 'Orden')}: #{faq.order || index + 1}
-                    </span>
+                {/* Drag handle + left content */}
+                <div className="flex items-start gap-3 flex-1">
+                  <div
+                    className="mt-1 shrink-0 text-navy-400 hover:text-ocean-600 cursor-grab active:cursor-grabbing transition-colors pt-0.5"
+                    title={isEn ? 'Drag to reorder' : 'Arrastra para reordenar'}
+                  >
+                    <GripVertical className="w-4 h-4" />
                   </div>
-                  <h3 className="text-sm font-bold text-navy-950">
-                    {isEn ? (faq.questionEn || faq.question) : faq.question}
-                  </h3>
-                  <p className="text-xs text-navy-600 leading-relaxed">
-                    {isEn ? (faq.answerEn || faq.answer) : faq.answer}
-                  </p>
+
+                  <div className="space-y-2 max-w-3xl flex-1">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="ocean" size="xs">
+                        {catLabel}
+                      </Badge>
+                      <span className="text-[10px] text-navy-400 font-medium">
+                        {t('faqs.orderLabel', 'Orden')}: #{faq.order || index + 1}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-bold text-navy-950">
+                      {isEn ? (faq.questionEn || faq.question) : faq.question}
+                    </h3>
+                    <p className="text-xs text-navy-600 leading-relaxed">
+                      {isEn ? (faq.answerEn || faq.answer) : faq.answer}
+                    </p>
+                  </div>
                 </div>
 
                 <div className="flex items-center gap-2 shrink-0 self-end md:self-start pt-2 md:pt-0">

@@ -55,7 +55,7 @@ export default function AuthShell({ title, subtitle, children, footer }) {
   }, [activeSlide]);
 
   return (
-    <div className="min-h-screen bg-white lg:bg-slate-100/80 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
+    <div className="min-h-screen bg-slate-100/80 flex items-center justify-center p-4 sm:p-6 lg:p-8 font-sans">
       {/* Floating Center Card Container: Completely flat and shadowless on small screens, luxury shadow on lg+ */}
       <div className="w-full max-w-md sm:max-w-lg lg:max-w-5xl bg-white rounded-3xl shadow-none border-0 lg:shadow-2xl lg:border lg:border-slate-200/80 p-0 sm:p-2 lg:p-[10px] grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-stretch overflow-hidden">
         
@@ -143,7 +143,7 @@ export default function AuthShell({ title, subtitle, children, footer }) {
         </div>
 
         {/* Right Side: Centered Auth Form */}
-        <div className="lg:col-span-6 w-full max-w-md mx-auto flex flex-col justify-center py-2 sm:py-4 px-2 sm:px-6">
+        <div className="col-span-12 lg:col-span-6 w-full max-w-md mx-auto flex flex-col justify-center bg-white py-6 sm:py-6 lg:py-2 px-4 sm:px-6 rounded-2xl lg:rounded-none">
           {/* Top Bar inside form container */}
           <div className="flex items-center justify-between mb-4">
             <Link href="/" className="lg:hidden inline-flex items-center gap-2 group">

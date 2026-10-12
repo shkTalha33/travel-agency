@@ -115,7 +115,7 @@ export default function Select({
   return (
     <div className={`w-full ${isOpen ? 'relative z-50' : 'relative z-10'} ${className}`} ref={containerRef}>
       {label && (
-        <label htmlFor={fid} className="block text-xs font-bold text-navy-800 mb-1.5">
+        <label htmlFor={fid} className="block text-xs font-semibold capitalize text-navy-800 mb-1">
           {label}
           {required && <span className="text-rose-500 ml-1" aria-hidden="true">*</span>}
         </label>
@@ -128,7 +128,7 @@ export default function Select({
           id={fid}
           disabled={disabled}
           onClick={() => setIsOpen(!isOpen)}
-          className={`w-full flex items-center justify-between text-left px-3.5 py-2.5 text-xs font-semibold rounded-xl border bg-white outline-none ring-0 focus:outline-none focus:ring-0 transition-colors cursor-pointer ${
+          className={`w-full flex items-center justify-between text-left px-3 py-2 text-sm font-semibold rounded-xl border bg-white outline-none ring-0 focus:outline-none focus:ring-0 transition-colors cursor-pointer ${
             isOpen
               ? 'border-ocean-600 ring-1 ring-ocean-600'
               : error
