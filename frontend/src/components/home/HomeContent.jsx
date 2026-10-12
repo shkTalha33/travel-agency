@@ -7,6 +7,7 @@ import {
   Award,
   Compass,
   Headphones,
+  HelpCircle,
   MapPin,
   Palmtree,
   Search,
@@ -154,7 +155,7 @@ const TESTIMONIALS = {
 };
 
 export default function HomeContent() {
-  const { copy, faqs, locale, isEn } = useLanguage();
+  const { t, copy, faqs, locale, isEn } = useLanguage();
   const dispatch = useDispatch();
   const dynamicOffers = useSelector((state) => state.offers?.items || []);
   const dynamicFaqs = useSelector((state) => state.faqs?.items || []);
@@ -441,54 +442,81 @@ export default function HomeContent() {
       </section>
 
       {/* Offers Featured */}
-      {featuredOffers.length > 0 && (
-        <section className="bg-sand-100/70 py-14 lg:py-20">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <div className="flex flex-wrap items-end justify-between gap-4">
-                <div>
-                  <SectionHeading
-                    eyebrow={h.offersEyebrow}
-                    title={h.offersTitle}
-                  />
-                  <AccentRule className="mt-4" />
+      <section className="bg-sand-100/70 py-14 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <SectionHeading
+                  eyebrow={h.offersEyebrow}
+                  title={h.offersTitle}
+                />
+                <AccentRule className="mt-4" />
+              </div>
+              <Link href="/offers">
+                <Button variant="secondary" className="rounded-2xl">
+                  {copy.common.allOffers}
+                </Button>
+              </Link>
+            </div>
+          </Reveal>
+          {featuredOffers.length > 0 ? (
+            <>
+              <div className="mt-10 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+                {featuredOffers.map((o, i) => (
+                  <Reveal key={o._id || o.id || o.slug || i} delay={i * 120}>
+                    <OfferCard offer={o} />
+                  </Reveal>
+                ))}
+              </div>
+              <p className="mt-8 text-center text-xs text-slate-500 sm:text-left">
+                {h.offersNote}
+              </p>
+            </>
+          ) : (
+            <Reveal delay={100}>
+              <div className="mt-10 text-center py-14 px-6 rounded-3xl bg-white/80 border border-sand-200 shadow-xs max-w-xl mx-auto backdrop-blur-xs">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-ocean-50 text-ocean-600 border border-ocean-200/60 shadow-xs">
+                  <Palmtree className="w-7 h-7" />
                 </div>
-                <Link href="/offers">
-                  <Button variant="secondary" className="rounded-2xl">
-                    {copy.common.allOffers}
-                  </Button>
-                </Link>
+                <h3 className="font-serif text-lg font-bold text-navy-900">
+                  {isEn
+                    ? "New luxury travel packages arriving soon"
+                    : "Nuevas ofertas de viaje exclusivas próximamente"}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">
+                  {isEn
+                    ? "Our travel specialists are curating upcoming 5-star resort packages and VIP excursions. Explore our complete catalog or check back shortly."
+                    : "Nuestros especialistas están preparando nuevas experiencias en resorts 5 estrellas y excursiones VIP. Explora nuestro catálogo o vuelve pronto."}
+                </p>
+                <div className="mt-6 flex justify-center">
+                  <Link href="/offers">
+                    <Button variant="primary" size="sm" className="rounded-xl px-5 py-2.5 text-xs font-bold shadow-soft">
+                      {copy.common.allOffers}
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </Reveal>
-            <div className="mt-10 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-              {featuredOffers.map((o, i) => (
-                <Reveal key={o._id || o.id || o.slug || i} delay={i * 120}>
-                  <OfferCard offer={o} />
-                </Reveal>
-              ))}
-            </div>
-            <p className="mt-8 text-center text-xs text-slate-500 sm:text-left">
-              {h.offersNote}
-            </p>
-          </div>
-        </section>
-      )}
+          )}
+        </div>
+      </section>
 
       {/* Memberships */}
-      {displayMemberships.length > 0 && (
-        <section className="bg-white py-14 lg:py-20 overflow-visible">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <div className="text-center">
-                <SectionHeading
-                  eyebrow={h.membershipEyebrow}
-                  title={h.membershipTitle}
-                  description={h.membershipDesc}
-                  align="center"
-                />
-                <AccentRule className="mx-auto mt-4 mb-10" />
-              </div>
-            </Reveal>
+      <section className="bg-white py-14 lg:py-20 overflow-visible">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center">
+              <SectionHeading
+                eyebrow={h.membershipEyebrow}
+                title={h.membershipTitle}
+                description={h.membershipDesc}
+                align="center"
+              />
+              <AccentRule className="mx-auto mt-4 mb-10" />
+            </div>
+          </Reveal>
+          {displayMemberships.length > 0 ? (
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
               {displayMemberships.map((l, i) => (
                 <Reveal key={l.id} delay={i * 80} className="h-full">
@@ -496,9 +524,39 @@ export default function HomeContent() {
                 </Reveal>
               ))}
             </div>
-          </div>
-        </section>
-      )}
+          ) : (
+            <Reveal delay={100}>
+              <div className="text-center py-14 px-6 rounded-3xl bg-sand-50/90 border border-sand-200 shadow-xs max-w-xl mx-auto">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gold-50 text-gold-600 border border-gold-200/60 shadow-xs">
+                  <Award className="w-7 h-7" />
+                </div>
+                <h3 className="font-serif text-lg font-bold text-navy-900">
+                  {isEn
+                    ? "Membership tiers are currently updating"
+                    : "Niveles de membresía en actualización"}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">
+                  {isEn
+                    ? "Our tier benefits and commission structures are managed live from our administration portal. Register today to begin accumulating points."
+                    : "Nuestros niveles y comisiones se sincronizan en tiempo real con el portal administrativo. Regístrate para comenzar a acumular puntos."}
+                </p>
+                <div className="mt-6 flex flex-wrap justify-center gap-3">
+                  <Link href="/register">
+                    <Button variant="primary" size="sm" className="rounded-xl px-5 py-2.5 text-xs font-bold shadow-soft">
+                      {t("auth.join") || (isEn ? "Join Club" : "Unirse al Club")}
+                    </Button>
+                  </Link>
+                  <Link href="/about">
+                    <Button variant="secondary" size="sm" className="rounded-xl px-5 py-2.5 text-xs font-bold border border-sand-300 bg-white">
+                      {copy.common.moreAbout || (isEn ? "Learn More" : "Saber Más")}
+                    </Button>
+                  </Link>
+                </div>
+              </div>
+            </Reveal>
+          )}
+        </div>
+      </section>
 
       {/* Testimonials & Live Payouts Marquee (Aceternity InfiniteMovingCards) */}
       <section className="overflow-hidden bg-sand-100/80 py-14 lg:py-20">
@@ -840,36 +898,63 @@ export default function HomeContent() {
       </section>
 
       {/* FAQ */}
-      {faqItems.length > 0 && (
-        <section className="bg-sand-50 py-14 lg:py-20">
-          <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <div className="text-center">
-                <SectionHeading
-                  eyebrow={h.faqEyebrow}
-                  title={h.faqTitle}
-                  align="center"
-                />
-                <AccentRule className="mx-auto mt-4 mb-10" />
-              </div>
-            </Reveal>
+      <section className="bg-sand-50 py-14 lg:py-20">
+        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center">
+              <SectionHeading
+                eyebrow={h.faqEyebrow}
+                title={h.faqTitle}
+                align="center"
+              />
+              <AccentRule className="mx-auto mt-4 mb-10" />
+            </div>
+          </Reveal>
+          {faqItems.length > 0 ? (
+            <>
+              <Reveal delay={100}>
+                <Accordion items={faqItems} />
+              </Reveal>
+              <Reveal delay={200}>
+                <div className="mt-8 text-center">
+                  <Link
+                    href="/faq"
+                    className="inline-flex items-center gap-1 text-sm font-bold text-ocean-700 hover:underline"
+                  >
+                    {copy.common.allFaqs}
+                    <ArrowRight size={14} aria-hidden="true" />
+                  </Link>
+                </div>
+              </Reveal>
+            </>
+          ) : (
             <Reveal delay={100}>
-              <Accordion items={faqItems} />
-            </Reveal>
-            <Reveal delay={200}>
-              <div className="mt-8 text-center">
-                <Link
-                  href="/faq"
-                  className="inline-flex items-center gap-1 text-sm font-bold text-ocean-700 hover:underline"
-                >
-                  {copy.common.allFaqs}
-                  <ArrowRight size={14} aria-hidden="true" />
-                </Link>
+              <div className="text-center py-12 px-6 rounded-3xl bg-white border border-sand-200 shadow-xs max-w-xl mx-auto">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-ocean-50 text-ocean-600 border border-ocean-200/60 shadow-xs">
+                  <HelpCircle className="w-7 h-7" />
+                </div>
+                <h3 className="font-serif text-lg font-bold text-navy-900">
+                  {isEn
+                    ? "Have questions about our travel community?"
+                    : "¿Tienes preguntas sobre nuestra comunidad de viajes?"}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">
+                  {isEn
+                    ? "Our knowledge base is currently being updated. Contact our 24/7 travel concierge team for personalized guidance."
+                    : "Nuestra base de preguntas frecuentes se está actualizando. Contacta a nuestro equipo de conserjería para atención personalizada."}
+                </p>
+                <div className="mt-6 flex justify-center">
+                  <Link href="/contact">
+                    <Button variant="primary" size="sm" className="rounded-xl px-5 py-2.5 text-xs font-bold shadow-soft">
+                      {isEn ? "Contact Support" : "Contactar Soporte"}
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </Reveal>
-          </div>
-        </section>
-      )}
+          )}
+        </div>
+      </section>
 
       {/* CTA Final */}
       <section className="relative overflow-hidden bg-sand-50 py-14 lg:py-20">

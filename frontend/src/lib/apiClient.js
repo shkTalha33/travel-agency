@@ -157,7 +157,12 @@ export async function apiClient(endpoint, options = {}) {
       notifyUnauthorized();
     }
 
-    const data = await response.json();
+    let data;
+    try {
+      data = await response.json();
+    } catch (_) {
+      data = {};
+    }
 
     if (!response.ok) {
       const errorMsg = data.message || (isEn ? 'Server request error' : 'Error en la solicitud al servidor');
@@ -170,14 +175,15 @@ export async function apiClient(endpoint, options = {}) {
     return data;
     } catch (err) {
       throw err;
+    } finally {
+      if (isGet) {
+        inFlightRequests.delete(endpoint);
+      }
     }
   })();
 
   if (isGet) {
     inFlightRequests.set(endpoint, requestPromise);
-    requestPromise.finally(() => {
-      inFlightRequests.delete(endpoint);
-    });
   }
 
   return requestPromise;

@@ -541,66 +541,102 @@ export default function AboutContent() {
       </section>
 
       {/* =========================================================================
-          5. FEATURED TRAVEL OFFERS — Real Catalog Offers (Shown only when offers exist)
+          5. FEATURED TRAVEL OFFERS — Real Catalog Offers
       ========================================================================== */}
-      {displayOffers.length > 0 && (
-        <section className="bg-sand-100/60 py-16 lg:py-24 border-t border-sand-200">
-          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-            <Reveal>
-              <div className="text-center max-w-2xl mx-auto">
-                <span className="inline-flex items-center gap-1.5 rounded-full bg-ocean-50 border border-ocean-600/20 px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-ocean-700">
-                  <Palmtree
-                    size={12}
-                    className="text-ocean-600"
-                    aria-hidden="true"
-                  />
-                  {isEn ? "FEATURED OFFERS" : "OFERTAS DESTACADAS"}
-                </span>
-                <h2 className="mt-4 font-serif text-3xl font-bold text-navy-900 sm:text-4xl lg:text-5xl">
+      <section className="bg-sand-100/60 py-16 lg:py-24 border-t border-sand-200">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <Reveal>
+            <div className="text-center max-w-2xl mx-auto">
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-ocean-50 border border-ocean-600/20 px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-ocean-700">
+                <Palmtree
+                  size={12}
+                  className="text-ocean-600"
+                  aria-hidden="true"
+                />
+                {isEn ? "FEATURED OFFERS" : "OFERTAS DESTACADAS"}
+              </span>
+              <h2 className="mt-4 font-serif text-3xl font-bold text-navy-900 sm:text-4xl lg:text-5xl">
+                {isEn
+                  ? "Experience the Real Caribbean"
+                  : "Vive la Experiencia Real del Caribe"}
+              </h2>
+              <p className="mt-3 text-sm text-slate-600 sm:text-base">
+                {isEn
+                  ? "Explore our premier travel packages with exclusive membership points rewards."
+                  : "Descubre nuestros paquetes de viaje más solicitados con recompensas exclusivas en puntos."}
+              </p>
+              <AccentRule className="mx-auto mt-4 mb-10" />
+            </div>
+          </Reveal>
+
+          {displayOffers.length > 0 ? (
+            <>
+              {/* Real Travel Offers Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+                {displayOffers.map((offer, idx) => (
+                  <Reveal
+                    key={offer.id || offer._id || offer.slug || idx}
+                    delay={idx * 80}
+                  >
+                    <OfferCard offer={offer} basePath="/offers" />
+                  </Reveal>
+                ))}
+              </div>
+
+              <div className="mt-10 text-center">
+                <Link href="/offers">
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    className="rounded-xl px-6 py-2.5 text-sm font-bold border border-slate-200 bg-white hover:bg-sand-100 text-navy-900 shadow-xs transition-all hover:shadow-sm"
+                  >
+                    <span>
+                      {isEn
+                        ? "View All Travel Offers"
+                        : "Ver Todas las Ofertas de Viaje"}
+                    </span>
+                    <ArrowRight size={15} className="ml-2 text-ocean-600" />
+                  </Button>
+                </Link>
+              </div>
+            </>
+          ) : (
+            <Reveal delay={100}>
+              <div className="text-center py-14 px-6 rounded-3xl bg-white/90 border border-sand-200 shadow-xs max-w-xl mx-auto backdrop-blur-xs">
+                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-ocean-50 text-ocean-600 border border-ocean-200/60 shadow-xs">
+                  <Palmtree className="w-7 h-7" />
+                </div>
+                <h3 className="font-serif text-lg font-bold text-navy-900">
                   {isEn
-                    ? "Experience the Real Caribbean"
-                    : "Vive la Experiencia Real del Caribe"}
-                </h2>
-                <p className="mt-3 text-sm text-slate-600 sm:text-base">
+                    ? "Exclusive Caribbean offers coming soon"
+                    : "Ofertas exclusivas del Caribe disponibles próximamente"}
+                </h3>
+                <p className="text-xs text-slate-500 mt-1.5 max-w-md mx-auto leading-relaxed">
                   {isEn
-                    ? "Explore our premier travel packages with exclusive membership points rewards."
-                    : "Descubre nuestros paquetes de viaje más solicitados con recompensas exclusivas en puntos."}
+                    ? "We are currently preparing new resort packages and private excursions. Check back soon or visit our full catalog."
+                    : "Estamos preparando nuevos paquetes en resorts y excursiones privadas. Vuelve pronto o explora nuestro catálogo completo."}
                 </p>
-                <AccentRule className="mx-auto mt-4 mb-10" />
+                <div className="mt-6 flex justify-center">
+                  <Link href="/offers">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      className="rounded-xl px-5 py-2.5 text-xs font-bold shadow-soft"
+                    >
+                      <span>
+                        {isEn
+                          ? "View Travel Catalog"
+                          : "Ver Catálogo de Viajes"}
+                      </span>
+                      <ArrowRight size={14} className="ml-2 text-white" />
+                    </Button>
+                  </Link>
+                </div>
               </div>
             </Reveal>
-
-            {/* Real Travel Offers Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-              {displayOffers.map((offer, idx) => (
-                <Reveal
-                  key={offer.id || offer._id || offer.slug || idx}
-                  delay={idx * 80}
-                >
-                  <OfferCard offer={offer} basePath="/offers" />
-                </Reveal>
-              ))}
-            </div>
-
-            <div className="mt-10 text-center">
-              <Link href="/offers">
-                <Button
-                  variant="secondary"
-                  size="md"
-                  className="rounded-xl px-6 py-2.5 text-sm font-bold border border-slate-200 bg-white hover:bg-sand-100 text-navy-900 shadow-xs transition-all hover:shadow-sm"
-                >
-                  <span>
-                    {isEn
-                      ? "View All Travel Offers"
-                      : "Ver Todas las Ofertas de Viaje"}
-                  </span>
-                  <ArrowRight size={15} className="ml-2 text-ocean-600" />
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </section>
-      )}
+          )}
+        </div>
+      </section>
 
       {/* =========================================================================
           6. FINAL CALL TO ACTION
