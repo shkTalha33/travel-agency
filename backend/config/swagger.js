@@ -191,6 +191,63 @@ const swaggerDefinition = {
     },
   },
   paths: {
+    "/health": {
+      get: {
+        tags: ["System Health"],
+        summary: "Verificar el estado del sistema y la base de datos (Health Check)",
+        description: "Retorna el estado operativo del servidor, tiempo de actividad (uptime), uso de memoria y estado de la conexión a MongoDB.",
+        responses: {
+          200: {
+            description: "Servidor y servicios operando con normalidad",
+            content: {
+              "application/json": {
+                schema: {
+                  type: "object",
+                  properties: {
+                    success: { type: "boolean", example: true },
+                    message: { type: "string", example: "System health status" },
+                    data: {
+                      type: "object",
+                      properties: {
+                        status: { type: "string", example: "ok" },
+                        timestamp: { type: "string", example: "2026-10-12T15:30:00.000Z" },
+                        uptime: { type: "string", example: "2h 15m 30s" },
+                        uptimeSeconds: { type: "integer", example: 8130 },
+                        environment: { type: "string", example: "development" },
+                        services: {
+                          type: "object",
+                          properties: {
+                            database: {
+                              type: "object",
+                              properties: {
+                                status: { type: "string", example: "connected" },
+                                connected: { type: "boolean", example: true },
+                                host: { type: "string", example: "127.0.0.1" },
+                                name: { type: "string", example: "travelagency" },
+                              },
+                            },
+                            api: {
+                              type: "object",
+                              properties: {
+                                status: { type: "string", example: "up" },
+                                version: { type: "string", example: "1.0.0" },
+                              },
+                            },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          503: {
+            description: "Servicio degradado (ej. base de datos desconectada)",
+          },
+        },
+      },
+    },
     "/auth/signup": {
       post: {
         tags: ["Authentication"],

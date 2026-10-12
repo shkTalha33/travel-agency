@@ -12,6 +12,7 @@ const { onError } = require("./libs/responseWrapper");
 const { BadRequestException } = require("./libs/errorExceptionSchema");
 const { apiLimiter } = require("./middlewares/rateLimiter");
 const path = require("path");
+const { getHealthStatus } = require("./controllers/health.controller");
 const v1Router = require("./routes/index");
 
 const app = express();
@@ -89,6 +90,7 @@ app.get("/api/v1/swagger.json", (req, res) => {
 });
 
 // Health check & Info
+app.get("/health", getHealthStatus);
 app.get("/", (req, res) => {
   res.json({
     name: "Viajes Dominicana REST API",
@@ -96,6 +98,7 @@ app.get("/", (req, res) => {
     status: "online",
     swaggerDocs: "/api-docs",
     apiPrefix: "/api/v1",
+    healthCheck: "/api/v1/health",
   });
 });
 

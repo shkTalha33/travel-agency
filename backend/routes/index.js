@@ -9,9 +9,11 @@ const contactRoutes = require("./contact.route");
 const uploadRoutes = require("./upload.route");
 const membershipTierRoutes = require("./membershipTier.route");
 const notificationRoutes = require("./notification.route");
+const healthRoutes = require("./health.route");
 
 const router = Router();
 
+router.use("/health", healthRoutes);
 router.use("/auth", authRoutes);
 router.use("/users", userRoutes);
 router.use("/offers", offerRoutes);
