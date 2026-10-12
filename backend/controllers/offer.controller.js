@@ -21,7 +21,7 @@ const slugify = (text) => {
 };
 
 const getAllOffers = aysncHandler(async (req, res) => {
-  const { search, destination, minPrice, maxPrice, isFeatured, page = 1, limit = 20 } = req.query;
+  const { search, destination, minPrice, maxPrice, isFeatured, page = 1, limit = 100 } = req.query;
 
   const filter = { isActive: true };
 
@@ -79,6 +79,7 @@ const getOfferBySlugOrId = aysncHandler(async (req, res, next) => {
   const escaped = idOrSlug.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const filter = isMongoId
     ? {
+        isActive: true,
         $or: [
           { _id: idOrSlug },
           { slug: idOrSlug },
@@ -86,6 +87,7 @@ const getOfferBySlugOrId = aysncHandler(async (req, res, next) => {
         ],
       }
     : {
+        isActive: true,
         $or: [
           { slug: idOrSlug },
           { slug: idOrSlug.toLowerCase() },

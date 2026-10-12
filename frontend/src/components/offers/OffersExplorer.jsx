@@ -19,17 +19,33 @@ export default function OffersExplorer({ offers }) {
   const [country, setCountry] = useState('todos');
   const [page, setPage] = useState(1);
 
-  const countries = useMemo(() => [...new Set(offers.map((o) => o.country).filter(Boolean))], [offers]);
+  // Only display active offers (strictly exclude any inactive or soft-deleted offers)
+  const activeOffers = useMemo(
+    () => (offers || []).filter((o) => o && o.isActive !== false),
+    [offers]
+  );
+
+  const countries = useMemo(() => [...new Set(activeOffers.map((o) => o.country).filter(Boolean))], [activeOffers]);
   const countryOptions = countries.map((c) => {
-    const sample = offers.find((o) => o.country === c);
+    const sample = activeOffers.find((o) => o.country === c);
     return { value: c, label: localizeOffer(sample, locale)?.country || c };
   });
-  const filtered = country === 'todos' ? offers : offers.filter((o) => o.country === country);
+  const filtered = country === 'todos' ? activeOffers : activeOffers.filter((o) => o.country === country);
   const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
   const visible = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
+  const handlePageChange = (newPage) => {
+    setPage(newPage);
+    if (typeof window !== 'undefined') {
+      const el = document.getElementById('offers-catalog-grid');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  };
+
   return (
-    <div>
+    <div id="offers-catalog-grid">
       {/* Category Pills & Dropdown */}
       <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white p-4 sm:p-5">
         <div className="flex flex-wrap items-center gap-2">
@@ -38,8 +54,8 @@ export default function OffersExplorer({ offers }) {
             onClick={() => { setCountry('todos'); setPage(1); }}
             className={`rounded-full px-4 py-1.5 text-xs font-bold transition-all cursor-pointer ${
               country === 'todos'
-                ? 'bg-navy-900 text-gold-300'
-                : 'bg-sand-100 text-slate-600 hover:bg-sand-200 hover:text-navy-900'
+                ? 'bg-ocean-600 text-white shadow-sm'
+                : 'bg-sand-100 text-slate-600 hover:bg-sand-200 hover:text-ocean-600'
             }`}
           >
             {t('common.allCountries')}
@@ -51,8 +67,8 @@ export default function OffersExplorer({ offers }) {
               onClick={() => { setCountry(opt.value); setPage(1); }}
               className={`rounded-full px-3.5 py-1.5 text-xs font-bold transition-all inline-flex items-center gap-1.5 cursor-pointer ${
                 country === opt.value
-                  ? 'bg-navy-900 text-gold-300'
-                  : 'bg-sand-100 text-slate-600 hover:bg-sand-200 hover:text-navy-900'
+                  ? 'bg-ocean-600 text-white shadow-sm'
+                  : 'bg-sand-100 text-slate-600 hover:bg-sand-200 hover:text-ocean-600'
               }`}
             >
               <span className="text-sm leading-none" role="img" aria-label={opt.label}>
@@ -92,7 +108,7 @@ export default function OffersExplorer({ offers }) {
       </div>
 
       <div className="mt-12">
-        <Pagination page={page} totalPages={totalPages} onChange={setPage} />
+        <Pagination page={page} totalPages={totalPages} onChange={handlePageChange} />
       </div>
     </div>
   );

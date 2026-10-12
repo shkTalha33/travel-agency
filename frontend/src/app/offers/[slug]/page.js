@@ -77,9 +77,14 @@ export default function OfferDetailPage({ params }) {
         setLoading(true);
         const res = await offersApi.getBySlugOrId(slug);
         if (isMounted && res?.data?.offer) {
+          if (res.data.offer.isActive === false) {
+            setNotFoundState(true);
+            setLoading(false);
+            return;
+          }
           setRawOffer(res.data.offer);
           if (res.data.relatedOffers && res.data.relatedOffers.length > 0) {
-            setRelatedOffers(res.data.relatedOffers);
+            setRelatedOffers(res.data.relatedOffers.filter((o) => o.isActive !== false));
           }
           setNotFoundState(false);
           setLoading(false);
