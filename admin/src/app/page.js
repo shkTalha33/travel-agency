@@ -58,7 +58,6 @@ export default function AdminDashboardPage() {
       icon: Compass,
       commission: isEn ? '0% commissions' : '0% comisiones',
       bgGradient: 'from-slate-50 to-slate-100/90',
-      border: 'border-slate-200 hover:border-slate-400',
       badgeStyle: 'bg-slate-200/80 text-slate-800 border-slate-300',
       accentColor: 'text-slate-700',
       iconBg: 'bg-slate-200 text-slate-700',
@@ -71,7 +70,6 @@ export default function AdminDashboardPage() {
       icon: Waves,
       commission: isEn ? '100% L1 Direct' : '100% N1 Directo',
       bgGradient: 'from-emerald-50/70 to-teal-50/90',
-      border: 'border-emerald-200/90 hover:border-emerald-400',
       badgeStyle: 'bg-emerald-100 text-emerald-800 border-emerald-300',
       accentColor: 'text-emerald-800',
       iconBg: 'bg-emerald-100 text-emerald-700',
@@ -84,7 +82,6 @@ export default function AdminDashboardPage() {
       icon: Award,
       commission: isEn ? '100% L1 + 50% L2' : '100% N1 + 50% N2',
       bgGradient: 'from-ocean-50/70 to-blue-50/90',
-      border: 'border-ocean-200/90 hover:border-ocean-400',
       badgeStyle: 'bg-ocean-100 text-ocean-900 border-ocean-300',
       accentColor: 'text-ocean-900',
       iconBg: 'bg-ocean-100 text-ocean-700',
@@ -97,7 +94,6 @@ export default function AdminDashboardPage() {
       icon: Crown,
       commission: isEn ? '100% L1 + 50% L2 VIP' : '100% N1 + 50% N2 VIP',
       bgGradient: 'from-navy-950 via-navy-900 to-navy-950 text-white',
-      border: 'border-gold-500/50 hover:border-gold-400 shadow-lg shadow-gold-500/10',
       badgeStyle: 'bg-gradient-to-r from-gold-500 to-gold-400 text-navy-950 border-gold-400 font-extrabold',
       accentColor: 'text-gold-400',
       iconBg: 'bg-gold-500/20 text-gold-400 border border-gold-500/30',
@@ -324,7 +320,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Luxury Club Membership Tier Distribution Section */}
-      <div className="bg-white p-6 md:p-8 rounded-3xl border border-slate-200/90 shadow-sm relative overflow-hidden">
+      <div className="bg-white p-6 md:p-8 rounded-3xl relative overflow-hidden">
         {/* Section Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6 pb-4 border-b border-slate-100">
           <div className="flex items-center gap-3">
@@ -361,7 +357,7 @@ export default function AdminDashboardPage() {
               return (
                 <div
                   key={tier.id}
-                  className="relative rounded-3xl p-6 bg-gradient-to-b from-[#1E110A] via-[#170C07] to-[#0D0704] text-white border-2 border-gold-400/70 shadow-[0_10px_30px_-5px_rgba(212,160,23,0.3)] hover:shadow-[0_15px_40px_-5px_rgba(212,160,23,0.45)] hover:border-gold-300 transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between overflow-hidden group"
+                  className="relative rounded-3xl p-6 bg-gradient-to-b from-[#1E110A] via-[#170C07] to-[#0D0704] text-white transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between overflow-hidden group"
                 >
                   {/* Luxury gold glow highlight */}
                   <div className="absolute top-0 right-0 w-32 h-32 bg-gold-400/15 rounded-full blur-2xl pointer-events-none -mr-8 -mt-8 group-hover:scale-150 transition-transform duration-700"></div>
@@ -418,7 +414,7 @@ export default function AdminDashboardPage() {
             return (
               <div
                 key={tier.id}
-                className={`relative rounded-3xl p-6 bg-gradient-to-b ${tier.bgGradient} border-2 ${tier.border} shadow-sm hover:shadow-xl transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between overflow-hidden group`}
+                className={`relative rounded-3xl p-6 bg-gradient-to-b ${tier.bgGradient} transition-all duration-300 hover:-translate-y-1 flex flex-col justify-between overflow-hidden group`}
               >
                 <div className="relative">
                   <div className="flex items-center justify-between gap-2 mb-4">
@@ -470,7 +466,7 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Recent Registrations Table Card */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+        <div className="bg-white p-6 rounded-3xl flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
@@ -488,7 +484,7 @@ export default function AdminDashboardPage() {
 
             <div className="divide-y divide-slate-100">
               {stats?.recentUsers?.length > 0 ? (
-                stats.recentUsers.map((u) => (
+                stats.recentUsers.slice(0, 5).map((u) => (
                   <div key={u._id} className="py-3 flex items-center justify-between hover:bg-slate-50/70 px-2 rounded-xl transition-colors">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-navy-950 to-navy-900 text-gold-400 font-bold text-xs flex items-center justify-center ring-2 ring-gold-500/20">
@@ -517,7 +513,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {/* Recent Ledger Transactions Table Card */}
-        <div className="bg-white p-6 rounded-3xl border border-slate-200/90 shadow-sm flex flex-col justify-between">
+        <div className="bg-white p-6 rounded-3xl flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between mb-4 pb-3 border-b border-slate-100">
               <div className="flex items-center gap-2.5">
@@ -535,7 +531,7 @@ export default function AdminDashboardPage() {
 
             <div className="divide-y divide-slate-100">
               {stats?.recentTransactions?.length > 0 ? (
-                stats.recentTransactions.map((tx) => {
+                stats.recentTransactions.slice(0, 5).map((tx) => {
                   let cleanDesc = tx.purchaseDescription || (isEn ? 'Points Transaction' : 'Transacción de Puntos');
                   cleanDesc = cleanDesc.replace(/#?[0-9a-fA-F]{24}/gi, '').replace(/#[a-zA-Z0-9_-]{8,}/gi, '').trim();
                   if (!cleanDesc) {

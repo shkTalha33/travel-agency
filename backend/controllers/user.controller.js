@@ -461,12 +461,12 @@ const getAdminDashboardStats = aysncHandler(async (req, res) => {
     User.find()
       .select("fullname email username membershipId role status createdAt")
       .sort({ createdAt: -1 })
-      .limit(6)
+      .limit(5)
       .lean(),
     PointTransaction.find()
       .populate("userId", "fullname email")
       .sort({ createdAt: -1 })
-      .limit(6)
+      .limit(5)
       .lean(),
   ]);
 
