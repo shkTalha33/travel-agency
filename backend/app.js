@@ -48,9 +48,9 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // CORS configuration
 const allowedOrigins = [
   process.env.FRONTEND_URL || "http://localhost:3000",
-  "https://circulowingding.com",
-  "https://www.circulowingding.com",
-  "https://admin.circulowingding.com",
+  "http://circulowingding.com",
+  "http://www.circulowingding.com",
+  "http://admin.circulowingding.com",
   "http://localhost:3000",
   "http://127.0.0.1:3000",
   "http://localhost:3001",
