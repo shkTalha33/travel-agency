@@ -30,12 +30,10 @@ import { BentoGridItem } from "@/components/ui/BentoGrid";
 import HoverEffect from "@/components/ui/CardHoverEffect";
 import FlipWords from "@/components/ui/FlipWords";
 import AnimatedTooltip from "@/components/ui/AnimatedTooltip";
-import { TRAVEL_OFFERS } from "@/data/offers";
-import { MEMBERSHIP_LEVELS } from "@/data/memberships";
-import { FAQ_DATA } from "@/data/faqs";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSelector, useDispatch } from "@/store";
 import { fetchOffers } from "@/store/slices/offersSlice";
+import { fetchFaqs } from "@/store/slices/faqsSlice";
 import { membershipApi } from "@/lib/apiClient";
 
 const TRUST_ICONS = [Headphones, Shield, Users];
@@ -158,36 +156,45 @@ const TESTIMONIALS = {
 export default function HomeContent() {
   const { copy, faqs, locale, isEn } = useLanguage();
   const dispatch = useDispatch();
-  const dynamicOffers = useSelector((state) => state.offers.items);
+  const dynamicOffers = useSelector((state) => state.offers?.items || []);
+  const dynamicFaqs = useSelector((state) => state.faqs?.items || []);
   const [dynamicTiers, setDynamicTiers] = React.useState([]);
 
   React.useEffect(() => {
     dispatch(fetchOffers());
+    dispatch(fetchFaqs());
     membershipApi
       .getAll()
       .then((res) => {
-        if (res?.data && res.data.length > 0) {
+        if (res?.data && Array.isArray(res.data)) {
           setDynamicTiers(res.data);
         }
       })
-      .catch(() => {});
+      .catch((err) => {
+        console.warn('Could not load membership tiers:', err);
+      });
   }, [dispatch]);
 
   const h = copy.home;
   const ext = h.extra || {};
-  const faqItems = FAQ_DATA.slice(0, 5).map((item) => ({
-    id: item.id,
-    ...faqs[item.id],
-  }));
+  const faqItems = (dynamicFaqs || []).slice(0, 5).map((item) => {
+    const translation = faqs?.[item.id] || {};
+    return {
+      id: item.id || item._id,
+      question: isEn
+        ? item.questionEn || item.en?.question || translation.question || item.question
+        : item.question || translation.question,
+      answer: isEn
+        ? item.answerEn || item.en?.answer || translation.answer || item.answer
+        : item.answer || translation.answer,
+    };
+  });
   const testimonialItems = TESTIMONIALS[locale] || TESTIMONIALS.es;
 
   const activeDynamicOffers = (dynamicOffers || []).filter(
     (o) => o && o.isActive !== false,
   );
-  const featuredOffers =
-    activeDynamicOffers.length > 0
-      ? activeDynamicOffers.slice(0, 3)
-      : TRAVEL_OFFERS.filter((o) => o && o.isActive !== false).slice(0, 3);
+  const featuredOffers = activeDynamicOffers.slice(0, 3);
 
   const displayMemberships =
     dynamicTiers && dynamicTiers.length > 0
@@ -204,7 +211,7 @@ export default function HomeContent() {
             ? t.qualificationEn || t.qualification
             : t.qualification,
         }))
-      : Object.values(MEMBERSHIP_LEVELS);
+      : [];
 
   return (
     <>
@@ -434,60 +441,64 @@ export default function HomeContent() {
       </section>
 
       {/* Offers Featured */}
-      <section className="bg-sand-100/70 py-14 lg:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <SectionHeading
-                  eyebrow={h.offersEyebrow}
-                  title={h.offersTitle}
-                />
-                <AccentRule className="mt-4" />
+      {featuredOffers.length > 0 && (
+        <section className="bg-sand-100/70 py-14 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <Reveal>
+              <div className="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                  <SectionHeading
+                    eyebrow={h.offersEyebrow}
+                    title={h.offersTitle}
+                  />
+                  <AccentRule className="mt-4" />
+                </div>
+                <Link href="/offers">
+                  <Button variant="secondary" className="rounded-2xl">
+                    {copy.common.allOffers}
+                  </Button>
+                </Link>
               </div>
-              <Link href="/offers">
-                <Button variant="secondary" className="rounded-2xl">
-                  {copy.common.allOffers}
-                </Button>
-              </Link>
+            </Reveal>
+            <div className="mt-10 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
+              {featuredOffers.map((o, i) => (
+                <Reveal key={o._id || o.id || o.slug || i} delay={i * 120}>
+                  <OfferCard offer={o} />
+                </Reveal>
+              ))}
             </div>
-          </Reveal>
-          <div className="mt-10 grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-            {featuredOffers.map((o, i) => (
-              <Reveal key={o._id || o.id || o.slug || i} delay={i * 120}>
-                <OfferCard offer={o} />
-              </Reveal>
-            ))}
+            <p className="mt-8 text-center text-xs text-slate-500 sm:text-left">
+              {h.offersNote}
+            </p>
           </div>
-          <p className="mt-8 text-center text-xs text-slate-500 sm:text-left">
-            {h.offersNote}
-          </p>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Memberships */}
-      <section className="bg-white py-14 lg:py-20 overflow-visible">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <div className="text-center">
-              <SectionHeading
-                eyebrow={h.membershipEyebrow}
-                title={h.membershipTitle}
-                description={h.membershipDesc}
-                align="center"
-              />
-              <AccentRule className="mx-auto mt-4 mb-10" />
+      {displayMemberships.length > 0 && (
+        <section className="bg-white py-14 lg:py-20 overflow-visible">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <Reveal>
+              <div className="text-center">
+                <SectionHeading
+                  eyebrow={h.membershipEyebrow}
+                  title={h.membershipTitle}
+                  description={h.membershipDesc}
+                  align="center"
+                />
+                <AccentRule className="mx-auto mt-4 mb-10" />
+              </div>
+            </Reveal>
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
+              {displayMemberships.map((l, i) => (
+                <Reveal key={l.id} delay={i * 80} className="h-full">
+                  <MembershipCard level={l} />
+                </Reveal>
+              ))}
             </div>
-          </Reveal>
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
-            {displayMemberships.map((l, i) => (
-              <Reveal key={l.id} delay={i * 80} className="h-full">
-                <MembershipCard level={l} />
-              </Reveal>
-            ))}
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* Testimonials & Live Payouts Marquee (Aceternity InfiniteMovingCards) */}
       <section className="overflow-hidden bg-sand-100/80 py-14 lg:py-20">
@@ -829,34 +840,36 @@ export default function HomeContent() {
       </section>
 
       {/* FAQ */}
-      <section className="bg-sand-50 py-14 lg:py-20">
-        <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <div className="text-center">
-              <SectionHeading
-                eyebrow={h.faqEyebrow}
-                title={h.faqTitle}
-                align="center"
-              />
-              <AccentRule className="mx-auto mt-4 mb-10" />
-            </div>
-          </Reveal>
-          <Reveal delay={100}>
-            <Accordion items={faqItems} />
-          </Reveal>
-          <Reveal delay={200}>
-            <div className="mt-8 text-center">
-              <Link
-                href="/faq"
-                className="inline-flex items-center gap-1 text-sm font-bold text-ocean-700 hover:underline"
-              >
-                {copy.common.allFaqs}
-                <ArrowRight size={14} aria-hidden="true" />
-              </Link>
-            </div>
-          </Reveal>
-        </div>
-      </section>
+      {faqItems.length > 0 && (
+        <section className="bg-sand-50 py-14 lg:py-20">
+          <div className="mx-auto max-w-3xl px-4 sm:px-6 lg:px-8">
+            <Reveal>
+              <div className="text-center">
+                <SectionHeading
+                  eyebrow={h.faqEyebrow}
+                  title={h.faqTitle}
+                  align="center"
+                />
+                <AccentRule className="mx-auto mt-4 mb-10" />
+              </div>
+            </Reveal>
+            <Reveal delay={100}>
+              <Accordion items={faqItems} />
+            </Reveal>
+            <Reveal delay={200}>
+              <div className="mt-8 text-center">
+                <Link
+                  href="/faq"
+                  className="inline-flex items-center gap-1 text-sm font-bold text-ocean-700 hover:underline"
+                >
+                  {copy.common.allFaqs}
+                  <ArrowRight size={14} aria-hidden="true" />
+                </Link>
+              </div>
+            </Reveal>
+          </div>
+        </section>
+      )}
 
       {/* CTA Final */}
       <section className="relative overflow-hidden bg-sand-50 py-14 lg:py-20">

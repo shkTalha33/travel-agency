@@ -10,7 +10,6 @@ import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { useSelector, useDispatch } from '@/store';
 import { fetchOffers } from '@/store/slices/offersSlice';
-import { TRAVEL_OFFERS } from '@/data/offers';
 
 export default function DashboardOffersPage() {
   const loading = useMockLoading(300);
@@ -26,7 +25,7 @@ export default function DashboardOffersPage() {
     dispatch(fetchOffers());
   }, [dispatch]);
 
-  const offers = (reduxOffers && reduxOffers.length > 0) ? reduxOffers : TRAVEL_OFFERS;
+  const offers = reduxOffers || [];
 
   if (loading) return <OffersPageSkeleton />;
 

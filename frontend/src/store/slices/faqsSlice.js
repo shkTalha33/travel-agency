@@ -1,9 +1,8 @@
 import { createSlice } from '../createReduxStore';
 import { faqsApi } from '@/lib/apiClient';
-import { FAQS } from '@/data/faqs';
 
 const initialState = {
-  items: FAQS,
+  items: [],
   status: 'idle',
   error: null,
   lastFetched: null,
@@ -16,7 +15,7 @@ const faqsSlice = createSlice({
     setLoading: (state) => ({ ...state, status: 'loading', error: null }),
     setFaqsSuccess: (state, action) => ({
       ...state,
-      items: action.payload,
+      items: Array.isArray(action.payload) ? action.payload : [],
       status: 'succeeded',
       lastFetched: Date.now(),
       error: null,
@@ -65,15 +64,13 @@ export const fetchFaqs = (force = false) => async (dispatch, getState) => {
   dispatch(setLoading());
   try {
     const res = await faqsApi.getAll();
-    if (res?.data && Array.isArray(res.data) && res.data.length > 0) {
-      dispatch(setFaqsSuccess(res.data));
-      return res.data;
-    }
-    dispatch(setFaqsSuccess(FAQS));
-    return FAQS;
+    const data = Array.isArray(res?.data) ? res.data : [];
+    dispatch(setFaqsSuccess(data));
+    return data;
   } catch (err) {
-    dispatch(setFaqsSuccess(FAQS));
-    return FAQS;
+    console.warn('API fetch faqs failed:', err.message);
+    dispatch(setFaqsFailure(err.message));
+    return [];
   }
 };
 

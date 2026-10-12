@@ -25,13 +25,12 @@ import OfferCard from "@/components/offers/OfferCard";
 import { useLanguage } from "@/context/LanguageContext";
 import { useSelector, useDispatch } from "@/store";
 import { fetchOffers } from "@/store/slices/offersSlice";
-import { TRAVEL_OFFERS } from "@/data/offers";
 
-// Authentic high-resolution Caribbean travel assets (served via Next.js Route Handler)
+// Authentic high-resolution Caribbean travel assets (served as static files)
 const IMAGES = {
-  hero: "/api/about-image/hero",
-  catamaran: "/api/about-image/catamaran",
-  colonial: "/api/about-image/colonial",
+  hero: "/images/about/hero.jpg",
+  catamaran: "/images/about/catamaran.jpg",
+  colonial: "/images/about/colonial.jpg",
 };
 
 const VALUE_ICONS = [Headphones, ShieldCheck, Users, Compass];
@@ -54,7 +53,7 @@ export default function AboutContent() {
   const displayOffers =
     activeOffers.length > 0
       ? activeOffers.slice(0, 3)
-      : TRAVEL_OFFERS.slice(0, 3);
+      : [];
 
   return (
     <div className="overflow-hidden bg-sand-50">
@@ -542,64 +541,66 @@ export default function AboutContent() {
       </section>
 
       {/* =========================================================================
-          5. FEATURED TRAVEL OFFERS — Real Catalog Offers (Not Dummy)
+          5. FEATURED TRAVEL OFFERS — Real Catalog Offers (Shown only when offers exist)
       ========================================================================== */}
-      <section className="bg-sand-100/60 py-16 lg:py-24 border-t border-sand-200">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <Reveal>
-            <div className="text-center max-w-2xl mx-auto">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-ocean-50 border border-ocean-600/20 px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-ocean-700">
-                <Palmtree
-                  size={12}
-                  className="text-ocean-600"
-                  aria-hidden="true"
-                />
-                {isEn ? "FEATURED OFFERS" : "OFERTAS DESTACADAS"}
-              </span>
-              <h2 className="mt-4 font-serif text-3xl font-bold text-navy-900 sm:text-4xl lg:text-5xl">
-                {isEn
-                  ? "Experience the Real Caribbean"
-                  : "Vive la Experiencia Real del Caribe"}
-              </h2>
-              <p className="mt-3 text-sm text-slate-600 sm:text-base">
-                {isEn
-                  ? "Explore our premier travel packages with exclusive membership points rewards."
-                  : "Descubre nuestros paquetes de viaje más solicitados con recompensas exclusivas en puntos."}
-              </p>
-              <AccentRule className="mx-auto mt-4 mb-10" />
-            </div>
-          </Reveal>
-
-          {/* Real Travel Offers Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
-            {displayOffers.map((offer, idx) => (
-              <Reveal
-                key={offer.id || offer._id || offer.slug || idx}
-                delay={idx * 80}
-              >
-                <OfferCard offer={offer} basePath="/offers" />
-              </Reveal>
-            ))}
-          </div>
-
-          <div className="mt-10 text-center">
-            <Link href="/offers">
-              <Button
-                variant="secondary"
-                size="md"
-                className="rounded-xl px-6 py-2.5 text-sm font-bold border border-slate-200 bg-white hover:bg-sand-100 text-navy-900 shadow-xs transition-all hover:shadow-sm"
-              >
-                <span>
-                  {isEn
-                    ? "View All Travel Offers"
-                    : "Ver Todas las Ofertas de Viaje"}
+      {displayOffers.length > 0 && (
+        <section className="bg-sand-100/60 py-16 lg:py-24 border-t border-sand-200">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <Reveal>
+              <div className="text-center max-w-2xl mx-auto">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-ocean-50 border border-ocean-600/20 px-3.5 py-1 text-[11px] font-bold uppercase tracking-widest text-ocean-700">
+                  <Palmtree
+                    size={12}
+                    className="text-ocean-600"
+                    aria-hidden="true"
+                  />
+                  {isEn ? "FEATURED OFFERS" : "OFERTAS DESTACADAS"}
                 </span>
-                <ArrowRight size={15} className="ml-2 text-ocean-600" />
-              </Button>
-            </Link>
+                <h2 className="mt-4 font-serif text-3xl font-bold text-navy-900 sm:text-4xl lg:text-5xl">
+                  {isEn
+                    ? "Experience the Real Caribbean"
+                    : "Vive la Experiencia Real del Caribe"}
+                </h2>
+                <p className="mt-3 text-sm text-slate-600 sm:text-base">
+                  {isEn
+                    ? "Explore our premier travel packages with exclusive membership points rewards."
+                    : "Descubre nuestros paquetes de viaje más solicitados con recompensas exclusivas en puntos."}
+                </p>
+                <AccentRule className="mx-auto mt-4 mb-10" />
+              </div>
+            </Reveal>
+
+            {/* Real Travel Offers Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-7">
+              {displayOffers.map((offer, idx) => (
+                <Reveal
+                  key={offer.id || offer._id || offer.slug || idx}
+                  delay={idx * 80}
+                >
+                  <OfferCard offer={offer} basePath="/offers" />
+                </Reveal>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <Link href="/offers">
+                <Button
+                  variant="secondary"
+                  size="md"
+                  className="rounded-xl px-6 py-2.5 text-sm font-bold border border-slate-200 bg-white hover:bg-sand-100 text-navy-900 shadow-xs transition-all hover:shadow-sm"
+                >
+                  <span>
+                    {isEn
+                      ? "View All Travel Offers"
+                      : "Ver Todas las Ofertas de Viaje"}
+                  </span>
+                  <ArrowRight size={15} className="ml-2 text-ocean-600" />
+                </Button>
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
+      )}
 
       {/* =========================================================================
           6. FINAL CALL TO ACTION

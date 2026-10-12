@@ -6,7 +6,7 @@ import Accordion from '@/components/ui/Accordion';
 import { useLanguage } from '@/context/LanguageContext';
 import { useSelector, useDispatch } from '@/store';
 import { fetchFaqs } from '@/store/slices/faqsSlice';
-import { FAQ_DATA } from '@/data/faqs';
+import { HelpCircle } from 'lucide-react';
 
 export default function FaqContent() {
   const { copy, faqs: i18nFaqs, isEn } = useLanguage();
@@ -17,7 +17,7 @@ export default function FaqContent() {
     dispatch(fetchFaqs());
   }, [dispatch]);
 
-  const sourceFaqs = Array.isArray(reduxFaqs) && reduxFaqs.length > 0 ? reduxFaqs : FAQ_DATA;
+  const sourceFaqs = Array.isArray(reduxFaqs) ? reduxFaqs : [];
 
   const items = sourceFaqs.map((item) => {
     const translation = i18nFaqs?.[item.id] || {};
@@ -44,7 +44,19 @@ export default function FaqContent() {
           align="center"
         />
         <div className="mt-10">
-          <Accordion items={items} />
+          {items.length > 0 ? (
+            <Accordion items={items} />
+          ) : (
+            <div className="text-center py-12 rounded-2xl bg-white border border-sand-200 p-8 shadow-xs">
+              <HelpCircle className="w-10 h-10 mx-auto text-sand-400 mb-3" />
+              <p className="text-sm font-semibold text-navy-900">
+                {isEn ? 'No FAQs available at this time.' : 'No hay preguntas frecuentes disponibles en este momento.'}
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                {isEn ? 'Please contact our team directly for any inquiries.' : 'Comuníquese con nuestro equipo si tiene dudas o consultas.'}
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </section>

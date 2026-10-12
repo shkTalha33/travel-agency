@@ -1,9 +1,8 @@
 import { createSlice } from '../createReduxStore';
 import { offersApi } from '@/lib/apiClient';
-import { TRAVEL_OFFERS } from '@/data/offers';
 
 const initialState = {
-  items: TRAVEL_OFFERS, // Preloaded with default travel offers
+  items: [],
   selectedOffer: null,
   relatedOffers: [],
   status: 'idle', // 'idle' | 'loading' | 'succeeded' | 'failed'
@@ -19,7 +18,7 @@ const offersSlice = createSlice({
     setOffersSuccess: (state, action) => ({
       ...state,
       status: 'succeeded',
-      items: action.payload.offers || action.payload,
+      items: action.payload.offers || action.payload || [],
       lastFetched: Date.now(),
       error: null,
     }),
@@ -94,18 +93,13 @@ export const fetchOffers = (params = {}, force = false) => async (dispatch, getS
   dispatch(setLoading());
   try {
     const res = await offersApi.getAll(params);
-    if (res?.data?.offers) {
-      dispatch(setOffersSuccess(res.data.offers));
-      return res.data.offers;
-    } else if (Array.isArray(res?.data)) {
-      dispatch(setOffersSuccess(res.data));
-      return res.data;
-    }
+    const offerItems = res?.data?.offers || (Array.isArray(res?.data) ? res.data : []);
+    dispatch(setOffersSuccess(offerItems));
+    return offerItems;
   } catch (err) {
-    // If API is not reachable, fallback to existing local mock offers without breaking the UI
-    console.warn('API fetch failed, utilizing cached/mock travel offers:', err.message);
-    dispatch(setOffersSuccess(offers.items || TRAVEL_OFFERS));
-    return offers.items || TRAVEL_OFFERS;
+    console.warn('API fetch offers failed:', err.message);
+    dispatch(setOffersFailure(err.message));
+    return [];
   }
 };
 
@@ -118,7 +112,7 @@ export const fetchOfferBySlugOrId = (idOrSlug) => async (dispatch, getState) => 
   // Check if already in cache
   const cached = offers.items.find((o) => o.slug === idOrSlug || o.id === idOrSlug || o._id === idOrSlug);
   if (cached) {
-    const related = offers.items.filter((o) => o.slug !== idOrSlug && o.id !== idOrSlug).slice(0, 3);
+    const related = offers.items.filter((o) => o.slug !== idOrSlug && o.id !== idOrSlug && o._id !== idOrSlug).slice(0, 3);
     dispatch(setSelectedOffer({ offer: cached, relatedOffers: related }));
     return cached;
   }
@@ -130,15 +124,12 @@ export const fetchOfferBySlugOrId = (idOrSlug) => async (dispatch, getState) => 
       dispatch(setSelectedOffer(res.data));
       return res.data.offer;
     }
+    dispatch(setOffersFailure('Offer not found'));
+    return null;
   } catch (err) {
-    console.warn('Single offer fetch error, checking local data:', err.message);
-    const local = TRAVEL_OFFERS.find((o) => o.slug === idOrSlug || o.id === idOrSlug);
-    if (local) {
-      const related = TRAVEL_OFFERS.filter((o) => o.slug !== idOrSlug && o.id !== idOrSlug).slice(0, 3);
-      dispatch(setSelectedOffer({ offer: local, relatedOffers: related }));
-      return local;
-    }
+    console.warn('Single offer fetch error:', err.message);
     dispatch(setOffersFailure(err.message));
+    return null;
   }
 };
 

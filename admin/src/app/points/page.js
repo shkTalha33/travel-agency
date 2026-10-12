@@ -37,8 +37,8 @@ export default function AdminPointsPage() {
   const [assignModalOpen, setAssignModalOpen] = useState(false);
   const [selectedUserId, setSelectedUserId] = useState('');
   const [selectedOfferId, setSelectedOfferId] = useState('');
-  const [offerTitle, setOfferTitle] = useState('Punta Cana Todo Incluido');
-  const [purchasePoints, setPurchasePoints] = useState(150);
+  const [offerTitle, setOfferTitle] = useState('');
+  const [purchasePoints, setPurchasePoints] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [resultData, setResultData] = useState(null);
   const [errors, setErrors] = useState({});
@@ -161,6 +161,10 @@ export default function AdminPointsPage() {
           size="sm"
           icon={<PlusCircle className="w-4 h-4" />}
           onClick={() => {
+            setSelectedUserId('');
+            setSelectedOfferId('');
+            setOfferTitle('');
+            setPurchasePoints('');
             setResultData(null);
             setErrors({});
             setAssignModalOpen(true);

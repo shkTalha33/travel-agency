@@ -22,49 +22,11 @@ import useMockLoading from '@/hooks/useMockLoading';
 import Badge from '@/components/ui/Badge';
 import Button from '@/components/ui/Button';
 import { AccentRule } from '@/components/common/Linework';
-import { TRAVEL_OFFERS, localizeOffer } from '@/data/offers';
+import { localizeOffer } from '@/data/offers';
 import { getCountryFlag } from '@/data/countries';
 import { useLanguage } from '@/context/LanguageContext';
 import { useAuth } from '@/context/AuthContext';
 import { offersApi } from '@/lib/apiClient';
-
-function findLocalOffer(slug) {
-  if (!slug) return null;
-  const clean = slug.toLowerCase().trim();
-
-  // 1. Direct match
-  let found = TRAVEL_OFFERS.find(
-    (o) =>
-      o.slug === clean ||
-      o.id === clean ||
-      o._id === clean ||
-      (o.aliases && o.aliases.includes(clean))
-  );
-  if (found) return found;
-
-  // 2. Substring match
-  found = TRAVEL_OFFERS.find(
-    (o) =>
-      (o.slug && (clean.includes(o.slug) || o.slug.includes(clean))) ||
-      (o.id && (clean.includes(o.id) || o.id.includes(clean))) ||
-      (o.aliases && o.aliases.some((a) => clean.includes(a) || a.includes(clean)))
-  );
-  if (found) return found;
-
-  // 3. Token match
-  const words = clean
-    .split(/[-_+\s]+/)
-    .filter((w) => w.length > 2 && !['and', 'the', 'del', 'los', 'las', 'por', 'con', 'para'].includes(w));
-
-  if (words.length > 0) {
-    found = TRAVEL_OFFERS.find((o) => {
-      const searchTarget = `${o.slug} ${o.id} ${o.title} ${o.destination} ${o.country || ''} ${o.en?.title || ''} ${o.en?.destination || ''} ${(o.aliases || []).join(' ')}`.toLowerCase();
-      return words.some((w) => searchTarget.includes(w));
-    });
-  }
-
-  return found || null;
-}
 
 export default function DashboardOfferDetailPage({ params }) {
   const { t, locale, copy, isEn } = useLanguage();
@@ -74,9 +36,9 @@ export default function DashboardOfferDetailPage({ params }) {
   const slug = typeof rawSlug === 'string' ? decodeURIComponent(rawSlug) : '';
 
   const pageLoading = useMockLoading(300);
-  const [rawOffer, setRawOffer] = useState(() => findLocalOffer(slug));
+  const [rawOffer, setRawOffer] = useState(null);
   const [relatedOffers, setRelatedOffers] = useState([]);
-  const [loading, setLoading] = useState(!rawOffer);
+  const [loading, setLoading] = useState(true);
   const [notFoundState, setNotFoundState] = useState(false);
 
   useEffect(() => {
@@ -102,18 +64,11 @@ export default function DashboardOfferDetailPage({ params }) {
           return;
         }
       } catch (err) {
-        console.warn('Could not fetch offer from API in dashboard, checking local data:', err?.message || err);
+        console.warn('Could not fetch offer from API in dashboard:', err?.message || err);
       }
 
-      const local = findLocalOffer(slug);
       if (isMounted) {
-        if (local) {
-          setRawOffer(local);
-          setRelatedOffers(TRAVEL_OFFERS.filter((o) => o.slug !== local.slug && o.id !== local.id).slice(0, 3));
-          setNotFoundState(false);
-        } else {
-          setNotFoundState(true);
-        }
+        setNotFoundState(true);
         setLoading(false);
       }
     }
@@ -167,10 +122,7 @@ export default function DashboardOfferDetailPage({ params }) {
       ? offer.gallery
       : [offer.image].filter(Boolean);
 
-  const fallbackRelated =
-    relatedOffers.length > 0
-      ? relatedOffers
-      : TRAVEL_OFFERS.filter((o) => o.slug !== offer.slug && o.id !== offer.id).slice(0, 3);
+  const fallbackRelated = relatedOffers;
 
   const locationText = offer.destination && offer.country
     ? `${offer.destination}, ${offer.country}`

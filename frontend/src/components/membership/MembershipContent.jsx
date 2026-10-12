@@ -6,8 +6,7 @@ import Reveal from '@/components/common/Reveal';
 import Badge from '@/components/ui/Badge';
 import LampContainer from '@/components/ui/LampContainer';
 import { useLanguage } from '@/context/LanguageContext';
-import { Sparkles } from 'lucide-react';
-import { MEMBERSHIP_LEVELS } from '@/data/memberships';
+import { Sparkles, ShieldAlert } from 'lucide-react';
 import { membershipApi } from '@/lib/apiClient';
 
 const pct = (n) => {
@@ -21,22 +20,25 @@ const pct = (n) => {
 export default function MembershipContent() {
   const { copy, isEn } = useLanguage();
   const [tiers, setTiers] = useState([]);
+  const [loading, setLoading] = useState(true);
   const m = copy.membershipPage || {};
 
   useEffect(() => {
     membershipApi
       .getAll()
       .then((res) => {
-        if (res?.data && res.data.length > 0) {
+        if (res?.data && Array.isArray(res.data)) {
           setTiers(res.data);
         }
       })
-      .catch(() => {
-        // Fallback to local static tiers if network delay
+      .catch((err) => {
+        console.warn('Could not load membership tiers:', err);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
-  // Use dynamic tiers if loaded, otherwise fallback to static default levels
   const displayLevels =
     tiers.length > 0
       ? tiers.map((t) => ({
@@ -50,7 +52,7 @@ export default function MembershipContent() {
           perks: isEn ? (t.perksEn?.length ? t.perksEn : t.perks) : t.perks,
           qualification: isEn ? t.qualificationEn || t.qualification : t.qualification,
         }))
-      : Object.values(MEMBERSHIP_LEVELS);
+      : [];
 
   return (
     <div className="bg-sand-50">
@@ -74,17 +76,30 @@ export default function MembershipContent() {
 
       <section className="relative pb-20 lg:pb-28 pt-4 sm:pt-6 overflow-visible">
         <div className="relative mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
-            {displayLevels.map((l, i) => (
-              <Reveal key={l.id} delay={i * 70} className="h-full">
-                <MembershipCard level={l} />
-              </Reveal>
-            ))}
-          </div>
+          {displayLevels.length > 0 ? (
+            <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4 pt-3">
+              {displayLevels.map((l, i) => (
+                <Reveal key={l.id} delay={i * 70} className="h-full">
+                  <MembershipCard level={l} />
+                </Reveal>
+              ))}
+            </div>
+          ) : !loading ? (
+            <div className="text-center py-16 rounded-3xl bg-white border border-sand-200 p-8 shadow-xs max-w-xl mx-auto">
+              <Sparkles className="w-10 h-10 mx-auto text-gold-400 mb-3" />
+              <p className="text-base font-semibold text-navy-900">
+                {isEn ? 'No membership tiers available at this time.' : 'No hay niveles de membresía disponibles en este momento.'}
+              </p>
+              <p className="text-xs text-slate-500 mt-1">
+                {isEn ? 'Tiers are configured directly from the administration portal.' : 'Los niveles son administrados directamente desde el portal administrativo.'}
+              </p>
+            </div>
+          ) : null}
 
           {/* Detailed Comparison Matrix */}
-          <Reveal>
-            <div className="mt-20 rounded-3xl border border-sand-200/90 bg-white/90 p-6 shadow-card backdrop-blur-sm sm:p-10">
+          {displayLevels.length > 0 && (
+            <Reveal>
+              <div className="mt-20 rounded-3xl border border-sand-200/90 bg-white/90 p-6 shadow-card backdrop-blur-sm sm:p-10">
               <div className="flex flex-wrap items-center justify-between gap-4 border-b border-sand-200/80 pb-6">
                 <div>
                   <div className="flex items-center gap-2">
@@ -139,6 +154,7 @@ export default function MembershipContent() {
               </div>
             </div>
           </Reveal>
+        )}
         </div>
       </section>
     </div>

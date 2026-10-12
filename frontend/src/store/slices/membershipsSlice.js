@@ -1,11 +1,11 @@
 import { createSlice } from '../createReduxStore';
-import { MEMBERSHIP_LEVELS } from '@/data/memberships';
+import { membershipApi } from '@/lib/apiClient';
 
 const initialState = {
-  items: Object.values(MEMBERSHIP_LEVELS),
-  status: 'succeeded',
+  items: [],
+  status: 'idle',
   error: null,
-  lastFetched: Date.now(),
+  lastFetched: null,
 };
 
 const membershipsSlice = createSlice({
@@ -15,7 +15,7 @@ const membershipsSlice = createSlice({
     setLoading: (state) => ({ ...state, status: 'loading', error: null }),
     setMembershipsSuccess: (state, action) => ({
       ...state,
-      items: action.payload,
+      items: Array.isArray(action.payload) ? action.payload : [],
       status: 'succeeded',
       lastFetched: Date.now(),
       error: null,
@@ -51,5 +51,27 @@ export const {
   updateMembershipInCache,
   removeMembershipFromCache,
 } = membershipsSlice.actions;
+
+/**
+ * Fetch Membership Tiers from API
+ */
+export const fetchMemberships = (force = false) => async (dispatch, getState) => {
+  const { memberships } = getState();
+  if (!force && memberships.lastFetched && memberships.status === 'succeeded') {
+    return memberships.items;
+  }
+
+  dispatch(setLoading());
+  try {
+    const res = await membershipApi.getAll();
+    const data = Array.isArray(res?.data) ? res.data : [];
+    dispatch(setMembershipsSuccess(data));
+    return data;
+  } catch (err) {
+    console.warn('API fetch memberships failed:', err.message);
+    dispatch(setMembershipsFailure(err.message));
+    return [];
+  }
+};
 
 export default membershipsSlice.reducer;
