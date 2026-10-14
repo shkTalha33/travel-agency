@@ -13,8 +13,8 @@ export default function InviteButton({ link, variant = 'primary', size = 'md', c
   const [copied, setCopied] = useState(false);
 
   const normalizedLink = (link || '')
-    .replace(/^https?:\/\/localhost:\d+/, 'http://circulowingding.com')
-    .replace(/^https?:\/\/viajesdominicana\.com/, 'http://circulowingding.com');
+    .replace(/^https?:\/\/localhost:\d+/, 'https://circulowingding.com')
+    .replace(/^https?:\/\/viajesdominicana\.com/, 'https://circulowingding.com');
 
   const copy = async () => {
     try {

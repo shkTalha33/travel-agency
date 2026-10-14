@@ -7,7 +7,7 @@ import { authApi, tokenStorage } from '@/lib/apiClient';
 
 const AuthContext = createContext(null);
 const STORAGE_KEY = 'vd_session';
-const LIVE_REFERRAL_DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || 'http://circulowingding.com';
+const LIVE_REFERRAL_DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || 'https://circulowingding.com';
 
 function normalizeUser(user) {
   if (!user) return user;

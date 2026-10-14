@@ -116,9 +116,9 @@ export default function ProfilePage() {
     }
   };
 
-  const displayReferralLink = (u?.referralLink || (u?.referralCode ? `http://circulowingding.com/register?ref=${u.referralCode}` : ''))
-    .replace(/^https?:\/\/localhost:\d+/, 'http://circulowingding.com')
-    .replace(/^https?:\/\/viajesdominicana\.com/, 'http://circulowingding.com');
+  const displayReferralLink = (u?.referralLink || (u?.referralCode ? `https://circulowingding.com/register?ref=${u.referralCode}` : ''))
+    .replace(/^https?:\/\/localhost:\d+/, 'https://circulowingding.com')
+    .replace(/^https?:\/\/viajesdominicana\.com/, 'https://circulowingding.com');
 
   const copyRefLink = async () => {
     try {

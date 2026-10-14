@@ -516,6 +516,7 @@ export const en = {
     sendResetLink: 'Send reset link',
     resetTitle: 'New password',
     resetSubtitle: 'Choose a secure password.',
+    resetBtn: 'Reset password',
     resetSavedTitle: 'Changes saved.',
     verifyTitle: 'Verify your email with OTP',
     verifySubtitle: 'We sent a 4-digit verification code to activate your account.',

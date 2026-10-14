@@ -516,6 +516,7 @@ export const es = {
     sendResetLink: 'Enviar enlace',
     resetTitle: 'Nueva contraseña',
     resetSubtitle: 'Elige una contraseña segura.',
+    resetBtn: 'Restablecer contraseña',
     resetSavedTitle: 'Cambios guardados.',
     verifyTitle: 'Verifica tu correo con OTP',
     verifySubtitle: 'Te enviamos un código de 4 dígitos para activar tu cuenta.',

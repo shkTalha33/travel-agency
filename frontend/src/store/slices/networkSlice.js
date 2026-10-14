@@ -26,8 +26,8 @@ const networkSlice = createSlice({
     setNetworkSuccess: (state, action) => {
       const rawLink = action.payload.referralLink || state.referralLink || '';
       const sanitizedLink = rawLink
-        .replace(/^https?:\/\/localhost:\d+/, 'http://circulowingding.com')
-        .replace(/^https?:\/\/viajesdominicana\.com/, 'http://circulowingding.com');
+        .replace(/^https?:\/\/localhost:\d+/, 'https://circulowingding.com')
+        .replace(/^https?:\/\/viajesdominicana\.com/, 'https://circulowingding.com');
       return {
         ...state,
         network: action.payload.network || { level1: [], level2: [] },

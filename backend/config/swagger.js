@@ -67,7 +67,7 @@ const swaggerDefinition = {
           role: { type: "string", enum: ["user", "admin"], example: "user" },
           status: { type: "string", enum: ["active", "deactivate", "deleted"], example: "active" },
           referralCode: { type: "string", example: "SOFIA-VIAJES" },
-          referralLink: { type: "string", example: "http://circulowingding.com/register?ref=SOFIA-VIAJES" },
+          referralLink: { type: "string", example: "https://circulowingding.com/register?ref=SOFIA-VIAJES" },
           isEmailVerified: { type: "boolean", example: true },
           pointsStats: {
             type: "object",

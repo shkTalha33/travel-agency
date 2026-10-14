@@ -52,9 +52,9 @@ export default function NetworkPage() {
     }
   };
 
-  const displayReferralLink = (currentUser?.referralLink || (currentUser?.referralCode ? `http://circulowingding.com/register?ref=${currentUser.referralCode}` : ''))
-    .replace(/^https?:\/\/localhost:\d+/, 'http://circulowingding.com')
-    .replace(/^https?:\/\/viajesdominicana\.com/, 'http://circulowingding.com');
+  const displayReferralLink = (currentUser?.referralLink || (currentUser?.referralCode ? `https://circulowingding.com/register?ref=${currentUser.referralCode}` : ''))
+    .replace(/^https?:\/\/localhost:\d+/, 'https://circulowingding.com')
+    .replace(/^https?:\/\/viajesdominicana\.com/, 'https://circulowingding.com');
 
   const copyRefLink = async () => {
     try {
