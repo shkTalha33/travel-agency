@@ -154,7 +154,7 @@ export const en = {
       communityStoriesTitle: 'Real stories from our community',
       communityStoriesSubtitle: 'Discover how our members travel around the Caribbean and earn points every month.',
       autoRewardsDesc: 'Automatic rewards credited directly to your digital points wallet.',
-      commissionDistSubtitle: 'Real-time multi-level commission distribution',
+      commissionDistSubtitle: 'Real-time referral commission distribution',
       simulationPill: 'Simulation',
       l2CommissionSub: 'Commission for sub-referrals in their network',
       l2Earnings: 'L2 Earnings',

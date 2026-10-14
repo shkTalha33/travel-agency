@@ -154,7 +154,7 @@ export const es = {
       communityStoriesTitle: 'Historias reales de nuestra comunidad',
       communityStoriesSubtitle: 'Descubre cómo nuestros miembros viajan por el Caribe y acumulan puntos cada mes.',
       autoRewardsDesc: 'Recompensas automáticas acreditadas en tu billetera digital.',
-      commissionDistSubtitle: 'Distribución de comisiones multinivel en tiempo real',
+      commissionDistSubtitle: 'Distribución de comisiones de red en tiempo real',
       simulationPill: 'Simulación',
       l2CommissionSub: 'Comisión por sub-referido en su red',
       l2Earnings: 'Ganancia L2',

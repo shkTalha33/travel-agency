@@ -625,7 +625,7 @@ export default function AdminMembershipsPage() {
           </div>
           <div>
             <h3 className="text-lg font-serif font-extrabold text-navy-950">
-              {t('memberships.simulatorTitle', 'Simulador de Comisiones de Compra Multinivel')}
+              {t('memberships.simulatorTitle', 'Simulador de Comisiones de Compra en Red')}
             </h3>
             <p className="text-xs text-slate-500 font-medium">
               {t('memberships.simulatorDesc', 'Pruebe cómo el motor de comisiones distribuye los puntos a la línea ascendente según el nivel de cada sponsor')}

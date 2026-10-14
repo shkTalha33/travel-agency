@@ -149,7 +149,7 @@ UserSchema.index({ referredBy: 1, createdAt: -1 });
 
 // Virtual referral link
 UserSchema.virtual("referralLink").get(function () {
-  const baseUrl = process.env.FRONTEND_URL || "https://viajesdominicana.com";
+  const baseUrl = (process.env.FRONTEND_URL || "http://circulowingding.com").replace(/\/+$/, "");
   return `${baseUrl}/register?ref=${this.referralCode}`;
 });
 

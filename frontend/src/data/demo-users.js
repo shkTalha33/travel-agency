@@ -106,7 +106,7 @@ export const MOCK_USERS = {
     {
       id: 'usr_sofia', name: 'Sofía Almonte', email: 'sofia.almonte@ejemplo.com', phone: '+1 (809) 555-0192',
       city: 'Santo Domingo', country: 'República Dominicana', membershipId: 'ambassador',
-      referralCode: 'SOFIA-VIAJES', referralLink: 'https://viajesdominicana.com/register?ref=SOFIA-VIAJES',
+      referralCode: 'SOFIA-VIAJES', referralLink: 'http://circulowingding.com/register?ref=SOFIA-VIAJES',
       joinedDate: '15 ene 2026', avatar: pic('photo-1573496359142-b8d87734a5a2'),
     },
     SOFIA_MEMBERS,
@@ -116,7 +116,7 @@ export const MOCK_USERS = {
     {
       id: 'usr_carlos', name: 'Carlos Mendoza', email: 'carlos.mendoza@ejemplo.com', phone: '+1 (829) 555-0144',
       city: 'Santiago de los Caballeros', country: 'República Dominicana', membershipId: 'active_member',
-      referralCode: 'CARLOS-RD', referralLink: 'https://viajesdominicana.com/register?ref=CARLOS-RD',
+      referralCode: 'CARLOS-RD', referralLink: 'http://circulowingding.com/register?ref=CARLOS-RD',
       joinedDate: '10 mar 2026', avatar: pic('photo-1500648767791-00dcc994a43e'),
     },
     CARLOS_MEMBERS
@@ -125,7 +125,7 @@ export const MOCK_USERS = {
     {
       id: 'usr_elena', name: 'Elena Castillo', email: 'elena.castillo@ejemplo.com', phone: '+1 (849) 555-0188',
       city: 'Punta Cana', country: 'República Dominicana', membershipId: 'elite_ambassador',
-      referralCode: 'ELENA-ELITE', referralLink: 'https://viajesdominicana.com/register?ref=ELENA-ELITE',
+      referralCode: 'ELENA-ELITE', referralLink: 'http://circulowingding.com/register?ref=ELENA-ELITE',
       joinedDate: '01 dic 2025', avatar: pic('photo-1580489944761-15a19d654956'),
     },
     ELENA_MEMBERS,
@@ -134,7 +134,7 @@ export const MOCK_USERS = {
   member: buildUser({
     id: 'usr_pedro', name: 'Pedro Santos', email: 'pedro.santos@ejemplo.com', phone: '+1 (809) 555-0177',
     city: 'La Romana', country: 'República Dominicana', membershipId: 'member',
-    referralCode: 'PEDRO-SANTOS', referralLink: 'https://viajesdominicana.com/register?ref=PEDRO-SANTOS',
+    referralCode: 'PEDRO-SANTOS', referralLink: 'http://circulowingding.com/register?ref=PEDRO-SANTOS',
     joinedDate: '28 sep 2026', avatar: pic('photo-1472099645785-5658abf4ff4e'),
   }),
 };

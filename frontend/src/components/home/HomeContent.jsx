@@ -743,7 +743,7 @@ export default function HomeContent() {
                       </p>
                       <p className="text-[11px] text-slate-500">
                         {ext.commissionDistSubtitle ||
-                          "Distribución de comisiones multinivel en tiempo real"}
+                          "Distribución de comisiones de red en tiempo real"}
                       </p>
                     </div>
                   </div>

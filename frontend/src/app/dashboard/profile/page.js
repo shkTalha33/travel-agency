@@ -116,9 +116,13 @@ export default function ProfilePage() {
     }
   };
 
+  const displayReferralLink = (u?.referralLink || (u?.referralCode ? `http://circulowingding.com/register?ref=${u.referralCode}` : ''))
+    .replace(/^https?:\/\/localhost:\d+/, 'http://circulowingding.com')
+    .replace(/^https?:\/\/viajesdominicana\.com/, 'http://circulowingding.com');
+
   const copyRefLink = async () => {
     try {
-      await navigator.clipboard.writeText(u?.referralLink || '');
+      await navigator.clipboard.writeText(displayReferralLink);
       setCopiedLink(true);
       toast(pv.copySuccessToast || (isEn ? 'Referral link copied.' : 'Enlace de referido copiado.'));
       setTimeout(() => setCopiedLink(false), 1800);
@@ -413,7 +417,7 @@ export default function ProfilePage() {
                 <input
                   id="enlace"
                   readOnly
-                  value={u.referralLink || ''}
+                  value={displayReferralLink}
                   className="min-w-0 flex-1 rounded-xl bg-sand-50 px-3 py-2 text-xs font-medium text-slate-700 select-all border-0"
                 />
                 <Button
@@ -428,7 +432,7 @@ export default function ProfilePage() {
             </div>
 
             <div className="pt-1">
-              <InviteButton link={u.referralLink} variant="primary" size="md" className="w-full rounded-xl" />
+              <InviteButton link={displayReferralLink} variant="primary" size="md" className="w-full rounded-xl" />
             </div>
 
             <p className="text-xs leading-relaxed text-slate-500 pt-2 border-t border-sand-100">

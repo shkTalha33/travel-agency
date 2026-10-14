@@ -12,9 +12,13 @@ export default function InviteButton({ link, variant = 'primary', size = 'md', c
   const { toast } = useToast();
   const [copied, setCopied] = useState(false);
 
+  const normalizedLink = (link || '')
+    .replace(/^https?:\/\/localhost:\d+/, 'http://circulowingding.com')
+    .replace(/^https?:\/\/viajesdominicana\.com/, 'http://circulowingding.com');
+
   const copy = async () => {
     try {
-      await navigator.clipboard.writeText(link || '');
+      await navigator.clipboard.writeText(normalizedLink);
       setCopied(true);
       toast(isEn ? 'Referral link copied to clipboard. Share it!' : 'Enlace de referido copiado al portapapeles. ¡Compártelo!');
       setTimeout(() => setCopied(false), 2500);

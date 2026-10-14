@@ -35,8 +35,8 @@ export default function AdminLoginPage() {
       badge: isEn ? 'ADMIN MASTER PORTAL' : 'PANEL MAESTRO ADMINISTRATIVO',
       title: isEn ? 'Total control over travel network' : 'Control total de la red de viajes',
       desc: isEn
-        ? 'Supervise member growth, multi-tier L1/L2 commissions, and real-time settlements.'
-        : 'Supervise el crecimiento de miembros, comisiones multinivel L1/L2 y liquidaciones en tiempo real.',
+        ? 'Supervise member growth, referral L1/L2 commissions, and real-time settlements.'
+        : 'Supervise el crecimiento de miembros, comisiones de red L1/L2 y liquidaciones en tiempo real.',
     },
     {
       id: 2,

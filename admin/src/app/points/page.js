@@ -136,7 +136,7 @@ export default function AdminPointsPage() {
       setResultData(res.data);
       toast({
         type: 'success',
-        message: t('points.successDistributed', '¡Puntos asignados y comisiones multinivel calculadas con éxito!'),
+        message: t('points.successDistributed', '¡Puntos asignados y comisiones de red calculadas con éxito!'),
       });
       loadTransactions();
     } catch (err) {
@@ -154,7 +154,7 @@ export default function AdminPointsPage() {
   return (
     <AdminShell
       title={t('points.title', 'Libro Mayor de Puntos & Asignación de Comisiones')}
-      subtitle={t('points.subtitle', 'Registro de compras offline, activación de miembros y liquidación de comisiones multinivel (L1 / L2)')}
+      subtitle={t('points.subtitle', 'Registro de compras offline, activación de miembros y liquidación de comisiones de red (L1 / L2)')}
       actionButton={
         <Button
           variant="ocean"
@@ -181,7 +181,7 @@ export default function AdminPointsPage() {
             <div className="flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-gold-400" />
               <span className="text-xs font-bold uppercase tracking-wider text-gold-400">
-                {t('points.rulesTitle', 'Reglas de Comisiones Multinivel')}
+                {t('points.rulesTitle', 'Reglas de Comisiones de Red')}
               </span>
             </div>
             <p className="text-xs text-sand-300">
@@ -414,7 +414,7 @@ export default function AdminPointsPage() {
           setErrors({});
         }}
         title={t('points.modalTitle', 'Asignar Puntos de Compra Offline')}
-        subtitle={isEn ? 'Assign points & distribute upline commissions' : 'Asigna puntos y calcula comisiones multinivel'}
+        subtitle={isEn ? 'Assign points & distribute upline commissions' : 'Asigna puntos y calcula comisiones de red'}
         icon={Coins}
         maxWidth="max-w-xl"
         footer={
@@ -467,7 +467,7 @@ export default function AdminPointsPage() {
 
             <div className="border border-sand-200 rounded-xl p-4 bg-sand-50 space-y-2">
               <p className="text-xs font-bold text-navy-800">
-                {t('points.uplinesAwarded', 'Comisiones Multinivel Asignadas a la Línea Ascendente:')}
+                {t('points.uplinesAwarded', 'Comisiones de Red Asignadas a la Línea Ascendente:')}
               </p>
               {resultData.distributedCommissions?.length > 0 ? (
                 resultData.distributedCommissions.map((comm) => (

@@ -52,9 +52,13 @@ export default function NetworkPage() {
     }
   };
 
+  const displayReferralLink = (currentUser?.referralLink || (currentUser?.referralCode ? `http://circulowingding.com/register?ref=${currentUser.referralCode}` : ''))
+    .replace(/^https?:\/\/localhost:\d+/, 'http://circulowingding.com')
+    .replace(/^https?:\/\/viajesdominicana\.com/, 'http://circulowingding.com');
+
   const copyRefLink = async () => {
     try {
-      await navigator.clipboard.writeText(currentUser?.referralLink || '');
+      await navigator.clipboard.writeText(displayReferralLink);
       toast(nv.copySuccess || (isEn ? 'Referral link copied!' : '¡Enlace de referido copiado!'));
     } catch (_) {
       toast(nv.copyFail || (isEn ? 'Could not copy link' : 'No se pudo copiar el enlace'), 'error');
@@ -117,7 +121,7 @@ export default function NetworkPage() {
               </button>
             </div>
 
-            <InviteButton link={currentUser?.referralLink} variant="primary" size="md" className="rounded-xl font-bold" />
+            <InviteButton link={displayReferralLink} variant="primary" size="md" className="rounded-xl font-bold" />
           </div>
         </div>
       </div>

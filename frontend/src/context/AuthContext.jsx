@@ -7,6 +7,42 @@ import { authApi, tokenStorage } from '@/lib/apiClient';
 
 const AuthContext = createContext(null);
 const STORAGE_KEY = 'vd_session';
+const LIVE_REFERRAL_DOMAIN = process.env.NEXT_PUBLIC_SITE_URL || 'http://circulowingding.com';
+
+function normalizeUser(user) {
+  if (!user) return user;
+  const clone = { ...user };
+  clone.name = clone.fullname || clone.name;
+
+  const cleanBase = LIVE_REFERRAL_DOMAIN.replace(/\/+$/, '');
+  if (clone.referralCode) {
+    if (!clone.referralLink || clone.referralLink.includes('localhost') || clone.referralLink.includes('viajesdominicana.com')) {
+      clone.referralLink = `${cleanBase}/register?ref=${clone.referralCode}`;
+    } else {
+      clone.referralLink = clone.referralLink
+        .replace(/^https?:\/\/localhost:\d+/, cleanBase)
+        .replace(/^https?:\/\/viajesdominicana\.com/, cleanBase);
+    }
+  } else if (clone.referralLink && (clone.referralLink.includes('localhost') || clone.referralLink.includes('viajesdominicana.com'))) {
+    clone.referralLink = clone.referralLink
+      .replace(/^https?:\/\/localhost:\d+/, cleanBase)
+      .replace(/^https?:\/\/viajesdominicana\.com/, cleanBase);
+  }
+
+  if (clone.pointsStats && !clone.stats) {
+    clone.stats = {
+      availablePoints: clone.pointsStats.availablePoints || 0,
+      totalEarnedPoints: clone.pointsStats.totalEarnedPoints || 0,
+      redeemedPoints: clone.pointsStats.redeemedPoints || 0,
+      level1Points: clone.pointsStats.level1Points || 0,
+      level2Points: clone.pointsStats.level2Points || 0,
+      directReferralsCount: 0,
+      secondLevelReferralsCount: 0,
+      totalNetworkCount: 0,
+    };
+  }
+  return clone;
+}
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
@@ -42,20 +78,7 @@ export function AuthProvider({ children }) {
         try {
           const res = await authApi.getMe();
           if (res?.data) {
-            const user = res.data;
-            user.name = user.fullname || user.name;
-            if (user.pointsStats && !user.stats) {
-              user.stats = {
-                availablePoints: user.pointsStats.availablePoints || 0,
-                totalEarnedPoints: user.pointsStats.totalEarnedPoints || 0,
-                redeemedPoints: user.pointsStats.redeemedPoints || 0,
-                level1Points: user.pointsStats.level1Points || 0,
-                level2Points: user.pointsStats.level2Points || 0,
-                directReferralsCount: 0,
-                secondLevelReferralsCount: 0,
-                totalNetworkCount: 0,
-              };
-            }
+            const user = normalizeUser(res.data);
             setCurrentUser(user);
             setReady(true);
             return;
@@ -92,7 +115,7 @@ export function AuthProvider({ children }) {
   const switchDemoAccount = useCallback((roleKey) => {
     tokenStorage.clearTokens();
     if (MOCK_USERS[roleKey]) {
-      setCurrentUser(MOCK_USERS[roleKey]);
+      setCurrentUser(normalizeUser(MOCK_USERS[roleKey]));
     }
   }, []);
 
@@ -107,20 +130,7 @@ export function AuthProvider({ children }) {
       const res = await authApi.signin({ identifier, password });
       if (res?.data?.user && res?.data?.accessToken) {
         tokenStorage.setTokens(res.data.accessToken, res.data.refreshToken, remember);
-        const user = res.data.user;
-        user.name = user.fullname || user.name;
-        if (user.pointsStats && !user.stats) {
-          user.stats = {
-            availablePoints: user.pointsStats.availablePoints || 0,
-            totalEarnedPoints: user.pointsStats.totalEarnedPoints || 0,
-            redeemedPoints: user.pointsStats.redeemedPoints || 0,
-            level1Points: user.pointsStats.level1Points || 0,
-            level2Points: user.pointsStats.level2Points || 0,
-            directReferralsCount: 0,
-            secondLevelReferralsCount: 0,
-            totalNetworkCount: 0,
-          };
-        }
+        const user = normalizeUser(res.data.user);
         setCurrentUser(user);
         return { success: true, user };
       }
@@ -134,8 +144,9 @@ export function AuthProvider({ children }) {
             u.name.toLowerCase() === identifier?.toLowerCase()
         );
         if (found) {
-          setCurrentUser(found);
-          return { success: true, user: found };
+          const user = normalizeUser(found);
+          setCurrentUser(user);
+          return { success: true, user };
         }
       }
 
@@ -167,20 +178,7 @@ export function AuthProvider({ children }) {
 
     if (res?.data?.user && res?.data?.accessToken) {
       tokenStorage.setTokens(res.data.accessToken, res.data.refreshToken, true);
-      const user = res.data.user;
-      user.name = user.fullname || user.name;
-      if (user.pointsStats && !user.stats) {
-        user.stats = {
-          availablePoints: user.pointsStats.availablePoints || 0,
-          totalEarnedPoints: user.pointsStats.totalEarnedPoints || 0,
-          redeemedPoints: user.pointsStats.redeemedPoints || 0,
-          level1Points: user.pointsStats.level1Points || 0,
-          level2Points: user.pointsStats.level2Points || 0,
-          directReferralsCount: 0,
-          secondLevelReferralsCount: 0,
-          totalNetworkCount: 0,
-        };
-      }
+      const user = normalizeUser(res.data.user);
       setCurrentUser(user);
       return { success: true, user };
     }
@@ -210,20 +208,7 @@ export function AuthProvider({ children }) {
     try {
       const res = await authApi.getMe();
       if (res?.data) {
-        const user = res.data;
-        user.name = user.fullname || user.name;
-        if (user.pointsStats) {
-          user.stats = {
-            availablePoints: user.pointsStats.availablePoints || 0,
-            totalEarnedPoints: user.pointsStats.totalEarnedPoints || 0,
-            redeemedPoints: user.pointsStats.redeemedPoints || 0,
-            level1Points: user.pointsStats.level1Points || 0,
-            level2Points: user.pointsStats.level2Points || 0,
-            directReferralsCount: 0,
-            secondLevelReferralsCount: 0,
-            totalNetworkCount: 0,
-          };
-        }
+        const user = normalizeUser(res.data);
         setCurrentUser((prev) => {
           if (prev && prev._id === user._id && JSON.stringify(prev) === JSON.stringify(user)) {
             return prev;

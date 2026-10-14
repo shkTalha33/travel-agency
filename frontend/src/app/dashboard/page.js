@@ -402,7 +402,7 @@ export default function DashboardHome() {
                 {copied ? <Check size={14} className="text-ocean-600" /> : <Copy size={14} />}
               </button>
             </div>
-            <InviteButton link={currentUser?.referralLink} variant="secondary" size="sm" />
+            <InviteButton link={currentUser?.referralLink || (currentUser?.referralCode ? `http://circulowingding.com/register?ref=${currentUser.referralCode}` : '')} variant="secondary" size="sm" />
           </div>
         </div>
       </div>

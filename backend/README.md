@@ -1,6 +1,6 @@
 # Backend — Plataforma de Viajes y Recompensas (Dominican Republic Travel Platform)
 
-Backend de producción para la agencia de viajes y plataforma de referidos multinivel, construido sobre **Node.js, Express, MongoDB (Mongoose), JWT, OpenAPI 3.0 (Swagger)** con la misma arquitectura, manejo de errores y controladores de **`Esate-Loop`**, optimizado para alto rendimiento y máxima seguridad.
+Backend de producción para la agencia de viajes y plataforma de recompensas por referidos, construido sobre **Node.js, Express, MongoDB (Mongoose), JWT, OpenAPI 3.0 (Swagger)** con la misma arquitectura, manejo de errores y controladores de **`Esate-Loop`**, optimizado para alto rendimiento y máxima seguridad.
 
 ---
 
@@ -115,7 +115,7 @@ backend/
 - **Mongoose Indexing**: Índices compuestos y sparse en campos clave (`email`, `username`, `referralCode`, `referredBy`, `status`, `priceUSD`, `isActive`, `createdAt`).
 - **Lean Queries**: Consultas de solo lectura con `.lean()` para evitar la sobrecarga de documentos Mongoose.
 - **Compresión Gzip (`compression`)**: Respuestas comprimidas para menor latencia.
-- **Upline Ancestor Array**: Búsqueda en O(1) de líneas ascendentes para la asignación instantánea de comisiones multinivel.
+- **Upline Ancestor Array**: Búsqueda en O(1) de líneas ascendentes para la asignación instantánea de comisiones de red.
 
 ---
 

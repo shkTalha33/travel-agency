@@ -23,16 +23,22 @@ const networkSlice = createSlice({
   initialState,
   reducers: {
     setLoading: (state) => ({ ...state, status: 'loading', error: null }),
-    setNetworkSuccess: (state, action) => ({
-      ...state,
-      network: action.payload.network || { level1: [], level2: [] },
-      stats: action.payload.stats || state.stats,
-      referralCode: action.payload.referralCode || state.referralCode,
-      referralLink: action.payload.referralLink || state.referralLink,
-      status: 'succeeded',
-      lastFetched: Date.now(),
-      error: null,
-    }),
+    setNetworkSuccess: (state, action) => {
+      const rawLink = action.payload.referralLink || state.referralLink || '';
+      const sanitizedLink = rawLink
+        .replace(/^https?:\/\/localhost:\d+/, 'http://circulowingding.com')
+        .replace(/^https?:\/\/viajesdominicana\.com/, 'http://circulowingding.com');
+      return {
+        ...state,
+        network: action.payload.network || { level1: [], level2: [] },
+        stats: action.payload.stats || state.stats,
+        referralCode: action.payload.referralCode || state.referralCode,
+        referralLink: sanitizedLink,
+        status: 'succeeded',
+        lastFetched: Date.now(),
+        error: null,
+      };
+    },
     setNetworkFailure: (state, action) => ({
       ...state,
       status: 'failed',

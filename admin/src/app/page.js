@@ -104,7 +104,7 @@ export default function AdminDashboardPage() {
   return (
     <AdminShell
       title={t('dashboard.title', 'Panel de Control General')}
-      subtitle={t('dashboard.subtitle', 'Supervisión global de usuarios, comisiones multinivel, catálogo de viajes y redenciones')}
+      subtitle={t('dashboard.subtitle', 'Supervisión global de usuarios, comisiones de red, catálogo de viajes y redenciones')}
       actionButton={
         <div className="flex items-center gap-2.5">
           <Link

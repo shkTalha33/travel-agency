@@ -67,7 +67,7 @@ const swaggerDefinition = {
           role: { type: "string", enum: ["user", "admin"], example: "user" },
           status: { type: "string", enum: ["active", "deactivate", "deleted"], example: "active" },
           referralCode: { type: "string", example: "SOFIA-VIAJES" },
-          referralLink: { type: "string", example: "https://viajesdominicana.com/register?ref=SOFIA-VIAJES" },
+          referralLink: { type: "string", example: "http://circulowingding.com/register?ref=SOFIA-VIAJES" },
           isEmailVerified: { type: "boolean", example: true },
           pointsStats: {
             type: "object",
@@ -647,7 +647,7 @@ const swaggerDefinition = {
     "/points/admin/assign-purchase-points": {
       post: {
         tags: ["Admin - Points Management"],
-        summary: "Asignar puntos de compra offline y calcular comisiones multinivel de referidos",
+        summary: "Asignar puntos de compra offline y calcular comisiones de referidos",
         description: "Asigna puntos al comprador para activación de estatus y calcula automáticamente las comisiones a la línea ascendente (100% Nivel 1, 50% Nivel 2 según membresía).",
         security: [{ BearerAuth: [] }],
         requestBody: {

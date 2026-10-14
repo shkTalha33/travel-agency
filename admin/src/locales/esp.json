@@ -55,7 +55,7 @@
   },
   "dashboard": {
     "title": "Panel de Control General",
-    "subtitle": "Supervisión global de usuarios, comisiones multinivel, catálogo de viajes y redenciones",
+    "subtitle": "Supervisión global de usuarios, comisiones de red, catálogo de viajes y redenciones",
     "totalMembers": "Total Miembros",
     "issuedPoints": "Puntos Emitidos",
     "redeemedPoints": "Puntos Redimidos",
@@ -186,9 +186,9 @@
   },
   "points": {
     "title": "Libro Mayor de Puntos & Asignación de Comisiones",
-    "subtitle": "Registro de compras offline, activación de miembros y liquidación de comisiones multinivel (L1 / L2)",
+    "subtitle": "Registro de compras offline, activación de miembros y liquidación de comisiones de red (L1 / L2)",
     "assignBtn": "Asignar Puntos de Venta",
-    "rulesTitle": "Reglas de Comisiones Multinivel",
+    "rulesTitle": "Reglas de Comisiones de Red",
     "rulesDesc": "Al registrar una compra: el patrocinador directo (Nivel 1) recibe el 100% de los puntos y el patrocinador superior (Nivel 2) recibe el 50%, sujeto al nivel de membresía.",
     "allTransactions": "Todas las Transacciones",
     "l1Commissions": "Comisión Nivel 1 (100%)",
@@ -219,7 +219,7 @@
     "confirmAndAssign": "Confirmar y Asignar Puntos",
     "calculating": "Calculando y Asignando...",
     "successDistributed": "¡Comisiones Distribuidas Exitosamente!",
-    "uplinesAwarded": "Comisiones Multinivel Asignadas a la Línea Ascendente:",
+    "uplinesAwarded": "Comisiones de Red Asignadas a la Línea Ascendente:",
     "appliedRate": "Tasa aplicada",
     "noUpline": "El comprador no tiene patrocinadores calificados en su línea ascendente."
   },
@@ -278,7 +278,7 @@
     "commissionN2": "Comisión N2:",
     "benefits": "Beneficios:",
     "qualification": "Calificación:",
-    "simulatorTitle": "Simulador de Comisiones de Compra Multinivel",
+    "simulatorTitle": "Simulador de Comisiones de Compra en Red",
     "simulatorDesc": "Pruebe cómo el motor de comisiones distribuye los puntos a la línea ascendente según el nivel de cada sponsor",
     "simPackagePoints": "Puntos del Paquete Comprado (PTS)",
     "simL1Tier": "Membresía del Patrocinador Directo (N1)",
